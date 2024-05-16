@@ -1,0 +1,9 @@
+﻿pc/build-TinyBusLoader-Desktop_Qt_6_7_0_MinGW_64_bit-Debug
+application/Dimmermodul_Rev2.2/Dimmermodul/Debug
+application/luftreiniger_app/Luftreiniger/Debug
+documentation/BackupFiles
+kernel/attiny841_teelicht/Debug
+*.idea
+*.vs
+kernel/_test/cmake-build-debug
+kernel/attiny841/Debug

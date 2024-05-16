@@ -1,0 +1,51 @@
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+
+#include <QMainWindow>
+#include <QMap>
+
+#include "logic/connection.h"
+#include "logic/device.h"
+#include "logic/tinyBus.h"
+
+QT_BEGIN_NAMESPACE
+namespace Ui { class MainWindow; }
+QT_END_NAMESPACE
+
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    MainWindow(QWidget *parent = nullptr);
+    ~MainWindow();
+
+    void selectDevice(Device *device);
+
+private slots:
+    void on_deviceListChanged(void);
+    void on_updateQueueChanged(void);
+    void on_deviceChanged(Device *device);
+    void on_hexFileChanged(void);
+    void on_message(QString message);
+
+    void on_pushButton_connect_clicked();
+    void on_pushButton_disconnect_clicked();
+    void on_pushButton_clear_clicked();
+    void on_pushButton_startScan_clicked();
+    void on_pushButton_abortScan_clicked();
+
+    void on_listWidget_devices_currentRowChanged(int currentRow);
+    void on_pushButton_selectFile_clicked();
+    void on_pushButton_upload_clicked();
+    void on_lineEdit_firmwarePath_textChanged(const QString &arg1);
+
+private:
+    Ui::MainWindow *ui;
+    Connection* _connection = nullptr;
+    TinyBus _tinyBus = TinyBus();
+    Device *_selectedDevice = nullptr;
+
+    void _update(void);
+};
+#endif // MAINWINDOW_H

@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {},
+	{
+		"grammarly.files.include": ["**/README.md", "**/readme.md", "**/*.html"]
+	}
+}

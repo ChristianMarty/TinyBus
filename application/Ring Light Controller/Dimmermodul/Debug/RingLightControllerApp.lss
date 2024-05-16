@@ -1,0 +1,566 @@
+
+RingLightControllerApp.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .data         00000000  00800180  00800180  00000270  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  1 .text         000001d8  00000a00  00000a00  00000094  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .shared       00000004  00800100  00800100  0000026c  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  3 .bss          00000004  00800180  00800180  00000270  2**0
+                  ALLOC
+  4 .comment      00000030  00000000  00000000  00000270  2**0
+                  CONTENTS, READONLY
+  5 .debug_aranges 00000098  00000000  00000000  000002a0  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_info   0000063d  00000000  00000000  00000338  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_abbrev 0000030b  00000000  00000000  00000975  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_line   00000561  00000000  00000000  00000c80  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_frame  00000104  00000000  00000000  000011e4  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_str    0000034b  00000000  00000000  000012e8  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_loc    00000459  00000000  00000000  00001633  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_ranges 00000080  00000000  00000000  00001a8c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000a00 <InterruptVectorTable>:
+#include <stdbool.h>
+
+void InterruptVectorTable(void)  __attribute__ ((naked))  __attribute__ ((section (".vectors")));
+void InterruptVectorTable(void)
+{
+	asm("rjmp app_main"); //Main
+ a00:	a9 c0       	rjmp	.+338    	; 0xb54 <app_main>
+	asm("rjmp dummy_interruptHandler");	//INT0
+ a02:	a3 c0       	rjmp	.+326    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler");	//PCINT0
+ a04:	a2 c0       	rjmp	.+324    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler");	//PCINT1
+ a06:	a1 c0       	rjmp	.+322    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler");	//WDT
+ a08:	a0 c0       	rjmp	.+320    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //TIM1_CAPT
+ a0a:	9f c0       	rjmp	.+318    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //TIM1_COMPA
+ a0c:	9e c0       	rjmp	.+316    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //TIM1_COMPB
+ a0e:	9d c0       	rjmp	.+314    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //TIM1_OVF
+ a10:	9c c0       	rjmp	.+312    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //TIM0_COMPA
+ a12:	9b c0       	rjmp	.+310    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //TIM0_COMPB
+ a14:	9a c0       	rjmp	.+308    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler");	//TIM0_OVF
+ a16:	99 c0       	rjmp	.+306    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //ANA_COMP0
+ a18:	98 c0       	rjmp	.+304    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //ADC_READY
+ a1a:	97 c0       	rjmp	.+302    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //EE_RDY
+ a1c:	96 c0       	rjmp	.+300    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //ANA_COMP1
+ a1e:	95 c0       	rjmp	.+298    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //TIM2_CAPT
+ a20:	94 c0       	rjmp	.+296    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //TIM2_COMPA
+ a22:	93 c0       	rjmp	.+294    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //TIM2_COMPB
+ a24:	92 c0       	rjmp	.+292    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //TIM2_OVF
+ a26:	91 c0       	rjmp	.+290    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //SPI
+ a28:	90 c0       	rjmp	.+288    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //USART0_RXS
+ a2a:	8f c0       	rjmp	.+286    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler");	//USART0_RXC
+ a2c:	8e c0       	rjmp	.+284    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //USART0_DRE
+ a2e:	8d c0       	rjmp	.+282    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler");	//USART0_TXC
+ a30:	8c c0       	rjmp	.+280    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //USART1_RXS
+ a32:	8b c0       	rjmp	.+278    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //USART1_RXC
+ a34:	8a c0       	rjmp	.+276    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //USART1_DRE
+ a36:	89 c0       	rjmp	.+274    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //USART1_TXC
+ a38:	88 c0       	rjmp	.+272    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //TWI
+ a3a:	87 c0       	rjmp	.+270    	; 0xb4a <dummy_interruptHandler>
+	asm("rjmp dummy_interruptHandler"); //RESERVED
+ a3c:	86 c0       	rjmp	.+268    	; 0xb4a <dummy_interruptHandler>
+
+	asm("rjmp app_com_receive_data");
+ a3e:	92 c0       	rjmp	.+292    	; 0xb64 <app_com_receive_data>
+	asm("rjmp app_5ms_tick");
+ a40:	ca c0       	rjmp	.+404    	; 0xbd6 <app_5ms_tick>
+
+00000a42 <__ctors_end>:
+ a42:	21 e0       	ldi	r18, 0x01	; 1
+ a44:	a0 e8       	ldi	r26, 0x80	; 128
+ a46:	b1 e0       	ldi	r27, 0x01	; 1
+ a48:	01 c0       	rjmp	.+2      	; 0xa4c <.do_clear_bss_start>
+
+00000a4a <.do_clear_bss_loop>:
+ a4a:	1d 92       	st	X+, r1
+
+00000a4c <.do_clear_bss_start>:
+ a4c:	a4 38       	cpi	r26, 0x84	; 132
+ a4e:	b2 07       	cpc	r27, r18
+ a50:	e1 f7       	brne	.-8      	; 0xa4a <.do_clear_bss_loop>
+
+00000a52 <analog_init>:
+uint16_t adc_voltage = 0;
+uint16_t adc_temperature = 0;
+
+void analog_init(void)
+{
+	DIDR0 = 0x10; // Disable digital input buffer for ADC pins 
+ a52:	80 e1       	ldi	r24, 0x10	; 16
+ a54:	80 93 60 00 	sts	0x0060, r24	; 0x800060 <__DATA_REGION_ORIGIN__>
+	ADCSRB = 0b00001000;
+ a58:	88 e0       	ldi	r24, 0x08	; 8
+ a5a:	84 b9       	out	0x04, r24	; 4
+	ADCSRA = 0b10010100;
+ a5c:	84 e9       	ldi	r24, 0x94	; 148
+ a5e:	85 b9       	out	0x05, r24	; 5
+	
+	adc_voltage = 0;
+ a60:	10 92 83 01 	sts	0x0183, r1	; 0x800183 <adc_voltage+0x1>
+ a64:	10 92 82 01 	sts	0x0182, r1	; 0x800182 <adc_voltage>
+	adc_temperature = 0;
+ a68:	10 92 81 01 	sts	0x0181, r1	; 0x800181 <_edata+0x1>
+ a6c:	10 92 80 01 	sts	0x0180, r1	; 0x800180 <_edata>
+ a70:	08 95       	ret
+
+00000a72 <analog_read_voltage>:
+}
+
+// Returns Voltage reading in 10mV 
+uint16_t analog_read_voltage(void)
+{	
+	ADMUXB = 0x60; // Set reference to 4.096V and Gain to 1
+ a72:	80 e6       	ldi	r24, 0x60	; 96
+ a74:	88 b9       	out	0x08, r24	; 8
+	ADMUXA = 4; // Set ADC input MUX to Single ended ADC4
+ a76:	84 e0       	ldi	r24, 0x04	; 4
+ a78:	89 b9       	out	0x09, r24	; 9
+
+	// Dummy Conversion
+	ADCSRA |= 0x40; // Start ADC Conversion
+ a7a:	2e 9a       	sbi	0x05, 6	; 5
+	while((ADCSRA&0x10) == 0); // Wait for ADC Conversion to finish
+ a7c:	2c 9b       	sbis	0x05, 4	; 5
+ a7e:	fe cf       	rjmp	.-4      	; 0xa7c <analog_read_voltage+0xa>
+	ADCSRA  |= 0x10; // Clear flag
+ a80:	2c 9a       	sbi	0x05, 4	; 5
+ a82:	95 e1       	ldi	r25, 0x15	; 21
+	
+	uint16_t ADC_measurement = 0;
+ a84:	20 e0       	ldi	r18, 0x00	; 0
+ a86:	30 e0       	ldi	r19, 0x00	; 0
+	
+	for(uint8_t i = 0 ; i<21; i++) // resistive divider is 1/21 so take and sum 21 samples
+	{
+		ADCSRA |= 0x40; // Start ADC Conversion
+ a88:	2e 9a       	sbi	0x05, 6	; 5
+		while((ADCSRA&0x10) == 0); // Wait for ADC Conversion to finish 
+ a8a:	2c 9b       	sbis	0x05, 4	; 5
+ a8c:	fe cf       	rjmp	.-4      	; 0xa8a <analog_read_voltage+0x18>
+		
+		ADC_measurement +=  ADCH;
+ a8e:	87 b1       	in	r24, 0x07	; 7
+ a90:	28 0f       	add	r18, r24
+ a92:	31 1d       	adc	r19, r1
+		
+		ADCSRA  |= 0x10; // Clear flag
+ a94:	2c 9a       	sbi	0x05, 4	; 5
+ a96:	91 50       	subi	r25, 0x01	; 1
+	while((ADCSRA&0x10) == 0); // Wait for ADC Conversion to finish
+	ADCSRA  |= 0x10; // Clear flag
+	
+	uint16_t ADC_measurement = 0;
+	
+	for(uint8_t i = 0 ; i<21; i++) // resistive divider is 1/21 so take and sum 21 samples
+ a98:	b9 f7       	brne	.-18     	; 0xa88 <analog_read_voltage+0x16>
+		ADCSRA  |= 0x10; // Clear flag
+	}
+	ADC_measurement = ADC_measurement *16;   // convert result to 1mV resolution
+	
+	return ADC_measurement;
+ a9a:	c9 01       	movw	r24, r18
+ a9c:	82 95       	swap	r24
+ a9e:	92 95       	swap	r25
+ aa0:	90 7f       	andi	r25, 0xF0	; 240
+ aa2:	98 27       	eor	r25, r24
+ aa4:	80 7f       	andi	r24, 0xF0	; 240
+ aa6:	98 27       	eor	r25, r24
+ aa8:	08 95       	ret
+
+00000aaa <BH2221FV_send>:
+}
+	
+
+void BH2221FV_send(uint8_t channel, uint8_t data)
+{
+	if(channel < 1) return;
+ aaa:	9f ef       	ldi	r25, 0xFF	; 255
+ aac:	98 0f       	add	r25, r24
+ aae:	9c 30       	cpi	r25, 0x0C	; 12
+ ab0:	08 f5       	brcc	.+66     	; 0xaf4 <BH2221FV_send+0x4a>
+	if(channel > 12) return;
+	
+	LdLow();
+ ab2:	da 98       	cbi	0x1b, 2	; 27
+	ClockLow();
+ ab4:	9b b3       	in	r25, 0x1b	; 27
+ ab6:	97 70       	andi	r25, 0x07	; 7
+ ab8:	9b bb       	out	0x1b, r25	; 27
+	DataLow();
+ aba:	d9 98       	cbi	0x1b, 1	; 27
+ abc:	24 e0       	ldi	r18, 0x04	; 4
+	
+	// send address
+	for(uint8_t i = 0; i<4; i++)
+	{
+		ClockLow();
+ abe:	9b b3       	in	r25, 0x1b	; 27
+ ac0:	97 70       	andi	r25, 0x07	; 7
+ ac2:	9b bb       	out	0x1b, r25	; 27
+		
+		if(channel & 0x01) DataHigh();
+ ac4:	80 ff       	sbrs	r24, 0
+ ac6:	02 c0       	rjmp	.+4      	; 0xacc <BH2221FV_send+0x22>
+ ac8:	d9 9a       	sbi	0x1b, 1	; 27
+ aca:	01 c0       	rjmp	.+2      	; 0xace <BH2221FV_send+0x24>
+		else DataLow();
+ acc:	d9 98       	cbi	0x1b, 1	; 27
+		channel = channel>>1;
+ ace:	86 95       	lsr	r24
+		
+		ClockHigh();
+ ad0:	db 9a       	sbi	0x1b, 3	; 27
+ ad2:	21 50       	subi	r18, 0x01	; 1
+	LdLow();
+	ClockLow();
+	DataLow();
+	
+	// send address
+	for(uint8_t i = 0; i<4; i++)
+ ad4:	a1 f7       	brne	.-24     	; 0xabe <BH2221FV_send+0x14>
+ ad6:	98 e0       	ldi	r25, 0x08	; 8
+	}
+	
+	// send data
+	for(uint8_t i = 0; i<8; i++)
+	{
+		ClockLow();
+ ad8:	8b b3       	in	r24, 0x1b	; 27
+ ada:	87 70       	andi	r24, 0x07	; 7
+ adc:	8b bb       	out	0x1b, r24	; 27
+		
+		if(data & 0x80) DataHigh();
+ ade:	66 23       	and	r22, r22
+ ae0:	14 f4       	brge	.+4      	; 0xae6 <BH2221FV_send+0x3c>
+ ae2:	d9 9a       	sbi	0x1b, 1	; 27
+ ae4:	01 c0       	rjmp	.+2      	; 0xae8 <BH2221FV_send+0x3e>
+		else DataLow();
+ ae6:	d9 98       	cbi	0x1b, 1	; 27
+		data = data<<1;
+ ae8:	66 0f       	add	r22, r22
+		
+		ClockHigh();
+ aea:	db 9a       	sbi	0x1b, 3	; 27
+ aec:	91 50       	subi	r25, 0x01	; 1
+		
+		ClockHigh();
+	}
+	
+	// send data
+	for(uint8_t i = 0; i<8; i++)
+ aee:	a1 f7       	brne	.-24     	; 0xad8 <BH2221FV_send+0x2e>
+		data = data<<1;
+		
+		ClockHigh();
+	}
+	
+	LdHigh();
+ af0:	da 9a       	sbi	0x1b, 2	; 27
+	LdLow();
+ af2:	da 98       	cbi	0x1b, 2	; 27
+ af4:	08 95       	ret
+
+00000af6 <BH2221FV_sendAll>:
+#define  LdLow() (PORTA &= 0xFB)
+#define  LdHigh() (PORTA |= 0x04)
+
+
+void BH2221FV_sendAll( uint8_t *data)
+{
+ af6:	cf 93       	push	r28
+ af8:	df 93       	push	r29
+ afa:	ec 01       	movw	r28, r24
+	BH2221FV_send(1,data[0]);
+ afc:	68 81       	ld	r22, Y
+ afe:	81 e0       	ldi	r24, 0x01	; 1
+ b00:	d4 df       	rcall	.-88     	; 0xaaa <BH2221FV_send>
+	BH2221FV_send(2,data[1]);
+ b02:	69 81       	ldd	r22, Y+1	; 0x01
+ b04:	82 e0       	ldi	r24, 0x02	; 2
+ b06:	d1 df       	rcall	.-94     	; 0xaaa <BH2221FV_send>
+	BH2221FV_send(3,data[2]);
+ b08:	6a 81       	ldd	r22, Y+2	; 0x02
+ b0a:	83 e0       	ldi	r24, 0x03	; 3
+ b0c:	ce df       	rcall	.-100    	; 0xaaa <BH2221FV_send>
+	BH2221FV_send(4,data[3]);
+ b0e:	6b 81       	ldd	r22, Y+3	; 0x03
+ b10:	84 e0       	ldi	r24, 0x04	; 4
+ b12:	cb df       	rcall	.-106    	; 0xaaa <BH2221FV_send>
+	BH2221FV_send(5,data[4]);
+ b14:	6c 81       	ldd	r22, Y+4	; 0x04
+ b16:	85 e0       	ldi	r24, 0x05	; 5
+ b18:	c8 df       	rcall	.-112    	; 0xaaa <BH2221FV_send>
+	BH2221FV_send(6,data[5]);
+ b1a:	6d 81       	ldd	r22, Y+5	; 0x05
+ b1c:	86 e0       	ldi	r24, 0x06	; 6
+ b1e:	c5 df       	rcall	.-118    	; 0xaaa <BH2221FV_send>
+	BH2221FV_send(7,data[6]);
+ b20:	6e 81       	ldd	r22, Y+6	; 0x06
+ b22:	87 e0       	ldi	r24, 0x07	; 7
+ b24:	c2 df       	rcall	.-124    	; 0xaaa <BH2221FV_send>
+	BH2221FV_send(8,data[7]);
+ b26:	6f 81       	ldd	r22, Y+7	; 0x07
+ b28:	88 e0       	ldi	r24, 0x08	; 8
+ b2a:	bf df       	rcall	.-130    	; 0xaaa <BH2221FV_send>
+	BH2221FV_send(9,data[8]);
+ b2c:	68 85       	ldd	r22, Y+8	; 0x08
+ b2e:	89 e0       	ldi	r24, 0x09	; 9
+ b30:	bc df       	rcall	.-136    	; 0xaaa <BH2221FV_send>
+	BH2221FV_send(10,data[9]);
+ b32:	69 85       	ldd	r22, Y+9	; 0x09
+ b34:	8a e0       	ldi	r24, 0x0A	; 10
+ b36:	b9 df       	rcall	.-142    	; 0xaaa <BH2221FV_send>
+	BH2221FV_send(11,data[10]);
+ b38:	6a 85       	ldd	r22, Y+10	; 0x0a
+ b3a:	8b e0       	ldi	r24, 0x0B	; 11
+ b3c:	b6 df       	rcall	.-148    	; 0xaaa <BH2221FV_send>
+	BH2221FV_send(12,data[11]);	
+ b3e:	6b 85       	ldd	r22, Y+11	; 0x0b
+ b40:	8c e0       	ldi	r24, 0x0C	; 12
+ b42:	b3 df       	rcall	.-154    	; 0xaaa <BH2221FV_send>
+}
+ b44:	df 91       	pop	r29
+ b46:	cf 91       	pop	r28
+ b48:	08 95       	ret
+
+00000b4a <dummy_interruptHandler>:
+}
+
+void dummy_interruptHandler (void)
+{
+ b4a:	ff cf       	rjmp	.-2      	; 0xb4a <dummy_interruptHandler>
+
+00000b4c <com_transmit_data>:
+
+typedef void (*PF_UINT82PB)(uint8_t,uint8_t*,uint8_t,bool);
+
+ void com_transmit_data(uint8_t instruction_byte, uint8_t *data, uint8_t size, bool is_nAck)
+{
+	((PF_UINT82PB) (COM_TRANSMIT_DATA_ADDR))(instruction_byte, data, size, is_nAck);
+ b4c:	e0 e2       	ldi	r30, 0x20	; 32
+ b4e:	f0 e0       	ldi	r31, 0x00	; 0
+ b50:	09 95       	icall
+ b52:	08 95       	ret
+
+00000b54 <app_main>:
+
+volatile shared_t shared __attribute__((section (".shared")));
+
+void app_main(void)
+{
+	if(shared.deviceState == APP_START)
+ b54:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <shared+0x3>
+ b58:	83 30       	cpi	r24, 0x03	; 3
+ b5a:	09 f4       	brne	.+2      	; 0xb5e <app_main+0xa>
+	{
+		analog_init();
+ b5c:	7a df       	rcall	.-268    	; 0xa52 <analog_init>
+	}
+	
+	// Add main code here
+	
+	if(shared.deviceState == APP_SHUTDOWN)
+ b5e:	80 91 03 01 	lds	r24, 0x0103	; 0x800103 <shared+0x3>
+ b62:	08 95       	ret
+
+00000b64 <app_com_receive_data>:
+	}
+}
+
+// Com RX Complete Call Back
+void app_com_receive_data(uint8_t instruction, uint8_t *data, uint8_t size, bool broadcast)
+{
+ b64:	0f 93       	push	r16
+ b66:	1f 93       	push	r17
+ b68:	cf 93       	push	r28
+ b6a:	df 93       	push	r29
+ b6c:	00 d0       	rcall	.+0      	; 0xb6e <app_com_receive_data+0xa>
+ b6e:	00 d0       	rcall	.+0      	; 0xb70 <app_com_receive_data+0xc>
+ b70:	cd b7       	in	r28, 0x3d	; 61
+ b72:	de b7       	in	r29, 0x3e	; 62
+ b74:	18 2f       	mov	r17, r24
+ b76:	02 2f       	mov	r16, r18
+	uint8_t ack_data[4];
+	uint8_t cmd_error = 0;
+	uint8_t ack_size = 0;
+		
+	switch(instruction)
+ b78:	8d 30       	cpi	r24, 0x0D	; 13
+ b7a:	18 f4       	brcc	.+6      	; 0xb82 <app_com_receive_data+0x1e>
+ b7c:	81 30       	cpi	r24, 0x01	; 1
+ b7e:	20 f0       	brcs	.+8      	; 0xb88 <app_com_receive_data+0x24>
+ b80:	08 c0       	rjmp	.+16     	; 0xb92 <app_com_receive_data+0x2e>
+ b82:	8e 30       	cpi	r24, 0x0E	; 14
+ b84:	61 f0       	breq	.+24     	; 0xb9e <app_com_receive_data+0x3a>
+ b86:	11 c0       	rjmp	.+34     	; 0xbaa <app_com_receive_data+0x46>
+	{
+		// Set single PWM channel
+		case 0:
+		BH2221FV_sendAll(data); break;
+ b88:	cb 01       	movw	r24, r22
+ b8a:	b5 df       	rcall	.-150    	; 0xaf6 <BH2221FV_sendAll>
+// Com RX Complete Call Back
+void app_com_receive_data(uint8_t instruction, uint8_t *data, uint8_t size, bool broadcast)
+{
+	uint8_t ack_data[4];
+	uint8_t cmd_error = 0;
+	uint8_t ack_size = 0;
+ b8c:	40 e0       	ldi	r20, 0x00	; 0
+
+// Com RX Complete Call Back
+void app_com_receive_data(uint8_t instruction, uint8_t *data, uint8_t size, bool broadcast)
+{
+	uint8_t ack_data[4];
+	uint8_t cmd_error = 0;
+ b8e:	80 e0       	ldi	r24, 0x00	; 0
+		
+	switch(instruction)
+	{
+		// Set single PWM channel
+		case 0:
+		BH2221FV_sendAll(data); break;
+ b90:	0e c0       	rjmp	.+28     	; 0xbae <app_com_receive_data+0x4a>
+		case 8: 
+		case 9: 
+		case 10: 
+		case 11: 
+		case 12: 
+		BH2221FV_send(instruction,data[0]); break;
+ b92:	fb 01       	movw	r30, r22
+ b94:	60 81       	ld	r22, Z
+ b96:	89 df       	rcall	.-238    	; 0xaaa <BH2221FV_send>
+// Com RX Complete Call Back
+void app_com_receive_data(uint8_t instruction, uint8_t *data, uint8_t size, bool broadcast)
+{
+	uint8_t ack_data[4];
+	uint8_t cmd_error = 0;
+	uint8_t ack_size = 0;
+ b98:	40 e0       	ldi	r20, 0x00	; 0
+
+// Com RX Complete Call Back
+void app_com_receive_data(uint8_t instruction, uint8_t *data, uint8_t size, bool broadcast)
+{
+	uint8_t ack_data[4];
+	uint8_t cmd_error = 0;
+ b9a:	80 e0       	ldi	r24, 0x00	; 0
+		case 8: 
+		case 9: 
+		case 10: 
+		case 11: 
+		case 12: 
+		BH2221FV_send(instruction,data[0]); break;
+ b9c:	08 c0       	rjmp	.+16     	; 0xbae <app_com_receive_data+0x4a>
+
+		
+		// Voltage / Current
+		case 14: {
+				uint16_t v_read = analog_read_voltage();
+ b9e:	69 df       	rcall	.-302    	; 0xa72 <analog_read_voltage>
+				
+				// Returns the Voltage reading in 1mV
+				ack_data[0] = (uint8_t) (v_read>>8);
+ ba0:	99 83       	std	Y+1, r25	; 0x01
+				ack_data[1] = (uint8_t) (v_read & 0x00FF);
+ ba2:	8a 83       	std	Y+2, r24	; 0x02
+				ack_size = 2;
+ ba4:	42 e0       	ldi	r20, 0x02	; 2
+
+// Com RX Complete Call Back
+void app_com_receive_data(uint8_t instruction, uint8_t *data, uint8_t size, bool broadcast)
+{
+	uint8_t ack_data[4];
+	uint8_t cmd_error = 0;
+ ba6:	80 e0       	ldi	r24, 0x00	; 0
+				
+				// Returns the Voltage reading in 1mV
+				ack_data[0] = (uint8_t) (v_read>>8);
+				ack_data[1] = (uint8_t) (v_read & 0x00FF);
+				ack_size = 2;
+				break;
+ ba8:	02 c0       	rjmp	.+4      	; 0xbae <app_com_receive_data+0x4a>
+// Com RX Complete Call Back
+void app_com_receive_data(uint8_t instruction, uint8_t *data, uint8_t size, bool broadcast)
+{
+	uint8_t ack_data[4];
+	uint8_t cmd_error = 0;
+	uint8_t ack_size = 0;
+ baa:	40 e0       	ldi	r20, 0x00	; 0
+				break;
+		}
+						
+		// Command not found
+		default:
+				cmd_error++;
+ bac:	81 e0       	ldi	r24, 0x01	; 1
+				break;
+	}
+		
+	if(!broadcast) com_transmit_data(instruction, &ack_data[0], ack_size, cmd_error);
+ bae:	01 11       	cpse	r16, r1
+ bb0:	09 c0       	rjmp	.+18     	; 0xbc4 <app_com_receive_data+0x60>
+ bb2:	21 e0       	ldi	r18, 0x01	; 1
+ bb4:	81 11       	cpse	r24, r1
+ bb6:	01 c0       	rjmp	.+2      	; 0xbba <app_com_receive_data+0x56>
+ bb8:	20 e0       	ldi	r18, 0x00	; 0
+ bba:	be 01       	movw	r22, r28
+ bbc:	6f 5f       	subi	r22, 0xFF	; 255
+ bbe:	7f 4f       	sbci	r23, 0xFF	; 255
+ bc0:	81 2f       	mov	r24, r17
+ bc2:	c4 df       	rcall	.-120    	; 0xb4c <com_transmit_data>
+}
+ bc4:	0f 90       	pop	r0
+ bc6:	0f 90       	pop	r0
+ bc8:	0f 90       	pop	r0
+ bca:	0f 90       	pop	r0
+ bcc:	df 91       	pop	r29
+ bce:	cf 91       	pop	r28
+ bd0:	1f 91       	pop	r17
+ bd2:	0f 91       	pop	r16
+ bd4:	08 95       	ret
+
+00000bd6 <app_5ms_tick>:
+
+void app_5ms_tick(void)
+{
+ bd6:	08 95       	ret
