@@ -11,14 +11,15 @@
 #ifndef MAIN_DRIVER_H_
 #define MAIN_DRIVER_H_
 
-#define INTERRUPT_VECTOR_TABLE_SIZE 30 // Number of Interrupt Vectors
+#define AppHeaderByteOffset 0x20
+#define AppInterruptVectorTableSize 30 // Number of Interrupt Vectors
 #define AppBaseWordAddress (AppBaseByteAddress / 2)
+#define AppEntrypoint (AppBaseWordAddress+(AppHeaderByteOffset/2))
 
 // Shared Function Callbacks
-#define APP_MAIN (AppBaseWordAddress)
-
-#define APP_COM_RECEIVE_DATA_ADDR (AppBaseWordAddress+INTERRUPT_VECTOR_TABLE_SIZE+1)
-#define APP_5MS_TICK_ADDR (AppBaseWordAddress+INTERRUPT_VECTOR_TABLE_SIZE+2)
+#define APP_MAIN (AppEntrypoint)
+#define APP_COM_RECEIVE_DATA_ADDR (AppEntrypoint+AppInterruptVectorTableSize+1)
+#define APP_5MS_TICK_ADDR (AppEntrypoint+AppInterruptVectorTableSize+2)
 
 typedef void (*PF_MAIN)(void);
 static inline void app_main (void)

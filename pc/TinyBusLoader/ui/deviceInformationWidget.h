@@ -27,6 +27,9 @@ private slots:
     void on_pushButton_getCrc_clicked();
     void on_pushButton_reset_clicked();
 
+    void on_pushButton_getName_clicked();
+    void on_pushButton_getVersion_clicked();
+
 private:
     Ui::DeviceInformationWidget *ui;
     Device *_device = nullptr;

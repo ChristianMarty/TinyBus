@@ -100,17 +100,22 @@ void Device::requestApplicationStop(void)
     _sendKernelCommand(KernelCommand::CMD_APP_STOP, QByteArray());
 }
 
+void Device::requestApplicationName()
+{
+    emit newMessage("---- Request Application Name ----");
+    _sendKernelCommand(KernelCommand::CMD_GET_APP_NAME, QByteArray());
+}
+
+void Device::requestApplicationVerion()
+{
+    emit newMessage("---- Request Application Version ----");
+    _sendKernelCommand(KernelCommand::CMD_GET_APP_VERSION, QByteArray());
+}
+
 void Device::startUpload(void)
 {
-    QuCLib::HexFileParser::binaryChunk binary = _tinyBus->hexFile().binary().at(0);
-    _appCrc16_write = QuCLib::Crc::crc16(binary.data);
-
-    for(uint16_t i = 0; i < (_bootSystemInformation.applicationSize-binary.data.size())-2; i++)
-    {
-        _appCrc16_write = QuCLib::Crc::crc16_addByte(_appCrc16_write,(uint8_t)0xFF);
-    }
-
-    _eraseAppSection();
+    _updateState.state = Device::UpdateState::StartUpload;
+    _handleUpload();
 }
 
 void Device::abortUpload(void)
@@ -140,9 +145,15 @@ void Device::newData(QByteArray data)
             case KernelCommand::CMD_GET_DEVICE_STATE : _decodeDeviceState(data.remove(0,2)); break;
             case KernelCommand::CMD_GET_DEVICE_INFO : _decodeDeviceInformation(data.remove(0,2)); break;
             case KernelCommand::CMD_GET_APP_CRC  : _decodeAppCrc(data.remove(0,2)); break;
-            case KernelCommand::CMD_ERASE_APP: _writeNextPage(true); break;
-            case KernelCommand::CMD_WRITE_PAGE: _writeNextPage(false); break;
+
+            //case KernelCommand::CMD_ERASE_APP: _writeNextPage(true); break;
+            //case KernelCommand::CMD_WRITE_PAGE: _writeNextPage(false); break;
+
+            case KernelCommand::CMD_GET_APP_NAME: _decodeApplicationName(data.remove(0,2)); break;
+            case KernelCommand::CMD_GET_APP_VERSION: _decodeApplicationVerion(data.remove(0,2)); break;
         }
+
+        _handleUpload();
     }
 }
 
@@ -161,6 +172,12 @@ uint16_t Device::crc() const
     return _crc;
 }
 
+void Device::setUpdatePending()
+{
+    _updateState.state = Device::UpdateState::Pending;
+    _updateState.progress = 0;
+}
+
 bool Device::selectedForUpdate() const
 {
     return _selectedForUpdate;
@@ -169,6 +186,16 @@ bool Device::selectedForUpdate() const
 const Device::UpdateState &Device::updateState() const
 {
     return _updateState;
+}
+
+const Device::Version &Device::firmwareVersion() const
+{
+    return _firmwareVersion;
+}
+
+const QString &Device::firmwareName() const
+{
+    return _firmwareName;
 }
 
 void Device::_sendFrame(uint8_t command)
@@ -196,35 +223,25 @@ void Device::_sendKernelCommand(KernelCommand command, QByteArray data)
 
 void Device::_decodeDeviceInformation(QByteArray data)
 {
-    if(data.size() != 18) return;
+    if(data.size() != 12) return;
 
-    _bootSystemInformation.deviceState = static_cast<DeviceState>(data.at(0)&0x0F);
-    _bootSystemInformation.deviceAddress = (static_cast<uint8_t>(data.at(0))>>4)&0x0F;
+    _bootSystemInformation.controllerId = static_cast<uint8_t>(data.at(0));
+    _bootSystemInformation.hardwareId  = static_cast<uint8_t>(data.at(1))<<8;
+    _bootSystemInformation.hardwareId |= static_cast<uint8_t>(data.at(2));
 
-    _bootSystemInformation.kernelRevision = static_cast<uint8_t>(data.at(1));
-    _bootSystemInformation.controllerId = static_cast<uint8_t>(data.at(2));
-    _bootSystemInformation.deviceId = static_cast<uint8_t>(data.at(3));
-    _bootSystemInformation.deviceHardwareRevision = static_cast<uint8_t>(data.at(4));
+    _bootSystemInformation.hardwareVersion.major = static_cast<uint8_t>(data.at(3));
+    _bootSystemInformation.hardwareVersion.minor = static_cast<uint8_t>(data.at(4));
 
-    _bootSystemInformation.applicationStartAddress  = static_cast<uint8_t>(data.at(6));
-    _bootSystemInformation.applicationStartAddress |= static_cast<uint8_t>(data.at(5))<<8;
+    _bootSystemInformation.kernelVersion.major = static_cast<uint8_t>(data.at(5));
+    _bootSystemInformation.kernelVersion.minor = static_cast<uint8_t>(data.at(6));
 
-    _bootSystemInformation.applicationSize  = static_cast<uint8_t>(data.at(8));
-    _bootSystemInformation.applicationSize |= static_cast<uint8_t>(data.at(7))<<8;
+    _bootSystemInformation.applicationStartAddress  = static_cast<uint8_t>(data.at(7))<<8;
+    _bootSystemInformation.applicationStartAddress |= static_cast<uint8_t>(data.at(8));
 
-    _bootSystemInformation.applicationEEPROMStartAddress  = static_cast<uint8_t>(data.at(10));
-    _bootSystemInformation.applicationEEPROMStartAddress |= static_cast<uint8_t>(data.at(9))<<8;
+    _bootSystemInformation.applicationSize  = static_cast<uint8_t>(data.at(9))<<8;
+    _bootSystemInformation.applicationSize |= static_cast<uint8_t>(data.at(10));
 
-    _bootSystemInformation.applicationEEPROMSize  = static_cast<uint8_t>(data.at(12));
-    _bootSystemInformation.applicationEEPROMSize |= static_cast<uint8_t>(data.at(11))<<8;
-
-    _bootSystemInformation.applicationRamStartAddress  = static_cast<uint8_t>(data.at(14));
-    _bootSystemInformation.applicationRamStartAddress |= static_cast<uint8_t>(data.at(13))<<8;
-
-    _bootSystemInformation.applicationRamSize  = static_cast<uint8_t>(data.at(16));
-    _bootSystemInformation.applicationRamSize |= static_cast<uint8_t>(data.at(15))<<8;
-
-    _bootSystemInformation.flashPageSize  = static_cast<uint8_t>(data.at(17));
+    _bootSystemInformation.flashPageSize  = static_cast<uint8_t>(data.at(11));
 
     emit changed(this);
 }
@@ -245,24 +262,100 @@ void Device::_decodeDeviceState(QByteArray data)
     emit changed(this);
 }
 
+void Device::_decodeApplicationName(QByteArray data)
+{
+    _firmwareName = QString(data);
+
+    emit changed(this);
+}
+
+void Device::_decodeApplicationVerion(QByteArray data)
+{
+    if(data.size() != 2) return;
+
+    _firmwareVersion.major = static_cast<uint8_t>(data.at(0));
+    _firmwareVersion.minor = static_cast<uint8_t>(data.at(1));
+
+    emit changed(this);
+}
+
+void Device::_handleUpload()
+{
+    switch(_updateState.state)
+    {
+        case UpdateState::Unknown:
+        case UpdateState::Idle:
+        case UpdateState::Pending:
+        case UpdateState::Done:
+        case UpdateState::Faild:
+            break;
+
+        case UpdateState::StartUpload: {
+            requestDeviceInformation();
+            _updateState.state = UpdateState::GetDeviceInformation;
+            emit changed(this);
+            break;
+        }
+
+        case UpdateState::GetDeviceInformation: {
+            _eraseAppSection();
+            _updateState.state = UpdateState::Erase;
+            emit changed(this);
+            break;
+        }
+
+        case UpdateState::Erase: {
+            QuCLib::HexFileParser::binaryChunk binary = _tinyBus->hexFile().binary().at(0);
+            _appCrc16_write = QuCLib::Crc::crc16(binary.data);
+
+            for(uint16_t i = 0; i < (_bootSystemInformation.applicationSize-binary.data.size())-2; i++)
+            {
+                _appCrc16_write = QuCLib::Crc::crc16_addByte(_appCrc16_write,(uint8_t)0xFF);
+            }
+
+            _imageAddress = 0;
+            _updateState.progress = 0;
+            _updateState.state = UpdateState::DataTransfere;
+
+            _writeNextPage();
+
+            emit changed(this);
+            break;
+        }
+
+        case UpdateState::DataTransfere: {
+            _writeNextPage();
+            if(_updateState.progress == 100){
+                requestApplicationCrc();
+                _updateState.state = UpdateState::GetCrc;
+                emit changed(this);
+            }
+            break;
+        }
+
+        case UpdateState::GetCrc: {
+            if(_crc == _appCrc16_write) {
+                _updateState.state = UpdateState::Done;
+                emit changed(this);
+            }else{
+                _updateState.state = UpdateState::Faild;
+                emit changed(this);
+            }
+            break;
+        }
+    }
+}
+
 void Device::_eraseAppSection()
 {
     _sendKernelCommand(KernelCommand::CMD_ERASE_APP, QByteArray());
 }
 
-void Device::_writeNextPage(bool firstPage)
+void Device::_writeNextPage(void)
 {
     QuCLib::HexFileParser::binaryChunk binary = _tinyBus->hexFile().binary().at(0);
 
     uint32_t flashSize = _bootSystemInformation.applicationStartAddress+_bootSystemInformation.applicationSize;
-
-    if(firstPage)
-    {
-        _imageAddress = 0;
-        _updateState.progress = 0;
-        _updateState.state = UpdateState::InProgress;
-        emit changed(this);
-    }
 
     if(_imageAddress < binary.data.size())
     {
@@ -321,9 +414,11 @@ void Device::_writeNextPage(bool firstPage)
         _writePage(flashSize-16, data);
 
         _imageAddress = 0xFFFF;
-
+        emit changed(this);
+    }
+    else if(_imageAddress == 0xFFFF)
+    {
         _updateState.progress = 100;
-        _updateState.state = UpdateState::Done;
         emit changed(this);
     }
 }

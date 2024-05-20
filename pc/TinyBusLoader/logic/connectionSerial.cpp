@@ -16,7 +16,7 @@ ConnectionSerial::~ConnectionSerial()
 void ConnectionSerial::open(QString url)
 {
     _serialPort.setPortName(url.remove("serial://", Qt::CaseInsensitive));
-    _serialPort.setBaudRate(4800);
+    _serialPort.setBaudRate(14400);
     _serialPort.setParity(QSerialPort::Parity::NoParity);
     _serialPort.open(QIODeviceBase::ReadWrite);
 }
@@ -72,7 +72,6 @@ void ConnectionSerial::on_readyRead()
             newMessage("CRC Error");
             return;
         }
-
         emit newData(message.mid(0,message.length()-2));
     }
 }

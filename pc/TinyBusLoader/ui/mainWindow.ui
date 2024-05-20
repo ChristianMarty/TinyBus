@@ -110,6 +110,24 @@
          </layout>
         </item>
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>Number of devices:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_numberOfDevices">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
          <widget class="QListWidget" name="listWidget_devices">
           <property name="minimumSize">
            <size>
@@ -285,7 +303,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Device Inforation:</string>
+           <string>Device Information:</string>
           </property>
          </widget>
         </item>
@@ -333,7 +351,7 @@
            </size>
           </property>
           <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
+           <enum>QFrame::Box</enum>
           </property>
           <property name="readOnly">
            <bool>true</bool>

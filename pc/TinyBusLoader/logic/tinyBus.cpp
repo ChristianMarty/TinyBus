@@ -21,16 +21,32 @@ void TinyBus::startUpdate()
     for(Device *device: _devices){
         if(device->selectedForUpdate()){
             _updateQueue.append(device);
-            device->startUpload(); // TODO: make this work for > 1 update
+            device->setUpdatePending();
         }
     }
+
+    _updateNextDevice();
     emit updateQueueChanged();
 }
 
 void TinyBus::abortUpdate()
 {
+    _currentUpdate = nullptr;
     _updateQueue.clear();
     emit updateQueueChanged();
+}
+
+void TinyBus::_updateNextDevice()
+{
+    for(Device *device: _updateQueue){
+        if(device->updateState().state == Device::UpdateState::Pending){
+            _currentUpdate = device;
+            _currentUpdate->startUpload();
+            return;
+        }
+    }
+
+    _currentUpdate = nullptr;
 }
 
 void TinyBus::on_newData(QByteArray data)
@@ -101,6 +117,9 @@ uint32_t TinyBus::appSize()
 
 void TinyBus::on_deviceChanged(Device *device)
 {
+    if(device == _currentUpdate && (device->updateState().state == Device::UpdateState::Done || device->updateState().state == Device::UpdateState::Faild)){
+        _updateNextDevice();
+    }
     emit deviceChanged(device);
 }
 
@@ -126,8 +145,8 @@ void TinyBus::on_busScanTimer()
 void TinyBus::setConnection(Connection *newConnection)
 {
     if(_connection != nullptr){
-        disconnect(_connection, &Connection::newData, this, &TinyBus::on_newData);
-        disconnect(_connection, &Connection::newMessage, this, &TinyBus::on_newMessage);
+        //disconnect(_connection, &Connection::newData, this, &TinyBus::on_newData);
+        //disconnect(_connection, &Connection::newMessage, this, &TinyBus::on_newMessage);
     }
 
     _connection = newConnection;

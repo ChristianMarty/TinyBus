@@ -101,6 +101,7 @@ void MainWindow::on_pushButton_disconnect_clicked()
 void MainWindow::_update()
 {
     ui->listWidget_devices->clear();
+    ui->label_numberOfDevices->setText(QString::number(_tinyBus.devices().count()));
 
     for(Device *device: _tinyBus.devices())
     {

@@ -26,8 +26,13 @@ public:
     void requestReset(void);
     void requestApplicationStart(void);
     void requestApplicationStop(void);
+
+    void requestApplicationName(void);
+    void requestApplicationVerion(void);
+
     void startUpload(void);
     void abortUpload(void);
+    void setUpdatePending(void);
 
     enum KernelCommand:uint8_t {
         CMD_GET_DEVICE_STATE = 0,
@@ -39,6 +44,8 @@ public:
         CMD_Reset = 0x08,
         CMD_APP_START,
         CMD_APP_STOP,
+        CMD_GET_APP_NAME,
+        CMD_GET_APP_VERSION,
 
         CMD_SET_ADDRESS = 15
     };
@@ -57,28 +64,33 @@ public:
         uint8_t progress;
         enum {
             Unknown,
-            Skip,
+            Idle,
             Pending,
-            InProgress,
+            StartUpload,
+            GetDeviceInformation,
+            Erase,
+            DataTransfere,
+            GetCrc,
             Done,
             Faild
         } state;
     };
 
+    struct Version {
+        uint8_t major;
+        uint8_t minor;
+    };
+
     struct BootSystemInformation {
-    DeviceState deviceState;
-    uint8_t deviceAddress;
-    uint8_t kernelRevision;
-    uint8_t controllerId;
-    uint8_t deviceId;
-    uint8_t deviceHardwareRevision;
-    uint16_t applicationStartAddress;
-    uint16_t applicationSize;
-    uint16_t applicationEEPROMStartAddress;
-    uint16_t applicationEEPROMSize;
-    uint16_t applicationRamStartAddress;
-    uint16_t applicationRamSize;
-    uint8_t flashPageSize;
+        DeviceState deviceState;
+        uint8_t deviceAddress;
+        Version kernelVersion;
+        uint8_t controllerId;
+        uint8_t hardwareId;
+        Version hardwareVersion;
+        uint16_t applicationStartAddress;
+        uint16_t applicationSize;
+        uint8_t flashPageSize;
     };
 
     static QString stateString(DeviceState state);
@@ -92,6 +104,9 @@ public:
     bool selectedForUpdate() const;
 
     const UpdateState &updateState() const;
+
+    const Version &firmwareVersion() const;
+    const QString &firmwareName() const;
 
 signals:
     void newMessage(QString message);
@@ -108,6 +123,9 @@ private:
     uint16_t _imageAddress;
     uint16_t _appCrc16_write;
 
+    Version _firmwareVersion;
+    QString _firmwareName;
+
     void _sendFrame(uint8_t command);
     void _sendFrame(uint8_t command, QByteArray data);
     void _sendKernelCommand(KernelCommand command, QByteArray data);
@@ -116,9 +134,14 @@ private:
     void _decodeAppCrc(QByteArray data);
     void _decodeDeviceState(QByteArray data);
 
+    void _decodeApplicationName(QByteArray data);
+    void _decodeApplicationVerion(QByteArray data);
+
+    void _handleUpload(void);
+
     void _eraseAppSection(void);
     void _writePage(uint16_t dataAddress, QByteArray data);
-    void _writeNextPage(bool firstPage);
+    void _writeNextPage(void);
 
 };
 

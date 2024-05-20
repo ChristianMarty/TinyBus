@@ -66,18 +66,27 @@ void DeviceInformationWidget::_update()
     ui->label_crc->setText(QString::number(_device->crc(),16).toUpper().rightJustified(2,'0').prepend("0x"));
     ui->label_state->setText(Device::stateString(bootSystemInformation.deviceState));
 
-    // Kernel Information:
-    ui->label_kernelRevision->setText(QString::number(bootSystemInformation.kernelRevision,16).toUpper().rightJustified(2,'0').prepend("0x"));
+    ui->label_applicationName->setText(_device->firmwareName());
+
+    QString applicationVersion = QString::number(_device->firmwareVersion().major);
+    applicationVersion +="."+QString::number(_device->firmwareVersion().minor).rightJustified(3,'0');
+    ui->label_applicationVersion->setText(applicationVersion);
+
+    // Kernel
+    QString kernelRevision = QString::number(bootSystemInformation.kernelVersion.major);
+    kernelRevision +="."+QString::number(bootSystemInformation.kernelVersion.minor).rightJustified(3,'0');
+    ui->label_kernelRevision->setText(kernelRevision);
+
+    // Hardware
+    QString hardwareRevision = QString::number(bootSystemInformation.hardwareVersion.major);
+    hardwareRevision +="."+QString::number(bootSystemInformation.hardwareVersion.minor).rightJustified(3,'0');
+    ui->label_hardwareRevision->setText(hardwareRevision);
+    ui->label_hardwareId->setText(QString::number(bootSystemInformation.hardwareId,16).toUpper().rightJustified(4,'0').prepend("0x"));
+    ui->label_controllerId->setText(QString::number(bootSystemInformation.controllerId,8).toUpper().rightJustified(2,'0').prepend("0x"));
 
     // Device Information
-    ui->label_appOffset->setText(QString::number(bootSystemInformation.applicationStartAddress,16).toUpper().rightJustified(4,'0').prepend("0x"));
+    ui->label_appStartAddress->setText(QString::number(bootSystemInformation.applicationStartAddress,16).toUpper().rightJustified(4,'0').prepend("0x"));
     ui->label_appSize->setText(QString::number(bootSystemInformation.applicationSize,16).toUpper().rightJustified(4,'0').prepend("0x"));
-
-    ui->label_ramOffset->setText(QString::number(bootSystemInformation.applicationRamStartAddress,16).toUpper().rightJustified(4,'0').prepend("0x"));
-    ui->label_ramSize->setText(QString::number(bootSystemInformation.applicationRamSize,16).toUpper().rightJustified(4,'0').prepend("0x"));
-
-    ui->label_eepromOffset->setText(QString::number(bootSystemInformation.applicationEEPROMStartAddress,16).toUpper().rightJustified(4,'0').prepend("0x"));
-    ui->label_eepromSize->setText(QString::number(bootSystemInformation.applicationEEPROMSize,16).toUpper().rightJustified(4,'0').prepend("0x"));
 
     ui->label_flashPageSize->setText(QString::number(bootSystemInformation.flashPageSize,16).toUpper().rightJustified(2,'0').prepend("0x"));
 }
@@ -106,3 +115,15 @@ void DeviceInformationWidget::on_pushButton_reset_clicked()
     _device->requestReset();
 }
 
+
+void DeviceInformationWidget::on_pushButton_getName_clicked()
+{
+    if(_device == nullptr) return;
+    _device->requestApplicationName();
+}
+
+void DeviceInformationWidget::on_pushButton_getVersion_clicked()
+{
+    if(_device == nullptr) return;
+    _device->requestApplicationVerion();
+}

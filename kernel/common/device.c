@@ -8,6 +8,7 @@
 #include "device.h"
 #include "typedef.h"
 #include "main.h"
+#include <avr/pgmspace.h>
 
 #ifdef TINYAVR_1SERIES
 	#include "bootloader_1series.h"
@@ -26,17 +27,20 @@ void device_init(void)
 	shared.address = device_getAddress();
 	if(shared.address >= 0xF) shared.address = 0x00; // in case the EEPROM was never programmed or address is out of range (>15)
 	shared.deviceState = APP_STOPPED;
-	
-#ifdef APP_AUTOSTART
-	if((MCUSR | 0x08) == false) //only in case watchdog reset was not triggered
-	{
-		shared.deviceState = APP_CHECK_CRC;
-	}
-#endif
+	shared.appCrc = bootloader_appCRC();
+	if(bootloader_checkAppCRC(shared.appCrc) != 0) shared.deviceState = APP_CRC_ERROR;
 	
 	sei();
 	tickTimer_init();
 	com_init();
+	
+	if(shared.deviceState == APP_STOPPED && (MCUSR | 0x08) == false) //only in case watchdog reset was not triggered
+	{
+		uint8_t byte = pgm_read_byte(AppBaseByteAddress);
+		if(byte&0x80){ // if autostart bit is set
+			shared.deviceState = APP_START;
+		}
+	}
 }
 
 void device_run(void)

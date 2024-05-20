@@ -57,6 +57,9 @@ private:
     QMap<Device::Address, Device*> _devices;
     QList<Device*> _updateQueue;
 
+    Device* _currentUpdate = nullptr;
+    void _updateNextDevice(void);
+
 };
 
 #endif // TINYBUS_H

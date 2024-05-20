@@ -147,7 +147,7 @@ body {
     <h5>T1, R4, R5, IC2 - Transmitter</h5>
     <p>R1 and R2 limit the maximum sink current of the transmitter.</p>
     <h5>R3, D2, D3, D4, IC1 - Receiver</h5>
-    <p>D2, D3, D4 and the LED of IC1 have a combined forward voltage of approximately 6V. This value represents the threshold between a logical high and a low. R3 limits the forward current of IC1s LED to about 6mA.</p>
+    <p>D2, D3, D4 and the LED of IC1 have a combined forward voltage of approximately 7.7V. This value represents the threshold between a logical high and a low. R3 limits the forward current of IC1s LED to about 6mA.</p>
 </document-page>
 
 <document-page>
@@ -238,13 +238,10 @@ body {
     <p>The CRC calculation includes the data contained in a network layer packet, namely the instruction byte and the payload bytes. 
         The start-byte and stop-byte as well as the overhead-byte are not included in the CRC calculation.</p>
 
-
     <h3>Automatic Baud Rate Detection</h3>
     <p>The bus baud rate is automatically detected based on the COBS delimiter byte (55h / 01010101b).</p>
     <p>The supported baud rates shall not be limited to standard baud rates.</p>
     <p>The baud rate detection may be done only once at device startup and dose not need to be repeted for each frame.</p>
-
-
 </document-page>
 
 <document-page>
@@ -367,20 +364,45 @@ body {
         <tr>
             <th>1</th>
             <td style="border: none;"></td>
-            <td colspan="8">Major Version</td>
+            <td colspan="8">Reserved</td>
         </tr>
         <tr>
             <th>2</th>
             <td style="border: none;"></td>
-            <td colspan="8">Minor Version</td>
+            <td colspan="8">Major Firmware Version</td>
         </tr>
         <tr>
             <th>3</th>
             <td style="border: none;"></td>
+            <td colspan="8">Minor Firmware Version</td>
+        </tr>
+        <tr>
+            <th>4</th>
+            <td style="border: none;"></td>
+            <td colspan="8">Hardware Id (High)</td>
+        </tr>
+        <tr>
+            <th>5</th>
+            <td style="border: none;"></td>
+            <td colspan="8">Hardware Id (Low)</td>
+        </tr>
+        <tr>
+            <th>6</th>
+            <td style="border: none;"></td>
+            <td colspan="8">Major Hardware Version</td>
+        </tr>
+        <tr>
+            <th>7</th>
+            <td style="border: none;"></td>
+            <td colspan="8">Minor Hardware Version</td>
+        </tr>
+        <tr>
+            <th>8-13</th>
+            <td style="border: none;"></td>
             <td colspan="8">Reserved</td>
         </tr>
         <tr>
-            <th>4-24</th>
+            <th>14-31</th>
             <td style="border: none;"></td>
             <td colspan="8">Application Name</td>
         </tr>
@@ -487,7 +509,7 @@ body {
             <td>Application Name</td>
         </tr>
         <tr>
-            <td>11</td>
+            <td>12</td>
             <td>Get Application Verion</td>
             <td>Empty</td>
             <td>Application Version</td>
@@ -629,75 +651,57 @@ body {
             <th>Size in Bytes</th>
             <th>Description</th>
         </tr>
+
         <tr>
             <td>0</td>
-            <td>Device State</td>
-            <td>1</td>
-            <td>The device state as per command 0</td>
-        </tr>
-        <tr>
-            <td>1</td>
-            <td>Kernel Revision</td>
-            <td>1</td>
-            <td>The software revision of the kernel</td>
-        </tr>
-        <tr>
-            <td>2</td>
             <td>Controller ID</td>
             <td>1</td>
             <td>Controller ID. See Processor ID Table</td>
         </tr>
         <tr>
+            <td>1-2</td>
+            <td>Hardware Id</td>
+            <td>2</td>
+            <td></td>
+        </tr>
+        <tr>
             <td>3</td>
-            <td>Device ID</td>
+            <td>Major Hardware Revision</td>
             <td>1</td>
-            <td>The Hardware ID. See Hardware ID Table
-            </td>
+            <td></td>
         </tr>
         <tr>
             <td>4</td>
-            <td>Device HW Revision</td>
+            <td>Minor Hardware Revision</td>
             <td>1</td>
-            <td>The HW revision of the target device</td>
+            <td></td>
         </tr>
         <tr>
-            <td>5-6</td>
+            <td>5</td>
+            <td>Major Kernel Revision</td>
+            <td>1</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>Minor Kernel Revision</td>
+            <td>1</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>7-8</td>
             <td>Application Sector Start Address</td>
             <td>2</td>
             <td>Byte Address Of Application Flash Sector</td>
         </tr>
         <tr>
-            <td>7-8</td>
+            <td>9-10</td>
             <td>Application Size</td>
             <td>2</td>
             <td>Size of the Application Flash Sector in bytes</td>
         </tr>
         <tr>
-            <td>9-10</td>
-            <td>Application EEPROM Start Address</td>
-            <td>2</td>
-            <td>Byte Address of Application EEPROM Sector</td>
-        </tr>
-        <tr>
-            <td>11-12</td>
-            <td>Application EEPROM Size</td>
-            <td>2</td>
-            <td>Size of the Application EEPROM Sector in byte</td>
-        </tr>
-        <tr>
-            <td>13-14</td>
-            <td>Application RAM Start Address</td>
-            <td>2</td>
-            <td>Byte Address of Application RAM Sector</td>
-        </tr>
-        <tr>
-            <td>15-16</td>
-            <td>Application RAM Size</td>
-            <td>2</td>
-            <td>Size of the Application RAM Sector in byte</td>
-        </tr>
-        <tr>
-            <td>17</td>
+            <td>11</td>
             <td>Flash Page Size</td>
             <td>1</td>
             <td>Size of one flash page in byte</td>
@@ -779,7 +783,7 @@ body {
             <th>14</th>
             <th>15</th>
             <th>16</th>
-            <th>18</th>
+            <th>17</th>
         </tr>
         <tr>
             <th>Data</th>

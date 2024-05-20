@@ -24,4 +24,24 @@ typedef struct {
 	device_state_t deviceState;
 } shared_t;
 
+typedef struct {
+	uint8_t header_version:2;
+	uint8_t reserved0:5;
+	uint8_t autostart:1;
+	
+	uint8_t reserved1;
+ 
+	uint8_t firmwareVersion_major;
+	uint8_t firmwareVersion_minor;
+	
+	uint8_t hardwareId_h;
+	uint8_t hardwareId_l;
+	uint8_t hardwareVersion_major;
+	uint8_t hardwareVersion_minor;
+	
+	uint8_t reserved2[6];
+	
+	uint8_t name[18];
+} application_header_t;
+
 #endif /* TYPEDEF_H_ */

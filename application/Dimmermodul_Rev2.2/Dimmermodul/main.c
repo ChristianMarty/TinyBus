@@ -21,7 +21,18 @@
 #define MAJOR_HW_REV 2
 #define MINOR_HW_REV 0
 
+#define HARDWARE_ID 0x1234
+
 volatile shared_t shared __attribute__((section (".shared")));
+volatile const application_header_t header __attribute__((section (".header"))) = {
+	.autostart = false,
+	.header_version = 0,
+	.firmwareVersion_major = MAJOR_SW_REV,
+	.firmwareVersion_minor = MINOR_SW_REV,
+	.hardwareId_h = (uint8_t)(HARDWARE_ID>>8),
+	.hardwareId_l = (uint8_t)(HARDWARE_ID),
+	.name = "4-Ch PWM Dimmer"
+};
 
 const PROGMEM uint16_t dimmingCurve[] = { 
 0	,
@@ -88,7 +99,6 @@ const PROGMEM uint16_t dimmingCurve[] = {
 930	,
 977	,
 1024
-
 };
 
 void cmd_set_pwm_with_curve(uint8_t pwm_ch, uint8_t master, uint8_t value)
@@ -96,7 +106,6 @@ void cmd_set_pwm_with_curve(uint8_t pwm_ch, uint8_t master, uint8_t value)
 	uint16_t output = pgm_read_word(&dimmingCurve[(value & 0x3F)]) * (master & 0x3F);
 	pwm_fade(pwm_ch, 20, output, false);	
 }
-
 
 void app_main(void)
 {
