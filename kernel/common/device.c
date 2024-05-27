@@ -1,8 +1,8 @@
 //**********************************************************************************************************************
 // FileName : device.h
-// FilePath : /
+// FilePath : common/
 // Author   : Christian Marty
-// Date		: 27.05.2023
+// Date		: 26.05.2024
 // Website  : www.christian-marty.ch
 //**********************************************************************************************************************
 #include "device.h"
@@ -26,6 +26,7 @@ void device_init(void)
 {
 	shared.address = device_getAddress();
 	if(shared.address >= 0xF) shared.address = 0x00; // in case the EEPROM was never programmed or address is out of range (>15)
+	
 	shared.deviceState = APP_STOPPED;
 	shared.appCrc = bootloader_appCRC();
 	if(bootloader_checkAppCRC(shared.appCrc) != 0) shared.deviceState = APP_CRC_ERROR;
@@ -54,8 +55,11 @@ void device_run(void)
 		{
 			case APP_CHECK_CRC:
 				shared.appCrc = bootloader_appCRC();
-				if(bootloader_checkAppCRC(shared.appCrc) == 0) shared.deviceState = APP_START;
-				else shared.deviceState = APP_CRC_ERROR;
+				if(bootloader_checkAppCRC(shared.appCrc) == 0){
+					shared.deviceState = APP_START;
+				}else{
+					shared.deviceState = APP_CRC_ERROR;
+				}
 				break;
 				
 			case APP_START:
@@ -77,7 +81,7 @@ void device_run(void)
 			case APP_STOPPED:
 				break;
 		}
-
+		
 		reset_watchdog();
 	}	
 }
@@ -113,17 +117,17 @@ void device_reboot(void)
 uint8_t device_updateAddress(uint8_t address)
 {
 	// Note: Address changes apply AFTER restart of the device
-	if((address > 0x00)&&(address <0x0F))
-	{
-		eeprom_update_byte(&eeDeviceAddress, address);
-		if(address == device_getAddress()) return true;
+	if((address > 0x00)&&(address < 0x0F)){
+		bootloader_updateEeprom(&eeDeviceAddress, address);
+		if(address == device_getAddress()){
+			return true;
+		}
 	}
-	
 	return false;
 }
 
 uint8_t device_getAddress(void)
 {
-	return eeprom_read_byte(&eeDeviceAddress);
+	return bootloader_readEeprom(&eeDeviceAddress);
 }
 

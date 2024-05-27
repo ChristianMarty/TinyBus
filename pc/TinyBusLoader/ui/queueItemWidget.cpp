@@ -40,11 +40,23 @@ void QueueItemWidget::_update()
 
         case Device::UpdateState::StartUpload:
         case Device::UpdateState::GetDeviceInformation:
+        {
+            ui->label_state->setText("<font color='black'>Get Device Information</font>");
+            break;
+        }
         case Device::UpdateState::Erase:
+        {
+            ui->label_state->setText("<font color='black'>Erase</font>");
+            break;
+        }
         case Device::UpdateState::DataTransfere:
+        {
+            ui->label_state->setText("<font color='black'>Data Transfere</font>");
+            break;
+        }
         case Device::UpdateState::GetCrc:
         {
-            ui->label_state->setText("<font color='black'>In progress</font>");
+            ui->label_state->setText("<font color='black'>Checking CRC</font>");
             break;
         }
 

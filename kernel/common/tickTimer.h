@@ -1,8 +1,8 @@
 //**********************************************************************************************************************
 // FileName : tickTimer.h
-// FilePath : /
+// FilePath : common/
 // Author   : Christian Marty
-// Date		: 27.05.2023
+// Date		: 26.05.2024
 // Website  : www.christian-marty.ch
 //**********************************************************************************************************************
 #ifndef TICKTIMER_H_
@@ -18,6 +18,7 @@ typedef uint16_t tickTimer_t;
 void tickTimer_init(void);
 bool tickTimer_delay5ms(tickTimer_t *counter, uint16_t delay);
 void tickTimer_reset(tickTimer_t *counter);
+
 #ifndef TEST_RUN
 void tickTimer_interruptHandler(void) __attribute__ ((signal));
 #else

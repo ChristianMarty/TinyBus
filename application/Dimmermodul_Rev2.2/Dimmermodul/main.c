@@ -110,7 +110,7 @@ void cmd_set_pwm_with_curve(uint8_t pwm_ch, uint8_t master, uint8_t value)
 void app_main(void)
 {
 	if(shared.deviceState == APP_START)
-	{
+	{	
 		pwm_set_ch1(0x00);
 		pwm_set_ch2(0x00);
 		pwm_set_ch3(0x00);

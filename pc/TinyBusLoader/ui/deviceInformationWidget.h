@@ -3,6 +3,9 @@
 
 #include <QWidget>
 #include "logic/device.h"
+#include "memoryWidget.h"
+#include "eepromMemoryWidget.h"
+
 namespace Ui {
 class DeviceInformationWidget;
 }
@@ -19,20 +22,29 @@ public:
 
 private slots:
     void on_selectedDeviceChanged(void);
+
     void on_pushButton_start_clicked();
     void on_pushButton_stop_clicked();
     void on_pushButton_writeAddress_clicked();
     void on_pushButton_getDeviceState_clicked();
-    void on_pushButton_getDeviceInfo_clicked();
     void on_pushButton_getCrc_clicked();
-    void on_pushButton_reset_clicked();
+    void on_pushButton_reboot_clicked();
 
     void on_pushButton_getName_clicked();
     void on_pushButton_getVersion_clicked();
 
+    void on_pushButton_readRam_clicked();
+    void on_pushButton_readEeprom_clicked();
+
+    void on_pushButton_readMemoryInformation_clicked();
+    void on_pushButton_readHardwareInformation_clicked();
+
 private:
     Ui::DeviceInformationWidget *ui;
     Device *_device = nullptr;
+
+    MemoryWidget *_memoryWidget = nullptr;
+    EepromMemoryWidget *_eepromMemoryWidget = nullptr;
 
     void _update(void);
 };

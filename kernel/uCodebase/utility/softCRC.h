@@ -1,6 +1,6 @@
 //**********************************************************************************************************************
 // FileName : softCRC.h
-// FilePath : /utility
+// FilePath : utility/
 // Author   : Christian Marty
 // Date		: 24.09.2018
 // Website  : www.christian-marty.ch

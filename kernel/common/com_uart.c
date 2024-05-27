@@ -1,17 +1,14 @@
-
-/*
- * com.c
- *
- * Created: 16.05.2017 19:21:22
- *  Author: Christian Marty 
- */ 
-
+//**********************************************************************************************************************
+// FileName : com_uart.c
+// FilePath : common/
+// Author   : Christian Marty
+// Date		: 26.05.2024
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
 #include <main.h>
-
-#include "../common/protocol.h"
 #include "com_uart.h"
-
 #include "../common/typedef.h"
+#include "../common/protocol.h"
 
 typedef enum {UART_BAUD_DETECT, UART_IDEL, UART_TX, UART_TX_COMPLETE, UART_RX, UART_RX_COMPLETE} uart_state_t;
 
@@ -29,7 +26,7 @@ typedef enum {UART_BAUD_DETECT, UART_IDEL, UART_TX, UART_TX_COMPLETE, UART_RX, U
 	volatile int8_t rxLedTimer5ms;
 #endif
 
-volatile uint8_t uart_buffer[UART_BUFFER_SIZE];
+volatile uint8_t uart_buffer[UartBufferSize];
 volatile uint8_t uart_buffer_position;
 
 volatile uint8_t uart_tx_size;
@@ -39,12 +36,11 @@ volatile uart_state_t uart_state;
 volatile uint8_t com_error;
 volatile uint8_t uart_timeout_counter;
 
-
-//**************************************************************************
+//**********************************************************************************************************************
 //
 //  Auto Baud detection
 //
-//**************************************************************************
+//**********************************************************************************************************************
 volatile uint16_t edge_periode_min;
 volatile uint8_t  edge_count;
 
@@ -130,11 +126,11 @@ void com_set_baudrate(uint16_t baudsetting)
 #endif
 }
 
-//**************************************************************************
+//**********************************************************************************************************************
 //
 //  Communication
 //
-//**************************************************************************
+//**********************************************************************************************************************
 void com_init(void)
 {
 	uart_state = UART_BAUD_DETECT; 
@@ -160,27 +156,25 @@ void com_init(void)
 #endif
 
 #ifdef ATTINYx41
-
 	UCSR0C = 0b00000110;
 	
 	uint8_t rx_byte = UDR0;
 	UCSR0B = 0b01001000; // normal
 	rx_byte = UDR0;
 	
-	REMAP = 0x01; // Pin mapping
+	REMAP = 0x01;   // Pin mapping
 	UCSR0A |= 0x02; // Double the USART Transmission Speed
-	
 #endif
 
 	com_autobaud_init();
 }
 
-//--------------------------------------------------------------------------  
+//----------------------------------------------------------------------------------------------------------------------  
 void com_5ms_tick(void)
 {	
 	if(uart_state == UART_BAUD_DETECT) return;
 	
-	if(uart_timeout_counter > UART_TIMEOUT)
+	if(uart_timeout_counter > UartTimeout)
 	{
 		uart_state = UART_IDEL;	
 		uart_timeout_counter = 0;
@@ -200,35 +194,32 @@ void com_5ms_tick(void)
 #endif
 }
 
-//--------------------------------------------------------------------------  
+//----------------------------------------------------------------------------------------------------------------------  
 void com_handler(void)
 {
 	if(edge_count > 20 ) com_autobaud_update();
+	if(uart_state != UART_RX_COMPLETE) return;
 	
-	if(uart_state == UART_RX_COMPLETE)
+	if((!com_error)&&(uart_buffer_position > 4))
 	{
-		if((!com_error)&&(uart_buffer_position > 4))
-		{
-			uint8_t rx_dataSize = 0;
-			rx_dataSize = cobs_decode((uint8_t*)&uart_buffer[0], (const uint8_t*)&uart_buffer[1], uart_buffer_position-1); // uart_buffer[0] -> byte 0 is cobs 0 and can be ignored
+		uint8_t rx_dataSize = 0;
+		rx_dataSize = cobs_decode((uint8_t*)&uart_buffer[0], (const uint8_t*)&uart_buffer[1], uart_buffer_position-1); // uart_buffer[0] -> byte 0 is cobs 0 and can be ignored
 			
-			uint16_t crc_16 = crc16((uint8_t*)&uart_buffer[0], rx_dataSize);
-			if(crc_16 == 0){
-				com_receive_data(uart_buffer[0], (uint8_t*)&uart_buffer[1], (rx_dataSize - 3)); // -3 because 2 bytes of crc and data_buffer[0] is passed separately 
-			}
+		uint16_t crc_16 = crc16((uint8_t*)&uart_buffer[0], rx_dataSize);
+		if(crc_16 == 0){
+			com_receive_data(uart_buffer[0], (uint8_t*)&uart_buffer[1], (rx_dataSize - 3)); // -3 because 2 bytes of crc and data_buffer[0] is passed separately 
 		}
-		com_error = 0;
-		uart_state = UART_IDEL;
 	}
+	com_error = 0;
+	uart_state = UART_IDEL;	
 }
 
-//--------------------------------------------------------------------------  
+//----------------------------------------------------------------------------------------------------------------------  
 void USART0_RX_interruptHandler(void)
 {	
 	uart_timeout_counter = 0; // Reset UART Timeout 
 	
-	if(uart_state == UART_IDEL)
-	{
+	if(uart_state == UART_IDEL){
 		uart_state = UART_RX;
 		uart_buffer_position = 0;
 	}
@@ -237,14 +228,14 @@ void USART0_RX_interruptHandler(void)
 	
 #ifdef TINYAVR_1SERIES
 	if(USART0.RXDATAH & 0x46) {
-		com_error ++; // check for  Frame Error /  Data OverRun
+		com_error ++; // check for frame error / data over-run
 	}
 	uint8_t rx_byte =  USART0.RXDATAL;
 #endif
 
 #ifdef ATTINYx41
 	if(UCSR0A & 0x14){
-		com_error ++; // check for  Frame Error /  Data OverRun
+		com_error ++; // check for frame error / data over-run
 	}
 	uint8_t rx_byte =  UDR0;
 #endif
@@ -256,13 +247,12 @@ void USART0_RX_interruptHandler(void)
 	uart_buffer[uart_buffer_position] = rx_byte;
 	uart_buffer_position++;
 	
-	if((rx_byte == 0x00)&&(uart_buffer_position > 1))
-	{
+	if((rx_byte == 0x00)&&(uart_buffer_position > 1)){
 		uart_state = UART_RX_COMPLETE;
 	}
 }
 
-//--------------------------------------------------------------------------   
+//----------------------------------------------------------------------------------------------------------------------   
 void transmit_byte(void)
 {
 	if(uart_tx_size > uart_buffer_position) // transmitting
@@ -292,7 +282,7 @@ void transmit_byte(void)
 	#endif
 	}
 }
-//-------------------------------------------------------------------------- 
+//---------------------------------------------------------------------------------------------------------------------- 
 void com_transmit_data(uint8_t instruction_byte,  uint8_t * data, uint8_t size, bool is_nAck)
 {	
 #ifdef RxTxLedEnable
@@ -306,21 +296,17 @@ void com_transmit_data(uint8_t instruction_byte,  uint8_t * data, uint8_t size, 
 	uart_buffer[0] = 0;
 	// Copy data to uart buffer
 	uart_buffer[2] = instruction_byte;
-	for(i = 0; i<size; i++)
-	{
+	for(i = 0; i<size; i++){
 		uart_buffer[i+3] = data[i];
 	}
 	size++; // Because of instruction_byte
 	
-	if(is_nAck == 0)
-	{
+	if(is_nAck == 0){
 		uint16_t crc = crc16((uint8_t*)&uart_buffer[2],size);
 		
 		uart_buffer[i+3] = (uint8_t) (crc >> 8); // CRC High
 		uart_buffer[i+4] = (uint8_t) (crc & 0xFF); // CRC Low
-	}
-	else
-	{
+	}else{
 		uart_buffer[i+3] = 0; // CRC High
 		uart_buffer[i+4] = 0; // CRC Low
 	}
@@ -335,7 +321,7 @@ void com_transmit_data(uint8_t instruction_byte,  uint8_t * data, uint8_t size, 
 	
 	transmit_byte();
 }
-//--------------------------------------------------------------------------   
+//----------------------------------------------------------------------------------------------------------------------   
 void USART0_TX_interruptHandler(void) 
 {
 	uart_timeout_counter = 0; // Reset UART Timeout
@@ -346,4 +332,4 @@ void USART0_TX_interruptHandler(void)
 #endif
 	
 }
-//--------------------------------------------------------------------------   
+//----------------------------------------------------------------------------------------------------------------------   

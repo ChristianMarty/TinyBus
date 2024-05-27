@@ -1,8 +1,8 @@
 //**********************************************************************************************************************
 // FileName : tickTimer.h
-// FilePath : /
+// FilePath : common/
 // Author   : Christian Marty
-// Date		: 27.05.2023
+// Date		: 26.05.2024
 // Website  : www.christian-marty.ch
 //**********************************************************************************************************************
 #include <main.h>
@@ -35,7 +35,6 @@ void tickTimer_init(void)
 	TIMSK0 = 0b00000001; // Overflow interrupt enable
 	TCNT0 = 177;
 #endif
-	
 	tickCounter = 0;
 }
 
@@ -57,12 +56,13 @@ void tickTimer_reset(tickTimer_t *counter)
 
 void tickTimer_interruptHandler(void)
 {
-	#ifndef TEST_RUN
+#ifndef TEST_RUN
 	com_5ms_tick();
 	if(shared.deviceState == APP_RUNNING) app_5ms_tick();
-	#endif
+#endif
 	tickCounter ++;
-	#ifdef TINYAVR_1SERIES
+
+#ifdef TINYAVR_1SERIES
 	RTC.INTFLAGS |= 0x01;
-	#endif
+#endif
 }

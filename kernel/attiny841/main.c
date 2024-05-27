@@ -7,6 +7,13 @@
 #include "main.h"
 #include "../common/device.h"
 
+#ifdef TINYAVR_1SERIES
+	#include "../common/bootloader_1series.h"
+#endif
+#ifdef ATTINYx41
+	#include "../common/bootloader_x41.h"
+#endif
+
 void InterruptVectorTable(void)  __attribute__ ((naked))  __attribute__ ((section (".vectors")));
 void InterruptVectorTable(void)
 {
@@ -48,30 +55,21 @@ void InterruptVectorTable(void)
 
 int main(void)
 {	
-	asm("CLR R1");		//		Clear Register 
-	asm("OUT 0x3F,R1");	//		Out to I/O location 
+	asm("CLR R1");		//		Clear Register R1
+	asm("OUT 0x3F,R1");	//		Clear SREG 
 
-	// set stackpointer to 0x01FF (top of SRAM)
-	asm("SER R28");		//		Set Register 
-	asm("LDI R29,0x01");//		Load immediate 
-	
+// set stack pointer to 0x01FF (top of kernel SRAM)
+	#define StackPointerInit  (RamSize+RamOffset-0x01)
+	asm("LDI R29, %0" ::  "i" ((StackPointerInit>>8)&0xFF):);
+	asm("LDI R28, %0" ::  "i" (StackPointerInit&0xFF):);
 	asm("OUT 0x3E,R29");//		Out to I/O location 
 	asm("OUT 0x3D,R28");//		Out to I/O location 
-
-    /*
-	// ??
-	asm("LDI R18,0x01");//		Load immediate 
-	asm("LDI R26,0x00");//		Load immediate 
-	asm("LDI R27,0x01");//		Load immediate 
-	asm("rjmp a");		//		Relative jump 
-	asm ("startup:");
-	asm("ST X+,R1");	//		Store indirect and post-increment 
-	asm("CPI R26,0x3F");//		Compare with immediate 
-	asm ("a:");
-	asm("CPC R27,R18");	//		Compare with carry 
-	asm("BRNE startup");//		Branch if not equal 
-	*/
-
+	
+// clear RAM to all 0
+	for(uint16_t i = RamOffset; i<RamOffset+RamSize; i++){
+		*(uint8_t*)i = 0;
+	}
+	
 	PORTA = 0x80;
 	DDRA = 0x80;
 	DDRB = 0x00;

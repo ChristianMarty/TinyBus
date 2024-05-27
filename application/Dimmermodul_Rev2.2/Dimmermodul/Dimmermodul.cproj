@@ -143,14 +143,14 @@
   <avrgcc.linker.optimization.GarbageCollectUnusedSections>False</avrgcc.linker.optimization.GarbageCollectUnusedSections>
   <avrgcc.linker.memorysettings.Flash>
     <ListValues>
-      <Value>.text=0x0510</Value>
-      <Value>.header=0x0500</Value>
+      <Value>.text=0x0610</Value>
+      <Value>.header=0x0600</Value>
     </ListValues>
   </avrgcc.linker.memorysettings.Flash>
   <avrgcc.linker.memorysettings.Sram>
     <ListValues>
-      <Value>.data = 0x0180</Value>
-      <Value>.shared=0x0100</Value>
+      <Value>.data = 0x0164</Value>
+      <Value>.shared=0x0160</Value>
     </ListValues>
   </avrgcc.linker.memorysettings.Sram>
   <avrgcc.assembler.general.IncludePaths>

@@ -53,10 +53,16 @@ void Device::requestDeviceState(void)
     _sendKernelCommand(KernelCommand::CMD_GET_DEVICE_STATE, QByteArray());
 }
 
-void Device::requestDeviceInformation(void)
+void Device::requestHardwareInformation(void)
 {
-    emit newMessage("---- Request Boot System Information ----");
-    _sendKernelCommand(KernelCommand::CMD_GET_DEVICE_INFO, QByteArray());
+    emit newMessage("---- Request Hardware Information ----");
+    _sendKernelCommand(KernelCommand::CMD_GET_HARDWARE_INFO, QByteArray());
+}
+
+void Device::requestMemoryInformation()
+{
+    emit newMessage("---- Request Memory Information ----");
+    _sendKernelCommand(KernelCommand::CMD_GET_MEMORY_INFO, QByteArray());
 }
 
 void Device::requestApplicationCrc(void)
@@ -85,7 +91,7 @@ void Device::requestCrc()
 void Device::requestReset(void)
 {
     emit newMessage("---- Request Device Reset ----");
-    _sendKernelCommand(KernelCommand::CMD_Reset, QByteArray());
+    _sendKernelCommand(KernelCommand::CMD_REBOOT, QByteArray());
 }
 
 void Device::requestApplicationStart(void)
@@ -98,6 +104,36 @@ void Device::requestApplicationStop(void)
 {
     emit newMessage("---- Request Application Stop ----");
     _sendKernelCommand(KernelCommand::CMD_APP_STOP, QByteArray());
+}
+
+void Device::requestRamData(uint16_t offset, uint8_t size)
+{
+    emit newMessage("---- Request RAM Data ----");
+    QByteArray data;
+    data.append((uint8_t)(offset>>8));
+    data.append((uint8_t)offset);
+    data.append((uint8_t)size);
+    _sendKernelCommand(KernelCommand::CMD_READ_RAM, data);
+}
+
+void Device::requestEepromData(uint16_t offset, uint8_t size)
+{
+    emit newMessage("---- Request EEPROM Data ----");
+    QByteArray data;
+    data.append((uint8_t)(offset>>8));
+    data.append((uint8_t)offset);
+    data.append((uint8_t)size);
+    _sendKernelCommand(KernelCommand::CMD_READ_EEPROM, data);
+}
+
+void Device::writeEepromData(uint16_t offset, QByteArray data)
+{
+    emit newMessage("---- Write EEPROM Data ----");
+    QByteArray txData;
+    txData.append((uint8_t)(offset>>8));
+    txData.append((uint8_t)offset);
+    txData.append(data);
+    _sendKernelCommand(KernelCommand::CMD_WRITE_EEPROM, txData);
 }
 
 void Device::requestApplicationName()
@@ -143,7 +179,8 @@ void Device::newData(QByteArray data)
         switch(subcommand)
         {
             case KernelCommand::CMD_GET_DEVICE_STATE : _decodeDeviceState(data.remove(0,2)); break;
-            case KernelCommand::CMD_GET_DEVICE_INFO : _decodeDeviceInformation(data.remove(0,2)); break;
+            case KernelCommand::CMD_GET_HARDWARE_INFO : _decodeHardwareInformation(data.remove(0,2)); break;
+            case KernelCommand::CMD_GET_MEMORY_INFO : _decodeMemoryInformation(data.remove(0,2)); break;
             case KernelCommand::CMD_GET_APP_CRC  : _decodeAppCrc(data.remove(0,2)); break;
 
             //case KernelCommand::CMD_ERASE_APP: _writeNextPage(true); break;
@@ -151,6 +188,16 @@ void Device::newData(QByteArray data)
 
             case KernelCommand::CMD_GET_APP_NAME: _decodeApplicationName(data.remove(0,2)); break;
             case KernelCommand::CMD_GET_APP_VERSION: _decodeApplicationVerion(data.remove(0,2)); break;
+
+            case KernelCommand::CMD_READ_RAM: {
+                emit ramDataChanged(data.remove(0,2));
+                break;
+            }
+
+            case KernelCommand::CMD_READ_EEPROM: {
+                emit eepromDataChanged(data.remove(0,2));
+                break;
+            }
         }
 
         _handleUpload();
@@ -221,27 +268,48 @@ void Device::_sendKernelCommand(KernelCommand command, QByteArray data)
     _sendFrame(15, tx);
 }
 
-void Device::_decodeDeviceInformation(QByteArray data)
+void Device::_decodeHardwareInformation(QByteArray data)
 {
-    if(data.size() != 12) return;
+    if(data.size() != 8) return;
 
-    _bootSystemInformation.controllerId = static_cast<uint8_t>(data.at(0));
-    _bootSystemInformation.hardwareId  = static_cast<uint8_t>(data.at(1))<<8;
-    _bootSystemInformation.hardwareId |= static_cast<uint8_t>(data.at(2));
+    _bootSystemInformation.controllerId = static_cast<uint8_t>(data.at(0))<<8;
+    _bootSystemInformation.controllerId |= static_cast<uint8_t>(data.at(1));
 
-    _bootSystemInformation.hardwareVersion.major = static_cast<uint8_t>(data.at(3));
-    _bootSystemInformation.hardwareVersion.minor = static_cast<uint8_t>(data.at(4));
+    _bootSystemInformation.hardwareId  = static_cast<uint8_t>(data.at(2))<<8;
+    _bootSystemInformation.hardwareId |= static_cast<uint8_t>(data.at(3));
 
-    _bootSystemInformation.kernelVersion.major = static_cast<uint8_t>(data.at(5));
-    _bootSystemInformation.kernelVersion.minor = static_cast<uint8_t>(data.at(6));
+    _bootSystemInformation.hardwareVersion.major = static_cast<uint8_t>(data.at(4));
+    _bootSystemInformation.hardwareVersion.minor = static_cast<uint8_t>(data.at(5));
 
-    _bootSystemInformation.applicationStartAddress  = static_cast<uint8_t>(data.at(7))<<8;
-    _bootSystemInformation.applicationStartAddress |= static_cast<uint8_t>(data.at(8));
+    _bootSystemInformation.kernelVersion.major = static_cast<uint8_t>(data.at(6));
+    _bootSystemInformation.kernelVersion.minor = static_cast<uint8_t>(data.at(7));
 
-    _bootSystemInformation.applicationSize  = static_cast<uint8_t>(data.at(9))<<8;
-    _bootSystemInformation.applicationSize |= static_cast<uint8_t>(data.at(10));
+    emit changed(this);
+}
 
-    _bootSystemInformation.flashPageSize  = static_cast<uint8_t>(data.at(11));
+void Device::_decodeMemoryInformation(QByteArray data)
+{
+    if(data.size() != 13) return;
+
+    _bootSystemInformation.flashSize  = static_cast<uint8_t>(data.at(0))<<8;
+    _bootSystemInformation.flashSize |= static_cast<uint8_t>(data.at(1));
+
+    _bootSystemInformation.flashAppStart  = static_cast<uint8_t>(data.at(2))<<8;
+    _bootSystemInformation.flashAppStart |= static_cast<uint8_t>(data.at(3));
+
+    _bootSystemInformation.flashPageSize  = static_cast<uint8_t>(data.at(4));
+
+    _bootSystemInformation.ramSize  = static_cast<uint8_t>(data.at(5))<<8;
+    _bootSystemInformation.ramSize |= static_cast<uint8_t>(data.at(6));
+
+    _bootSystemInformation.ramAppStart  = static_cast<uint8_t>(data.at(7))<<8;
+    _bootSystemInformation.ramAppStart |= static_cast<uint8_t>(data.at(8));
+
+    _bootSystemInformation.eepromSize  = static_cast<uint8_t>(data.at(9))<<8;
+    _bootSystemInformation.eepromSize |= static_cast<uint8_t>(data.at(10));
+
+    _bootSystemInformation.eepromAppStart  = static_cast<uint8_t>(data.at(11))<<8;
+    _bootSystemInformation.eepromAppStart |= static_cast<uint8_t>(data.at(12));
 
     emit changed(this);
 }
@@ -291,7 +359,7 @@ void Device::_handleUpload()
             break;
 
         case UpdateState::StartUpload: {
-            requestDeviceInformation();
+            requestMemoryInformation();
             _updateState.state = UpdateState::GetDeviceInformation;
             emit changed(this);
             break;
@@ -308,7 +376,8 @@ void Device::_handleUpload()
             QuCLib::HexFileParser::binaryChunk binary = _tinyBus->hexFile().binary().at(0);
             _appCrc16_write = QuCLib::Crc::crc16(binary.data);
 
-            for(uint16_t i = 0; i < (_bootSystemInformation.applicationSize-binary.data.size())-2; i++)
+            uint16_t appSize = _bootSystemInformation.flashSize - _bootSystemInformation.flashAppStart;
+            for(uint16_t i = 0; i < (appSize-binary.data.size())-2; i++)
             {
                 _appCrc16_write = QuCLib::Crc::crc16_addByte(_appCrc16_write,(uint8_t)0xFF);
             }
@@ -355,7 +424,8 @@ void Device::_writeNextPage(void)
 {
     QuCLib::HexFileParser::binaryChunk binary = _tinyBus->hexFile().binary().at(0);
 
-    uint32_t flashSize = _bootSystemInformation.applicationStartAddress+_bootSystemInformation.applicationSize;
+    uint16_t appSize = _bootSystemInformation.flashSize - _bootSystemInformation.flashAppStart;
+    uint32_t flashSize = _bootSystemInformation.flashSize;
 
     if(_imageAddress < binary.data.size())
     {
@@ -377,9 +447,9 @@ void Device::_writeNextPage(void)
         _imageAddress += 16;
     }
     // scipt emty pages
-    else if(_imageAddress < _bootSystemInformation.applicationSize - _bootSystemInformation.flashPageSize)
+    else if(_imageAddress < appSize - _bootSystemInformation.flashPageSize)
     {
-        _imageAddress = (_bootSystemInformation.applicationSize - _bootSystemInformation.flashPageSize);
+        _imageAddress = (appSize - _bootSystemInformation.flashPageSize);
 
         QByteArray data;
         for(uint8_t i = 0; i<16; i++)
@@ -390,7 +460,7 @@ void Device::_writeNextPage(void)
         _imageAddress += 16;
     }
     // Write last flash page
-    else if(_imageAddress < _bootSystemInformation.applicationSize - 16)
+    else if(_imageAddress < appSize - 16)
     {
         QByteArray data;
         for(uint8_t i = 0; i<16; i++)
@@ -401,7 +471,7 @@ void Device::_writeNextPage(void)
         _imageAddress += 16;
     }
     // send CRC in last package
-    else if(_imageAddress <= _bootSystemInformation.applicationSize)
+    else if(_imageAddress <= appSize)
     {
         QByteArray data;
         for(uint8_t i = 0; i<14; i++)
@@ -438,5 +508,5 @@ void Device::_writePage(uint16_t dataAddress, QByteArray data)
     txData.append((uint8_t)(dataAddress>>8));
     txData.append((uint8_t)dataAddress);
     txData.append(data);
-    _sendKernelCommand(KernelCommand::CMD_WRITE_PAGE, txData);
+    _sendKernelCommand(KernelCommand::CMD_WRITE_FLASH_PAGE, txData);
 }

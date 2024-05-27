@@ -20,7 +20,9 @@ SOURCES += \
     main.cpp \
     ui/deviceInformationWidget.cpp \
     ui/deviceItemWidget.cpp \
+    ui/eepromMemoryWidget.cpp \
     ui/mainWindow.cpp \
+    ui/memoryWidget.cpp \
     ui/queueItemWidget.cpp
 
 HEADERS += \
@@ -34,16 +36,23 @@ HEADERS += \
     logic/device.h \
     ui/deviceInformationWidget.h \
     ui/deviceItemWidget.h \
+    ui/eepromMemoryWidget.h \
     ui/mainWindow.h \
+    ui/memoryWidget.h \
     ui/queueItemWidget.h
 
 FORMS += \
     ui/deviceInformationWidget.ui \
     ui/deviceItemWidget.ui \
+    ui/eepromMemoryWidget.ui \
     ui/mainWindow.ui \
+    ui/memoryWidget.ui \
     ui/queueItemWidget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    icons.qrc

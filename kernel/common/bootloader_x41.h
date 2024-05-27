@@ -1,10 +1,10 @@
-/*
- * bootloader.h
- *
- * Created: 03.08.2017 22:59:52
- * Author: Christian Marty
- */ 
-
+//**********************************************************************************************************************
+// FileName : bootloader_x41.h
+// FilePath : common/
+// Author   : Christian Marty
+// Date		: 26.05.2024
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
 #include "utility/softCRC.h"
 #include "main.h"
 
@@ -18,23 +18,20 @@
 #ifndef BOOTLOADER_H_
 #define BOOTLOADER_H_
 
-#define FlashByteSize (FLASHEND +1)
+#define RamOffset 0x0100
+#define RamSize RAMSIZE
 
-#define AppSize (FlashByteSize - AppBaseByteAddress) 
-#define AppRamSize (RAMSIZE - AppRamAddress)
-#define AppEepromSize (512 - AppEEPROMAddress)
+#define EepromOffset 0x00810000
+#define EepromSize E2SIZE
+
+#define FlashByteSize (FLASHEND +1)
+#define FlashPageByteSize SPM_PAGESIZE
+#define AppFlashStart AppBaseByteAddress
 
 #define AppBaseWordAddressH (AppBaseWordAddress>>8)
 #define AppBaseWordAddressL (AppBaseWordAddress&0xFF)
 
-#define FlashPageByteSize SPM_PAGESIZE
-
-#define AppByteSize (FlashByteSize-AppBaseByteAddress)
-#define AppBasePageAddress (AppBaseByteAddress>>6)
-
 #define BootloadTransmitChunkSize 16 
-
-#define CRC_INIT_VALUE 0xFFFF
 
 //**************************************************************************
 //
@@ -48,11 +45,11 @@ static inline void bootloader_eraseAppSection(void)
 {
 	cli();
 	eeprom_busy_wait ();
-	for(uint16_t i = AppBaseByteAddress; i< FlashByteSize; i += (FlashPageByteSize*4))
+	for(uint16_t i = AppBaseByteAddress; i < FlashByteSize; i += (FlashPageByteSize*4))
 	{
 		asm("WDR");
 		boot_page_erase(i);
-		boot_spm_busy_wait();      // Wait until the memory is erased.
+		boot_spm_busy_wait(); // Wait until the memory is erased.
 	}
 	sei();
 }
@@ -67,12 +64,12 @@ static inline void bootloader_eraseAppSection(void)
 //**************************************************************************
 static inline uint16_t bootloader_appCRC(void)
 {
-	uint16_t CRC_value = CRC_INIT_VALUE;
+	uint16_t crcValue = 0xFFFF;
 	for(uint16_t i = AppBaseByteAddress; i < FlashByteSize-2; i++)
 	{
-		CRC_value = crc16_addByte(CRC_value,pgm_read_byte(i));
+		crcValue = crc16_addByte(crcValue, pgm_read_byte(i));
 	}
-	return CRC_value;
+	return crcValue;
 }
 
 //**************************************************************************
@@ -85,8 +82,8 @@ static inline uint16_t bootloader_appCRC(void)
 //**************************************************************************
 static inline uint16_t bootloader_checkAppCRC(uint16_t crcValue)
 {
-	crcValue = crc16_addByte(crcValue,pgm_read_byte(FlashByteSize-2));
-	crcValue = crc16_addByte(crcValue,pgm_read_byte(FlashByteSize-1));
+	crcValue = crc16_addByte(crcValue, pgm_read_byte(FlashByteSize-2));
+	crcValue = crc16_addByte(crcValue, pgm_read_byte(FlashByteSize-1));
 
 	return crcValue;
 }
@@ -99,7 +96,7 @@ static inline uint16_t bootloader_checkAppCRC(uint16_t crcValue)
 //	Return value: None
 //
 //**************************************************************************
-static inline void bootloader_writePage(uint16_t PageAddress, uint8_t *data)
+static inline void bootloader_writePage(uint16_t pageAddress, uint8_t *data)
 {
 	cli();
 	
@@ -110,13 +107,33 @@ static inline void bootloader_writePage(uint16_t PageAddress, uint8_t *data)
 		i++;
 		word |= (data[i] << 8);
 		
-		boot_page_fill ((PageAddress + i), word);
+		boot_page_fill ((pageAddress + i), word);
 	}
 
-	boot_page_write (PageAddress);     // Store buffer in flash page.
+	boot_page_write(pageAddress);     // Store buffer in flash page.
 	boot_spm_busy_wait();       // Wait until the memory is written.
 	
 	sei();
 }
+
+//**************************************************************************
+//
+//  Read EEPROM
+//
+//	Parameter: Read address
+//	Return value: EEPROM Data
+//
+//**************************************************************************
+uint8_t bootloader_readEeprom(uint8_t *address);
+
+//**************************************************************************
+//
+//  Update EEPROM
+//
+//	Parameter: Write address, write data
+//	Return value: None
+//
+//**************************************************************************
+void bootloader_updateEeprom(uint8_t *address, uint8_t data);
 
 #endif /* BOOTLOADER_H_ */

@@ -19,13 +19,18 @@ public:
     void setSelectedForUpdate(bool selected);
 
     void requestDeviceState(void);
-    void requestDeviceInformation(void);
+    void requestHardwareInformation(void);
+    void requestMemoryInformation(void);
     void requestApplicationCrc(void);
     void writeDeviceAddress(uint8_t devcieAddress);
     void requestCrc(void);
     void requestReset(void);
     void requestApplicationStart(void);
     void requestApplicationStop(void);
+
+    void requestRamData(uint16_t offset, uint8_t size);
+    void requestEepromData(uint16_t offset, uint8_t size);
+    void writeEepromData(uint16_t offset, QByteArray data);
 
     void requestApplicationName(void);
     void requestApplicationVerion(void);
@@ -36,18 +41,22 @@ public:
 
     enum KernelCommand:uint8_t {
         CMD_GET_DEVICE_STATE = 0,
-        CMD_GET_DEVICE_INFO,
+        CMD_GET_HARDWARE_INFO,
+        CMD_GET_MEMORY_INFO,
         CMD_GET_APP_CRC,
         CMD_ERASE_APP,
-        CMD_WRITE_PAGE,
+        CMD_WRITE_FLASH_PAGE,
 
-        CMD_Reset = 0x08,
+        CMD_WRITE_EEPROM,
+        CMD_READ_EEPROM,
+        CMD_READ_RAM,
+
+        CMD_REBOOT = 10,
         CMD_APP_START,
         CMD_APP_STOP,
         CMD_GET_APP_NAME,
         CMD_GET_APP_VERSION,
-
-        CMD_SET_ADDRESS = 15
+        CMD_SET_ADDRESS
     };
 
     enum DeviceState:uint8_t {
@@ -88,9 +97,16 @@ public:
         uint8_t controllerId;
         uint8_t hardwareId;
         Version hardwareVersion;
-        uint16_t applicationStartAddress;
-        uint16_t applicationSize;
+
+        uint16_t flashSize;
+        uint16_t flashAppStart;
         uint8_t flashPageSize;
+
+        uint16_t ramSize;
+        uint16_t ramAppStart;
+
+        uint16_t eepromSize;
+        uint16_t eepromAppStart;
     };
 
     static QString stateString(DeviceState state);
@@ -112,6 +128,8 @@ signals:
     void newMessage(QString message);
     void changed(Device* device);
 
+    void ramDataChanged(QByteArray data);
+    void eepromDataChanged(QByteArray data);
 private:
     TinyBus *_tinyBus;
     Address _address = 0;
@@ -130,7 +148,8 @@ private:
     void _sendFrame(uint8_t command, QByteArray data);
     void _sendKernelCommand(KernelCommand command, QByteArray data);
 
-    void _decodeDeviceInformation(QByteArray data);
+    void _decodeHardwareInformation(QByteArray data);
+    void _decodeMemoryInformation(QByteArray data);
     void _decodeAppCrc(QByteArray data);
     void _decodeDeviceState(QByteArray data);
 
@@ -142,7 +161,6 @@ private:
     void _eraseAppSection(void);
     void _writePage(uint16_t dataAddress, QByteArray data);
     void _writeNextPage(void);
-
 };
 
 #endif // DEVICE_H

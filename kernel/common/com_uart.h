@@ -1,10 +1,10 @@
-/*
- * com.h
- *
- * Created: 16.05.2017 19:21:35
- *  Author: Christian
- */ 
-
+//**********************************************************************************************************************
+// FileName : com_uart.h
+// FilePath : common/
+// Author   : Christian Marty
+// Date		: 26.05.2024
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
 #include <stdbool.h>
 
 #ifndef COM_H_
@@ -16,8 +16,8 @@
 #include "main_driver.h"
 #include "main.h"
 
-#define UART_BUFFER_SIZE 30
-#define UART_TIMEOUT 10 // In 5ms ticks -> 10x 5ms = 50ms
+#define UartBufferSize 30
+#define UartTimeout 10 // In 5ms ticks -> 10 x 5ms = 50ms
 
 void com_init(void);
 

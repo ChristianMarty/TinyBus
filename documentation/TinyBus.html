@@ -125,7 +125,7 @@ body {
     <p>If a node is disconnected or the bus becomes inactive, the node can enter standby or power down.</p>
     <h4>Wake-Up Signal</h4>
     <p>The "RX_RAW" signal (see Interface) can be used as wake-up signal.</p> 
-    <p>The output of the optocoupler being open-collector and not reliant on any auxiliary voltage supply allows for a zero standby power consumption design.</p>
+    <p>The output of the optocoupler being open-collector and not reliant on any auxiliary voltage supply allows for a true zero standby power consumption design.</p>
 </document-page>
 
 <document-page>
@@ -136,10 +136,11 @@ body {
     <p><b>Note:</b> Some of the components serve multiple purposes and are therefore reverenced multiple times.</p>
     <h5>R1, R2, D1, C1 - Protection and filtering</h5>
     <p>D1 is a transient surge arrestors. It will clamp short voltage spikes above approximatly 25V and thereby protects the following circuit.</p>
-    <p>R1, R2 and C1 form a low pass filter. It dampens the high-frequency content of the signal thereby reducing conducted electromagnetic interference (EMI).</p>
+    <p>R1, R2 and C1 form a low pass filter. It dampens the high-frequency content of the signal, thereby reducing conducted electromagnetic interference (EMI).</p>
     <h5>D2, D3 - Full Bridge Rectifier</h5>
     <p>D2 and D3 form a full bridge rectifier.  This enables the polarity agnosticity of the TinyBus interface.</p>
-    <h5>T1, R4, R5, IC2 - Transmitter</h5>
+    <h5>T1, R1,R2, R4, R5, IC2 - Transmitter</h5>
+    <p>T1 in combination with IC2 forms the transmitter part of the interface.</p>
     <p>R1 and R2 limit the maximum sink current of the transmitter.</p>
     <h5>R3, D2, D3, D4, IC1 - Receiver</h5>
     <p>D2, D3, D4 and the LED of IC1 have a combined forward voltage of approximately 7.7V. This value represents the threshold between a logical high and a low. R3 limits the forward current of IC1s LED to about 6mA.</p>
@@ -151,7 +152,8 @@ body {
     <p>For a bus-powered device the 4P4C modular connector must be used. For a not bus-powered device the 4P2C modular connector should be used.</p>
     <p>This allows for easy identification of bus-powered and not bus-power devices by examining the connector.</p>
     <h4>Bus Power</h4>
-    <p>Voltage: TBD; Max Current TBD.</p>
+    <p>Voltage: TBD</p>
+    <p>Max Current TBD</p>
     <h4>Pinout</h4>
     <p>In case the 4P4C or 4P2C modular connector is used, the follwing pinout must be followed:</p>
     <table>
@@ -189,7 +191,7 @@ body {
     <h3>Framing</h3>
     <p>Both, the request and response, use the same frame format.</p>
     <p>The framing is based on a modified version of the "Consistent Overhead Byte Stuffing" (COBS) algorithm. 
-        To enable auto baudrate detection, insted of 0 (0h) 85 (55h / 01010101b) is used as delimiter.</p>
+        To enable auto baudrate detection, insted of 0 (0h), 85 (55h / 01010101b) is used as delimiter.</p>
     <p>Each frame starts and ends with the delimiter byte.</p>
     <p>Per packet, a maximum payload size of 20 bytes shall not be exceeded. Therefore, the maximum total frame lenght is 26 bytes.</p>
 
@@ -271,13 +273,13 @@ body {
         </tr>
         <tr>
             <td colspan="4">Address (Upper Nibble)</td>
-            <td colspan="4">Command (Upper Lower)</td>
+            <td colspan="4">Command (Lower Nibble)</td>
         </tr>
     </table>
     <p>The instruction byte is split into two parts: the address (upper nibble) and the command (lower nibble).</p>
 
     <h4>Addressing</h4>
-    <p>The 4-bit address range allows for addresses from 0 (0h) to 15 (Fh).</p>
+    <p>The 4-bit address range allows for addresses between 0 (0h) and 15 (Fh).</p>
     <ul>
         <li>15 (Fh) is reserved as a broadcast address and cannot be used as an individual device address.</li>
         <li>0 (0h) is the default address of an unconfigured device and should not be used in an installation.</li>
@@ -287,7 +289,7 @@ body {
     <h4>Commands</h4>
 
     <p>The command ids 0-14 (0h-Eh) are application specific. For details on those commands see the respective application documentation.</p>
-    <p>The command is 15 (Fh) is reserved for kernel communication.</p>
+    <p>The command 15 (Fh) is reserved for kernel communication.</p>
 
     <table>
         <tr>
@@ -309,9 +311,7 @@ body {
             <td>Subcommand Specific</td>
         </tr>
     </table>
-    <p>1.0) Only if individual addressed, broadcast messages get no reply.<br>
-        1.1) Only the "Get System State" kernel command will reply to the broadcast.</p>
-
+    <p>1) Only if individual addressed, broadcast messages get no reply.</p>
 
 </document-page>
 
@@ -325,12 +325,15 @@ body {
     <p>The device will not run the application until eighter the "Start App" kernel command or a command other than a kernel command (Command Id 15) is received. 
         Any application command (Command Id 0-14) will start the application.</p>
     
-        <h5>Application Autostart Enabled</h5>
-    <p>The device will run the application automatically as soon as the device is powerd-on</p>
+    <h5>Application Autostart Enabled</h5>
+    <p>The device will run the application automatically as soon as the device is powerd-on.</p>
+    <p>In case a device reset is triggered due to a watchdog timeout, division-by-zero error, or similar the application should not autostart.</p>
 
     <h4>Stopping the application</h4>
     <p>To stop the execution of the application the "Stop App" kernel command can be sent.</p>
+</document-page>
 
+<document-page>
     <h3>Application Header</h3>
 
     <table style="table-layout : fixed; border: none;">
@@ -444,7 +447,7 @@ body {
             <th>Id</th>
             <th>Name</th>
             <th>Payload</th>
-            <th>Reply (1)</th>
+            <th>Reply</th>
         </tr>
         <tr>
             <td>0</td>
@@ -454,63 +457,84 @@ body {
         </tr>
         <tr>
             <td>1</td>
-            <td>Get Device Information</td>
+            <td>Get Hardware Information</td>
             <td>Empty</td>
-            <td>Device Information</td>
+            <td>Hardware Information</td>
         </tr>
         <tr>
             <td>2</td>
+            <td>Get Memory Information</td>
+            <td>Empty</td>
+            <td>Memory Information</td>
+        </tr>
+        <tr>
+            <td>3</td>
             <td>Get App CRC</td>
             <td>Empty</td>
             <td>CRC of app sector</td>
         </tr>
         <tr>
-            <td>3</td>
+            <td>4</td>
             <td>Erase App Section</td>
             <td>Empty</td>
             <td>Acknowledgment</td>
         </tr>
         <tr>
-            <td>4</td>
+            <td>5</td>
             <td>Write Page</td>
+            <td>Write Address + Data</td>
+            <td>Acknowledgment</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>Write EEPROM</td>
             <td>Page Address + Page Data</td>
             <td>Acknowledgment</td>
+        </tr>
+        <tr>
+            <td>7</td>
+            <td>Read EEPROM</td>
+            <td>Byte Address + Read Size</td>
+            <td>EEPROM Data</td>
+        </tr>
+        <tr>
+            <td>8</td>
+            <td>Read RAM</td>
+            <td>Byte Address + Read Size</td>
+            <td>RAM Data</td>
         </tr>
         <tr>
             <td colspan="4" ></td>
         </tr>
         <tr>
-            <td>8</td>
-            <td>Reset</td>
+            <td>10</td>
+            <td>Reboot</td>
             <td>Empty</td>
             <td>None</td>
         </tr>
         <tr>
-            <td>9</td>
+            <td>11</td>
             <td>Start App</td>
             <td>Empty</td>
             <td>Acknowledgment</td>
         </tr>
         <tr>
-            <td>10</td>
+            <td>12</td>
             <td>Stop App</td>
             <td>Empty</td>
             <td>Acknowledgment</td>
         </tr>
         <tr>
-            <td>11</td>
+            <td>13</td>
             <td>Get Application Name</td>
             <td>Empty</td>
             <td>Application Name</td>
         </tr>
         <tr>
-            <td>12</td>
+            <td>14</td>
             <td>Get Application Verion</td>
             <td>Empty</td>
             <td>Application Version</td>
-        </tr>
-        <tr>
-            <td colspan="4" ></td>
         </tr>
         <tr>
             <td>15</td>
@@ -519,11 +543,6 @@ body {
             <td>Acknowledgment</td>
         </tr>
     </table>
-
-<p>1.0) Only if individual addressed, broadcast gets no reply<br>
-    1.1) Only the "Get System State" kernel command will reply to the broadcast.</p>
-
-
 
 </document-page>
 
@@ -620,7 +639,7 @@ body {
 </document-page>
 
 <document-page>
-    <h3>Command 0x01 - <span>Get Device Information</h3>
+    <h3>Command 0x01 - <span>Get Hardware Information</h3>
     <table class='protocol'>
         <tr class='protocol'>
             <th class='protocol'>Payload</th>
@@ -628,17 +647,17 @@ body {
         </tr>
         <tr class='protocol'>
             <th class='protocol'>Reply</th>
-            <td class='protocol'>Device Information / non-acknowledgment</td>
+            <td class='protocol'>Hardware Information / non-acknowledgment</td>
         </tr>
         <tr class='protocol'>
             <th class='protocol'>Error Handling</th>
             <td class='protocol'>If the command exicution fails, a non-acknowledgment will be replied.</td>
         </tr>
     </table>
-    <p>This command will return the device information table.</p>
+    <p>This command will return the hardware information table.</p>
 
     
-    <h4>Device Information</h4>
+    <h4>Hardware  Information</h4>
     <table>
         <tr>
             <th>Index</th>
@@ -648,64 +667,115 @@ body {
         </tr>
 
         <tr>
-            <td>0</td>
-            <td>Controller ID</td>
-            <td>1</td>
-            <td>Controller ID. See Processor ID Table</td>
+            <td>0-1</td>
+            <td>Controller Id</td>
+            <td>2</td>
+            <td>Controller Id. See Processor Id Table</td>
         </tr>
         <tr>
-            <td>1-2</td>
+            <td>2-3</td>
             <td>Hardware Id</td>
             <td>2</td>
             <td></td>
         </tr>
         <tr>
-            <td>3</td>
+            <td>4</td>
             <td>Major Hardware Revision</td>
             <td>1</td>
             <td></td>
         </tr>
         <tr>
-            <td>4</td>
+            <td>5</td>
             <td>Minor Hardware Revision</td>
             <td>1</td>
             <td></td>
         </tr>
         <tr>
-            <td>5</td>
+            <td>6</td>
             <td>Major Kernel Revision</td>
             <td>1</td>
             <td></td>
         </tr>
         <tr>
-            <td>6</td>
+            <td>7</td>
             <td>Minor Kernel Revision</td>
             <td>1</td>
             <td></td>
         </tr>
-        <tr>
-            <td>7-8</td>
-            <td>Application Sector Start Address</td>
-            <td>2</td>
-            <td>Byte Address Of Application Flash Sector</td>
-        </tr>
-        <tr>
-            <td>9-10</td>
-            <td>Application Size</td>
-            <td>2</td>
-            <td>Size of the Application Flash Sector in bytes</td>
-        </tr>
-        <tr>
-            <td>11</td>
-            <td>Flash Page Size</td>
-            <td>1</td>
-            <td>Size of one flash page in byte</td>
-        </tr>
     </table>
+
+    <h3>Command 0x02 - <span>Get Memory Information</h3>
+        <table class='protocol'>
+            <tr class='protocol'>
+                <th class='protocol'>Payload</th>
+                <td class='protocol'>Empty</td>
+            </tr>
+            <tr class='protocol'>
+                <th class='protocol'>Reply</th>
+                <td class='protocol'>Memory Information / non-acknowledgment</td>
+            </tr>
+            <tr class='protocol'>
+                <th class='protocol'>Error Handling</th>
+                <td class='protocol'>If the command exicution fails, a non-acknowledgment will be replied.</td>
+            </tr>
+        </table>
+        <p>This command will return the memory information table.</p>
+    
+        <h4>Memory Information</h4>
+        <table>
+            <tr>
+                <th>Index</th>
+                <th>Data</th>
+                <th>Size in Bytes</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>0-1</td>
+                <td>Flash size</td>
+                <td>2</td>
+                <td>Flash size in byte</td>
+            </tr>
+            <tr>
+                <td>2-3</td>
+                <td>Application start</td>
+                <td>2</td>
+                <td>Flash application sector start address in bytes</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>Flash Page Size</td>
+                <td>1</td>
+                <td>Size of one flash page in byte</td>
+            </tr>
+            <tr>
+                <td>5-6</td>
+                <td>RAM Size</td>
+                <td>2</td>
+                <td>Size of the RAM in bytes</td>
+            </tr>
+            <tr>
+                <td>7-8</td>
+                <td>RAM application start</td>
+                <td>2</td>
+                <td>RAM application sector start address</td>
+            </tr>
+            <tr>
+                <td>9-10</td>
+                <td>EEPROM Size</td>
+                <td>2</td>
+                <td>Size of the EEPROM in bytes</td>
+            </tr>
+            <tr>
+                <td>11-12</td>
+                <td>EEPROM application start</td>
+                <td>2</td>
+                <td>EEPROM application sector start address</td>
+            </tr>
+        </table>
 </document-page>
 
 <document-page>
-    <h3>Command 0x02 - Get Application CRC</h3>
+    <h3>Command 0x03 - Get Application CRC</h3>
     <table class='protocol'>
         <tr class='protocol'>
             <th class='protocol'>Payload</th>
@@ -720,9 +790,9 @@ body {
             <td class='protocol'>If the command exicution fails, a non-acknowledgment will be replied.</td>
         </tr>
     </table>
-    <p>This command will calculate the CRC of the application memeory section and return it.</p>
+    <p>This command will calculate the CRC of the application memory section and return it.</p>
 
-    <h3>Command 0x03 - <span>Erase App Section</h3>
+    <h3>Command 0x04 - <span>Erase App Section</h3>
     <table class='protocol'>
         <tr class='protocol'>
             <th class='protocol'>Payload</th>
@@ -742,7 +812,7 @@ body {
         After the erasing process is successfully completed, the target device will reply with an acknowledgment. 
         If the erasing process fails the target will reply with a non-acknowledgment.</p>
 
-    <h3>Command 0x04 - Write Page</h3>
+    <h3>Command 0x05 - Write Page</h3>
     <table class='protocol'>
         <tr class='protocol'>
             <th class='protocol'>Payload</th>
@@ -784,13 +854,173 @@ body {
             <th>Data</th>
             <td colspan="2" >16 Bit Word Address</td>
             <td colspan="16" >Databyte 0 - 15</td>
-    
         </tr>
     </table>
 </document-page>
 
 <document-page>
-    <h3>Command 0x08 - Reset</h3>
+    <h3>Command 0x06 - Write EEPROM</h3>
+    <table class='protocol'>
+        <tr class='protocol'>
+            <th class='protocol'>Payload</th>
+            <td class='protocol'>Address + Data</td>
+        </tr>
+        <tr class='protocol'>
+            <th class='protocol'>Reply</th>
+            <td class='protocol'>Acknowledgment</td>
+        </tr>
+        <tr class='protocol'>
+            <th class='protocol'>Error Handling</th>
+            <td class='protocol'>If the command exicution fails, a non-acknowledgment will be replied.</td>
+        </tr>
+    </table>
+    <p>The EEPROM data can be transferred in 1 - 16-Byte junks. Unused bytes shall not be transmitted.</p>
+    <table>
+        <tr>
+            <th>Byte</th>
+            <th>0</th>
+            <th>1</th>
+            <th>2</th>
+            <th>3</th>
+            <th>4</th>
+            <th>5</th>
+            <th>6</th>
+            <th>7</th>
+            <th>8</th>
+            <th>9</th>
+            <th>10</th>
+            <th>11</th>
+            <th>12</th>
+            <th>13</th>
+            <th>14</th>
+            <th>15</th>
+            <th>16</th>
+            <th>17</th>
+        </tr>
+        <tr>
+            <th>Data</th>
+            <td colspan="2" >16 Bit Byte Address</td>
+            <td colspan="16" >Databyte 0 - 15</td>
+        </tr>
+    </table>
+
+    <h3>Command 0x07 - Read EEPROM</h3>
+    <table class='protocol'>
+        <tr class='protocol'>
+            <th class='protocol'>Payload</th>
+            <td class='protocol'>Address + Size</td>
+        </tr>
+        <tr class='protocol'>
+            <th class='protocol'>Reply</th>
+            <td class='protocol'>EEPROM Data</td>
+        </tr>
+        <tr class='protocol'>
+            <th class='protocol'>Error Handling</th>
+            <td class='protocol'>If the command exicution fails, a non-acknowledgment will be replied.</td>
+        </tr>
+    </table>
+    <p>The EEPROM data can be requested in 1 - 16-Byte junks. Unused bytes shall not be transmitted.</p>
+    <table>
+        <tr>
+            <th>Byte</th>
+            <th>0</th>
+            <th>1</th>
+            <th>2</th>
+
+        </tr>
+        <tr>
+            <th>Data</th>
+            <td colspan="2">16 Bit Address</td>
+            <td colspan="1">Size</td>
+        </tr>
+    </table>
+    <p><b>Reply</b></p>
+    <table>
+        <tr>
+            <th>Byte</th>
+            <th>0</th>
+            <th>1</th>
+            <th>2</th>
+            <th>3</th>
+            <th>4</th>
+            <th>5</th>
+            <th>6</th>
+            <th>7</th>
+            <th>8</th>
+            <th>9</th>
+            <th>10</th>
+            <th>11</th>
+            <th>12</th>
+            <th>13</th>
+            <th>14</th>
+            <th>15</th>
+        </tr>
+        <tr>
+            <th>Data</th>
+            <td colspan="16" >Databyte 0 - 15</td>
+        </tr>
+    </table>
+
+    <h3>Command 0x08 - Read RAM</h3>
+    <table class='protocol'>
+        <tr class='protocol'>
+            <th class='protocol'>Payload</th>
+            <td class='protocol'>Address + Size</td>
+        </tr>
+        <tr class='protocol'>
+            <th class='protocol'>Reply</th>
+            <td class='protocol'>RAM Data</td>
+        </tr>
+        <tr class='protocol'>
+            <th class='protocol'>Error Handling</th>
+            <td class='protocol'>If the command exicution fails, a non-acknowledgment will be replied.</td>
+        </tr>
+    </table>
+    <p>The RAM data can be requested in 1 - 16-Byte junks. Unused bytes shall not be transmitted.</p>
+    <table>
+        <tr>
+            <th>Byte</th>
+            <th>0</th>
+            <th>1</th>
+            <th>2</th>
+
+        </tr>
+        <tr>
+            <th>Data</th>
+            <td colspan="2">16 Bit Address</td>
+            <td colspan="1">Size</td>
+        </tr>
+    </table>
+    <p><b>Reply</b></p>
+    <table>
+        <tr>
+            <th>Byte</th>
+            <th>0</th>
+            <th>1</th>
+            <th>2</th>
+            <th>3</th>
+            <th>4</th>
+            <th>5</th>
+            <th>6</th>
+            <th>7</th>
+            <th>8</th>
+            <th>9</th>
+            <th>10</th>
+            <th>11</th>
+            <th>12</th>
+            <th>13</th>
+            <th>14</th>
+            <th>15</th>
+        </tr>
+        <tr>
+            <th>Data</th>
+            <td colspan="16" >Databyte 0 - 15</td>
+        </tr>
+    </table>
+</document-page>
+
+<document-page>
+    <h3>Command 0x0A - Reboot</h3>
     <table class='protocol'>
         <tr class='protocol'>
             <th class='protocol'>Payload</th>
@@ -805,10 +1035,12 @@ body {
             <td class='protocol'>If the command exicution fails, a non-acknowledgment will be replied.</td>
         </tr>
     </table>
-    <p>This command will force a hard-reset of the device.</p>
-    <p><strong>Note:</strong> The applications will not be gracefully shutdown! Peripherals may stay initialized.</p>
+    <p>This command will restart the device. This should be accomplished via a hardware reset of the device.
+       If a hardware-reset can not be triggered via software, it is sufficient to jump to the boot vector of the device.</p>
+    
+    <p><strong>Note:</strong> The applications will not be shutdown! Peripherals may stay initialized.</p>
 
-    <h3>Command 0x09 - Start App</h3>
+    <h3>Command 0x0B - Start App</h3>
     <table class='protocol'>
         <tr class='protocol'>
             <th class='protocol'>Payload</th>
@@ -825,7 +1057,7 @@ body {
     </table>
     <p>This command will verify the CRC of the application and in case of a valid CRC start the application.</p>
 
-    <h3>Command 0x0A - Stop App</h3>
+    <h3>Command 0x0C - Stop App</h3>
     <table class='protocol'>
         <tr class='protocol'>
             <th class='protocol'>Payload</th>
@@ -841,6 +1073,85 @@ body {
         </tr>
     </table>
     <p>This command will shutdown the application.</p>
+</document-page>
+
+<document-page>
+    <h3>Command 0x0D - Get Application Name</h3>
+    <table class='protocol'>
+        <tr class='protocol'>
+            <th class='protocol'>Payload</th>
+            <td class='protocol'>Empty</td>
+        </tr>
+        <tr class='protocol'>
+            <th class='protocol'>Reply</th>
+            <td class='protocol'>Application Name</td>
+        </tr>
+        <tr class='protocol'>
+            <th class='protocol'>Error Handling</th>
+            <td class='protocol'>If the command exicution fails, a non-acknowledgment will be replied.</td>
+        </tr>
+    </table>
+    <p>In case of a valid CRC, this command will return the application name. Otherwise, a non-acknowledgment is returned.</p>
+    <p>The application name lenght can be between 1-18 bytes. Unused bytes are not transmitted.</p>
+    <p><b>Reply</b></p>
+    <table>
+        <tr>
+            <th>Byte</th>
+            <th>0</th>
+            <th>1</th>
+            <th>2</th>
+            <th>3</th>
+            <th>4</th>
+            <th>5</th>
+            <th>6</th>
+            <th>7</th>
+            <th>8</th>
+            <th>9</th>
+            <th>10</th>
+            <th>11</th>
+            <th>12</th>
+            <th>13</th>
+            <th>14</th>
+            <th>15</th>
+            <th>16</th>
+            <th>17</th>
+        </tr>
+        <tr>
+            <th>Data</th>
+            <td colspan="18" >Application Name</td>
+        </tr>
+    </table>
+
+    <h3>Command 0x0E - Get Application Verion</h3>
+    <table class='protocol'>
+        <tr class='protocol'>
+            <th class='protocol'>Payload</th>
+            <td class='protocol'>Empty</td>
+        </tr>
+        <tr class='protocol'>
+            <th class='protocol'>Reply</th>
+            <td class='protocol'>Application Verion</td>
+        </tr>
+        <tr class='protocol'>
+            <th class='protocol'>Error Handling</th>
+            <td class='protocol'>If the command exicution fails, a non-acknowledgment will be replied.</td>
+        </tr>
+    </table>
+    <p>In case of a valid CRC, this command will return the application version. Otherwise, a non-acknowledgment is returned.</p>
+
+    <p><b>Reply</b></p>
+    <table>
+        <tr>
+            <th>Byte</th>
+            <th>0</th>
+            <th>1</th>
+        </tr>
+        <tr>
+            <th>Data</th>
+            <td>Major Firmware Revision</td>
+            <td>Minor Firmware Revision</td>
+        </tr>
+    </table>
 
     <h3>Command 0x0F - Set Address</h3>
     <table class='protocol'>
@@ -858,9 +1169,9 @@ body {
         </tr>
     </table>
     
-    <p>The Set Address comand changes the current device address to a new address. </p>
-    <p>Valide addresses are 1-14 / 0x01 - 0x0E</p>
-    <p><strong>Note: </strong>The Address change will become effective afer a device reboot / reset.</p>
+    <p>This command changes the current device address to a new address. </p>
+    <p>Valide addresses are 1-14 (01h - 0Eh)</p>
+    <p><strong>Note: </strong>The address change will become effective after a device reboot.</p>
 
 </document-page>
     

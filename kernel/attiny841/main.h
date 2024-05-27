@@ -4,20 +4,24 @@
 
 #define ATTINYx41
 
-#define BROADCAST_ADDRESS  0x0F
-
 #define CONTROLLER_ID 0x01
 #define HARDWARE_ID 0x0002
 
-// KERNEL Rev 1.0
+#define RAM_READ
+#define EEPROM_READ
+#define EEPROM_WRITE
+
+// KERNEL Rev 1.1
 #define KERNEL_VERSION_MAJOR 0x01
-#define KERNEL_VERSION_MINOR 0x00
+#define KERNEL_VERSION_MINOR 0x01
 
 // Device HW Rev 2.2
 #define HARDWARE_VERSION_MAJOR 0x02 
 #define HARDWARE_VERSION_MINOR 0x02 
 
-#define AppBaseByteAddress 0x0A00
+#define AppBaseByteAddress 0x0C00
+#define AppRamStart 0x060
+#define AppEepromStart 0x010
 
 #define  MainPowerOn()
 #define  MainPowerOff()
@@ -25,6 +29,7 @@
 /******************************************************************************
 Enable and configure Rx and TX LED
 ******************************************************************************/
+
 //#define RxTxLedEnable // Uncomment to Enable
 
 #define RxTxLedOnTime 1 // in 5ms steps, int8_t -> max 127 -> 635ms

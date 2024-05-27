@@ -85,10 +85,16 @@ void DeviceInformationWidget::_update()
     ui->label_controllerId->setText(QString::number(bootSystemInformation.controllerId,8).toUpper().rightJustified(2,'0').prepend("0x"));
 
     // Device Information
-    ui->label_appStartAddress->setText(QString::number(bootSystemInformation.applicationStartAddress,16).toUpper().rightJustified(4,'0').prepend("0x"));
-    ui->label_appSize->setText(QString::number(bootSystemInformation.applicationSize,16).toUpper().rightJustified(4,'0').prepend("0x"));
+    ui->label_flashAppStart->setText(QString::number(bootSystemInformation.flashAppStart,16).toUpper().rightJustified(4,'0').prepend("0x"));
+    ui->label_flashSize->setText(QString::number(bootSystemInformation.flashSize,16).toUpper().rightJustified(4,'0').prepend("0x"));
 
     ui->label_flashPageSize->setText(QString::number(bootSystemInformation.flashPageSize,16).toUpper().rightJustified(2,'0').prepend("0x"));
+
+    ui->label_ramSize->setText(QString::number(bootSystemInformation.ramSize,16).toUpper().rightJustified(4,'0').prepend("0x"));
+    ui->label_ramAppStart->setText(QString::number(bootSystemInformation.ramAppStart,16).toUpper().rightJustified(4,'0').prepend("0x"));
+
+    ui->label_eepromSize->setText(QString::number(bootSystemInformation.eepromSize,16).toUpper().rightJustified(4,'0').prepend("0x"));
+    ui->label_eepromAppStart->setText(QString::number(bootSystemInformation.eepromAppStart,16).toUpper().rightJustified(4,'0').prepend("0x"));
 }
 
 void DeviceInformationWidget::on_pushButton_getDeviceState_clicked()
@@ -97,24 +103,17 @@ void DeviceInformationWidget::on_pushButton_getDeviceState_clicked()
     _device->requestDeviceState();
 }
 
-void DeviceInformationWidget::on_pushButton_getDeviceInfo_clicked()
-{
-    if(_device == nullptr) return;
-    _device->requestDeviceInformation();
-}
-
 void DeviceInformationWidget::on_pushButton_getCrc_clicked()
 {
     if(_device == nullptr) return;
     _device->requestCrc();
 }
 
-void DeviceInformationWidget::on_pushButton_reset_clicked()
+void DeviceInformationWidget::on_pushButton_reboot_clicked()
 {
     if(_device == nullptr) return;
     _device->requestReset();
 }
-
 
 void DeviceInformationWidget::on_pushButton_getName_clicked()
 {
@@ -127,3 +126,32 @@ void DeviceInformationWidget::on_pushButton_getVersion_clicked()
     if(_device == nullptr) return;
     _device->requestApplicationVerion();
 }
+
+void DeviceInformationWidget::on_pushButton_readRam_clicked()
+{
+    if(_device == nullptr) return;
+
+    if(_memoryWidget == nullptr) _memoryWidget = new MemoryWidget(_device);
+    _memoryWidget->show();
+}
+
+void DeviceInformationWidget::on_pushButton_readEeprom_clicked()
+{
+    if(_device == nullptr) return;
+
+    if(_eepromMemoryWidget == nullptr) _eepromMemoryWidget = new EepromMemoryWidget(_device);
+    _eepromMemoryWidget->show();
+}
+
+void DeviceInformationWidget::on_pushButton_readMemoryInformation_clicked()
+{
+    if(_device == nullptr) return;
+    _device->requestMemoryInformation();
+}
+
+void DeviceInformationWidget::on_pushButton_readHardwareInformation_clicked()
+{
+    if(_device == nullptr) return;
+    _device->requestHardwareInformation();
+}
+
