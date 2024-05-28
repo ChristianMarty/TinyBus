@@ -8,9 +8,9 @@ It was primarily developed to enable easy and cheap, but reliable communication 
 * Half-duplex, bi-directional
 * Galvanic isolation
 * Polarity agnostic
-* Hot plug capabel
+* Hot plug capable
 * Star, tree or bus topology
 * Up to 14 devices per line
 * Automatic baud rate detection
 
-A full documentation can be under in the 'documentation' folder or [https://www.christian-marty.ch/tinybus/documentation/index.html](https://www.christian-marty.ch/tinybus/documentation/index.html)
+A full documentation can be found in the 'documentation' folder or [https://www.christian-marty.ch/tinybus/documentation/index.html](https://www.christian-marty.ch/tinybus/documentation/index.html)

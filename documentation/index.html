@@ -32,7 +32,7 @@ body {
         <li>Half-duplex, bi-directional</li>
         <li>Galvanic isolation</li>
         <li>Polarity agnostic</li>
-        <li>Hot plug capabel</li>
+        <li>Hot plug capable</li>
         <li>Star, tree or bus topology</li>
         <li>Up to 14 devices per line</li>
         <li>Automatic baud rate detection</li>
@@ -109,7 +109,7 @@ body {
 
     <h3>Addressing</h3>
     <p>The TinyBus supports up to 14 individually addressable devices.</p>
-    <p>Additanally, all nodes can be commanded simultaneously via a broadcast address.</p>
+    <p>Additionally, all nodes can be commanded simultaneously via a broadcast address.</p>
     
     <h3>Baud Rates</h3>
     <p>Each TinyBus node must support auto-baud detection. 
@@ -135,7 +135,7 @@ body {
     <h4>Schematic Explanation</h4>
     <p><b>Note:</b> Some of the components serve multiple purposes and are therefore reverenced multiple times.</p>
     <h5>R1, R2, D1, C1 - Protection and filtering</h5>
-    <p>D1 is a transient surge arrestors. It will clamp short voltage spikes above approximatly 25V and thereby protects the following circuit.</p>
+    <p>D1 is a transient surge arrestor. It will clamp short voltage spikes above approximatly 25V and thereby protects the following circuit.</p>
     <p>R1, R2 and C1 form a low pass filter. It dampens the high-frequency content of the signal, thereby reducing conducted electromagnetic interference (EMI).</p>
     <h5>D2, D3 - Full Bridge Rectifier</h5>
     <p>D2 and D3 form a full bridge rectifier.  This enables the polarity agnosticity of the TinyBus interface.</p>
@@ -153,7 +153,7 @@ body {
     <p>This allows for easy identification of bus-powered and not bus-power devices by examining the connector.</p>
     <h4>Bus Power</h4>
     <p>Voltage: TBD</p>
-    <p>Max Current TBD</p>
+    <p>Max Current: TBD</p>
     <h4>Pinout</h4>
     <p>In case the 4P4C or 4P2C modular connector is used, the follwing pinout must be followed:</p>
     <table>
@@ -191,7 +191,7 @@ body {
     <h3>Framing</h3>
     <p>Both, the request and response, use the same frame format.</p>
     <p>The framing is based on a modified version of the "Consistent Overhead Byte Stuffing" (COBS) algorithm. 
-        To enable auto baudrate detection, insted of 0 (0h), 85 (55h / 01010101b) is used as delimiter.</p>
+        To enable auto baudrate detection, instead of 0 (0h), 85 (55h / 01010101b) is used as delimiter.</p>
     <p>Each frame starts and ends with the delimiter byte.</p>
     <p>Per packet, a maximum payload size of 20 bytes shall not be exceeded. Therefore, the maximum total frame lenght is 26 bytes.</p>
 
@@ -230,7 +230,7 @@ body {
     <p>A non-acknowledgment uses the same frame format as an acknowledgment with the exception that the CRC shall be set to 0.</p>
     
     <h3>CRC</h3>
-    <p>The CRC16 uses an x16 + x12 + x5 + 1 polynomial (0x1021) initzialized to 0xFFFF.</p>
+    <p>The CRC16 uses an x16 + x12 + x5 + 1 polynomial (0x1021) initialized to 0xFFFF.</p>
 
     <p>The CRC calculation includes the data contained in a network layer packet, namely the instruction byte and the payload bytes. 
         The start-byte and stop-byte as well as the overhead-byte are not included in the CRC calculation.</p>
@@ -238,7 +238,7 @@ body {
     <h3>Automatic Baud Rate Detection</h3>
     <p>The bus baud rate is automatically detected based on the COBS delimiter byte (55h / 01010101b).</p>
     <p>The supported baud rates shall not be limited to standard baud rates.</p>
-    <p>The baud rate detection may be done only once at device startup and dose not need to be repeted for each frame.</p>
+    <p>The baud rate detection may be done only once at device startup and does not need to be repeted for each frame.</p>
 </document-page>
 
 <document-page>
@@ -322,7 +322,7 @@ body {
     <p>The application will only start if the application CRC is valid.</p> 
     
     <h5>Application Autostart Disabled</h5>
-    <p>The device will not run the application until eighter the "Start App" kernel command or a command other than a kernel command (Command Id 15) is received. 
+    <p>The device will not run the application until either the "Start App" kernel command or a command other than a kernel command (Command Id 15) is received. 
         Any application command (Command Id 0-14) will start the application.</p>
     
     <h5>Application Autostart Enabled</h5>
@@ -408,7 +408,7 @@ body {
 
     <p></p>
     <h4>Autostart</h4>
-    <p>If this bit is set the application starts automatically on power-up</p>
+    <p>If this bit is set, the application starts automatically on power-up</p>
 
     <h4>Minor Version</h4>
     <p></p>
@@ -439,7 +439,7 @@ body {
         </tr>
     </table>
 
-    <p><b>Note:</b> In the responce the most signifcant bit of the sub command id is set.</p>
+    <p><b>Note:</b> In the response the most signifcant bit of the sub command id is set.</p>
 
     <h4>Subcommands</h4>
     <table>
@@ -532,7 +532,7 @@ body {
         </tr>
         <tr>
             <td>14</td>
-            <td>Get Application Verion</td>
+            <td>Get Application Version</td>
             <td>Empty</td>
             <td>Application Version</td>
         </tr>
@@ -618,7 +618,7 @@ body {
         <tr>
             <td>4</td>
             <td>Application running</td>
-            <td>The application is starting</td>
+            <td>The application is running</td>
         </tr>
         <tr>
             <td>5</td>
@@ -733,7 +733,7 @@ body {
                 <td>0-1</td>
                 <td>Flash size</td>
                 <td>2</td>
-                <td>Flash size in byte</td>
+                <td>Flash size in bytes</td>
             </tr>
             <tr>
                 <td>2-3</td>
@@ -745,7 +745,7 @@ body {
                 <td>4</td>
                 <td>Flash Page Size</td>
                 <td>1</td>
-                <td>Size of one flash page in byte</td>
+                <td>Size of one flash page in bytes</td>
             </tr>
             <tr>
                 <td>5-6</td>
@@ -810,7 +810,7 @@ body {
     <p>This command will erase the application sector of the target device. 
         If the application is running, it will be stopped. 
         After the erasing process is successfully completed, the target device will reply with an acknowledgment. 
-        If the erasing process fails the target will reply with a non-acknowledgment.</p>
+        If the erasing process fails, the target will reply with a non-acknowledgment.</p>
 
     <h3>Command 0x05 - Write Page</h3>
     <table class='protocol'>
@@ -874,7 +874,7 @@ body {
             <td class='protocol'>If the command exicution fails, a non-acknowledgment will be replied.</td>
         </tr>
     </table>
-    <p>The EEPROM data can be transferred in 1 - 16-Byte junks. Unused bytes shall not be transmitted.</p>
+    <p>The EEPROM data can be transferred in 1 - 16 byte junks. Unused bytes shall not be transmitted.</p>
     <table>
         <tr>
             <th>Byte</th>
@@ -919,7 +919,7 @@ body {
             <td class='protocol'>If the command exicution fails, a non-acknowledgment will be replied.</td>
         </tr>
     </table>
-    <p>The EEPROM data can be requested in 1 - 16-Byte junks. Unused bytes shall not be transmitted.</p>
+    <p>The EEPROM data can be requested in 1-16 byte junks. Unused bytes shall not be transmitted.</p>
     <table>
         <tr>
             <th>Byte</th>
@@ -976,7 +976,7 @@ body {
             <td class='protocol'>If the command exicution fails, a non-acknowledgment will be replied.</td>
         </tr>
     </table>
-    <p>The RAM data can be requested in 1 - 16-Byte junks. Unused bytes shall not be transmitted.</p>
+    <p>The RAM data can be requested in 1-16-Byte junks. Unused bytes shall not be transmitted.</p>
     <table>
         <tr>
             <th>Byte</th>
@@ -1038,7 +1038,7 @@ body {
     <p>This command will restart the device. This should be accomplished via a hardware reset of the device.
        If a hardware-reset can not be triggered via software, it is sufficient to jump to the boot vector of the device.</p>
     
-    <p><strong>Note:</strong> The applications will not be shutdown! Peripherals may stay initialized.</p>
+    <p><strong>Note:</strong> The application will not be shutdown! Peripherals may stay initialized.</p>
 
     <h3>Command 0x0B - Start App</h3>
     <table class='protocol'>
@@ -1055,7 +1055,7 @@ body {
             <td class='protocol'>If the command exicution fails, a non-acknowledgment will be replied.</td>
         </tr>
     </table>
-    <p>This command will verify the CRC of the application and in case of a valid CRC start the application.</p>
+    <p>This command will verify the CRC of the application and, in case of a valid CRC, start the application.</p>
 
     <h3>Command 0x0C - Stop App</h3>
     <table class='protocol'>
@@ -1122,7 +1122,7 @@ body {
         </tr>
     </table>
 
-    <h3>Command 0x0E - Get Application Verion</h3>
+    <h3>Command 0x0E - Get Application Version</h3>
     <table class='protocol'>
         <tr class='protocol'>
             <th class='protocol'>Payload</th>
@@ -1130,7 +1130,7 @@ body {
         </tr>
         <tr class='protocol'>
             <th class='protocol'>Reply</th>
-            <td class='protocol'>Application Verion</td>
+            <td class='protocol'>Application Version</td>
         </tr>
         <tr class='protocol'>
             <th class='protocol'>Error Handling</th>
@@ -1170,7 +1170,7 @@ body {
     </table>
     
     <p>This command changes the current device address to a new address. </p>
-    <p>Valide addresses are 1-14 (01h - 0Eh)</p>
+    <p>Valid addresses are 1-14 (01h - 0Eh)</p>
     <p><strong>Note: </strong>The address change will become effective after a device reboot.</p>
 
 </document-page>
