@@ -42,7 +42,7 @@ class PageA4 extends HTMLElement {
             const footer = `
             </div>
                 <div class='footer'>
-                    <p class="footer"><b>christian-marty.ch</b></p>
+                    <a href="https://www.christian-marty.ch/tinybus/documentation/TinyBus.html"><p class="footer"><b>christian-marty.ch/tinybus/documentation/TinyBus.html</b></p></a>
                 </div>
             </div> 
             </div>
