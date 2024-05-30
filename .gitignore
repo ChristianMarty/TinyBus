@@ -7,3 +7,8 @@ kernel/attiny841_teelicht/Debug
 *.vs
 kernel/_test/cmake-build-debug
 kernel/attiny841/Debug
+pc/build-TinyBusLoader-Desktop_Qt_6_5_2_MinGW_64_bit-Debug
+pc/build-TinyBusLoader-Ersatz_f_r_Desktop_Qt_6_6_0_MinGW_64_bit-Debug
+kernel/attiny841_par16/Debug
+kernel/attiny841_ringLightController/Debug
+kernel/attiny841_ringLightController/Debug
