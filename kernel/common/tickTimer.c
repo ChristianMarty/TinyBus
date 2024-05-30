@@ -14,8 +14,10 @@
 #endif
 
 #include "tickTimer.h"
+#include "typedef.h"
 
 volatile uint16_t tickCounter;
+
 #ifndef TEST_RUN
 extern shared_t shared __attribute__((section (".shared")));
 #endif

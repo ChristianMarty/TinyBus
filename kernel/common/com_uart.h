@@ -12,8 +12,8 @@
 
 #include "utility/softCRC.h"
 #include "utility/cobs_u8.h"
+#include "application.h"
 
-#include "main_driver.h"
 #include "main.h"
 
 #define UartBufferSize 30

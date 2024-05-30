@@ -26,19 +26,19 @@
     <OverrideVtorValue>exception_table</OverrideVtorValue>
     <BootSegment>2</BootSegment>
     <ResetRule>0</ResetRule>
-    <eraseonlaunchrule>1</eraseonlaunchrule>
+    <eraseonlaunchrule>0</eraseonlaunchrule>
     <EraseKey />
     <avrtool>com.atmel.avrdbg.tool.atmelice</avrtool>
     <avrtoolserialnumber>J41800001563</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x1E9315</avrdeviceexpectedsignature>
-    <avrtoolinterface>debugWIRE</avrtoolinterface>
+    <avrtoolinterface>ISP</avrtoolinterface>
     <com_atmel_avrdbg_tool_atmelice>
       <ToolOptions>
         <InterfaceProperties>
           <UpdiClock>0</UpdiClock>
           <IspClock>125000</IspClock>
         </InterfaceProperties>
-        <InterfaceName>debugWIRE</InterfaceName>
+        <InterfaceName>ISP</InterfaceName>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.atmelice</ToolType>
       <ToolNumber>J41800001563</ToolNumber>
@@ -118,55 +118,59 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
       <AvrGcc>
-  <avrgcc.common.Device>-mmcu=attiny841 -B "%24(PackRepoDir)\Atmel\ATtiny_DFP\2.0.368\gcc\dev\attiny841"</avrgcc.common.Device>
-  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
-  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
-  <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
-  <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
-  <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
-  <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
-  <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
-  <avrgcc.compiler.symbols.DefSymbols>
-    <ListValues>
-      <Value>DEBUG</Value>
-    </ListValues>
-  </avrgcc.compiler.symbols.DefSymbols>
-  <avrgcc.compiler.directories.IncludePaths>
-    <ListValues>
-      <Value>../../uCodebase</Value>
-      <Value>..</Value>
-      <Value>%24(PackRepoDir)\Atmel\ATtiny_DFP\2.0.368\include\</Value>
-    </ListValues>
-  </avrgcc.compiler.directories.IncludePaths>
-  <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
-  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
-  <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
-  <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
-  <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
-  <avrgcc.compiler.miscellaneous.OtherFlags>-std=gnu99 -Wno-misspelled-isr</avrgcc.compiler.miscellaneous.OtherFlags>
-  <avrgcc.linker.general.DoNotUseStandardStartFiles>True</avrgcc.linker.general.DoNotUseStandardStartFiles>
-  <avrgcc.linker.general.NoStartupOrDefaultLibs>True</avrgcc.linker.general.NoStartupOrDefaultLibs>
-  <avrgcc.linker.libraries.Libraries>
-    <ListValues>
-      <Value>libm</Value>
-    </ListValues>
-  </avrgcc.linker.libraries.Libraries>
-  <avrgcc.linker.memorysettings.Sram>
-    <ListValues>
-      <Value>.shared=0x0160</Value>
-      <Value>.bss=0x0100</Value>
-    </ListValues>
-  </avrgcc.linker.memorysettings.Sram>
-  <avrgcc.assembler.general.IncludePaths>
-    <ListValues>
-      <Value>%24(PackRepoDir)\Atmel\ATtiny_DFP\2.0.368\include\</Value>
-    </ListValues>
-  </avrgcc.assembler.general.IncludePaths>
-  <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
-</AvrGcc>
+        <avrgcc.common.Device>-mmcu=attiny841 -B "%24(PackRepoDir)\Atmel\ATtiny_DFP\2.0.368\gcc\dev\attiny841"</avrgcc.common.Device>
+        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+        <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+        <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+        <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
+        <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
+        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+        <avrgcc.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>DEBUG</Value>
+          </ListValues>
+        </avrgcc.compiler.symbols.DefSymbols>
+        <avrgcc.compiler.directories.IncludePaths>
+          <ListValues>
+            <Value>../../uCodebase</Value>
+            <Value>..</Value>
+            <Value>%24(PackRepoDir)\Atmel\ATtiny_DFP\2.0.368\include\</Value>
+          </ListValues>
+        </avrgcc.compiler.directories.IncludePaths>
+        <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
+        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+        <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
+        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+        <avrgcc.compiler.miscellaneous.OtherFlags>-std=gnu99 -Wno-misspelled-isr</avrgcc.compiler.miscellaneous.OtherFlags>
+        <avrgcc.linker.general.DoNotUseStandardStartFiles>True</avrgcc.linker.general.DoNotUseStandardStartFiles>
+        <avrgcc.linker.general.NoStartupOrDefaultLibs>True</avrgcc.linker.general.NoStartupOrDefaultLibs>
+        <avrgcc.linker.libraries.Libraries>
+          <ListValues>
+            <Value>libm</Value>
+          </ListValues>
+        </avrgcc.linker.libraries.Libraries>
+        <avrgcc.linker.memorysettings.Sram>
+          <ListValues>
+            <Value>.shared=0x0160</Value>
+            <Value>.bss=0x0100</Value>
+          </ListValues>
+        </avrgcc.linker.memorysettings.Sram>
+        <avrgcc.assembler.general.IncludePaths>
+          <ListValues>
+            <Value>%24(PackRepoDir)\Atmel\ATtiny_DFP\2.0.368\include\</Value>
+          </ListValues>
+        </avrgcc.assembler.general.IncludePaths>
+        <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
+      </AvrGcc>
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\common\application.h">
+      <SubType>compile</SubType>
+      <Link>common\application.h</Link>
+    </Compile>
     <Compile Include="..\common\bootloader_x41.c">
       <SubType>compile</SubType>
       <Link>common\bootloader_x41.c</Link>
@@ -190,6 +194,10 @@
     <Compile Include="..\common\device.h">
       <SubType>compile</SubType>
       <Link>common\device.h</Link>
+    </Compile>
+    <Compile Include="..\common\main_x41.c">
+      <SubType>compile</SubType>
+      <Link>common\main_x41.c</Link>
     </Compile>
     <Compile Include="..\common\protocol.c">
       <SubType>compile</SubType>
@@ -219,15 +227,8 @@
       <SubType>compile</SubType>
       <Link>codebase\softCRC.h</Link>
     </Compile>
-    <Compile Include="main.c">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="main.h">
       <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="main_driver.h">
-      <SubType>compile</SubType>
-      <Link>main_driver.h</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>

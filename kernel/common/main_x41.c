@@ -4,8 +4,8 @@
  * Created: 31.07.2017 21:12:05
  * Author : Christian Marty
  */ 
-#include "main.h"
-#include "../common/device.h"
+#include <main.h>
+#include "device.h"
 
 #ifdef TINYAVR_1SERIES
 	#include "../common/bootloader_1series.h"

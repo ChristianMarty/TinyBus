@@ -1,15 +1,14 @@
-/*
- * main_driver.h
- *
- * Created: 29.05.2017 00:45:00
- *  Author: Christian
- */ 
+//**********************************************************************************************************************
+// FileName : application.h
+// FilePath : common/
+// Author   : Christian Marty
+// Date		: 30.05.2024
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
+#ifndef APPLICATION_H_
+#define APPLICATION_H_
 
-#include "main.h"
-#include "../common/typedef.h"
-
-#ifndef MAIN_DRIVER_H_
-#define MAIN_DRIVER_H_
+#include <main.h>
 
 #define AppHeaderByteOffset 0x20
 #define AppInterruptVectorTableSize 30 // Number of Interrupt Vectors
@@ -39,4 +38,4 @@ static inline void app_com_receive_data(uint8_t instruction, uint8_t *data, uint
 	((PF_UINT82P1B) (APP_COM_RECEIVE_DATA_ADDR ))(instruction, data, size, broadcast);
 }
 
-#endif /* MAIN_DRIVER_H_ */
+#endif /* APPLICATION_H_ */
