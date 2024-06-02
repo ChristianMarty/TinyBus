@@ -13,7 +13,6 @@
 #include "analog.h"
 #include "SharedFunctions.h"
 #include "typedef.h"
-
 #include "BH2221FV.h"
 
 #define MAJOR_SW_REV 1
@@ -22,7 +21,20 @@
 #define MAJOR_HW_REV 1
 #define MINOR_HW_REV 0
 
+#define HARDWARE_ID 0x0003
+
+#define APPLICATION_NAME "Ring Light" // Max 18 characters
+
 volatile shared_t shared __attribute__((section (".shared")));
+volatile const application_header_t header __attribute__((section (".header"))) = {
+	.autostart = false,
+	.header_version = 0,
+	.firmwareVersion_major = MAJOR_SW_REV,
+	.firmwareVersion_minor = MINOR_SW_REV,
+	.hardwareId_h = (uint8_t)(HARDWARE_ID>>8),
+	.hardwareId_l = (uint8_t)(HARDWARE_ID),
+	.name = APPLICATION_NAME
+};
 
 void app_main(void)
 {
