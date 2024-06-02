@@ -14,9 +14,9 @@
 #define KERNEL_VERSION_MAJOR 0x01
 #define KERNEL_VERSION_MINOR 0x01
 
-// Device HW Rev 2.2
-#define HARDWARE_VERSION_MAJOR 0x02
-#define HARDWARE_VERSION_MINOR 0x02
+// Device HW Rev 1.0
+#define HARDWARE_VERSION_MAJOR 0x01
+#define HARDWARE_VERSION_MINOR 0x00
 
 
 /******************************************************************************
@@ -26,6 +26,13 @@ Application memory configuration
 #define AppBaseByteAddress 0x0C00
 #define AppRamStart 0x060
 #define AppEepromStart 0x010
+
+
+/******************************************************************************
+Port Initialization
+******************************************************************************/
+
+#define PortInitialization() PORTA = 0x80; DDRA = 0xEF; DDRB = 0x00;
 
 
 /******************************************************************************
@@ -39,6 +46,7 @@ Configure pin for zero-power
 /****************************************************************************** 
 Enable and configure Rx and TX LED 
 ******************************************************************************/
+
 #define RxTxLedEnable // Uncomment to Enable 
 
 #define RxTxLedOnTime 1 // in 5ms steps, int8_t -> max 127 -> 635ms

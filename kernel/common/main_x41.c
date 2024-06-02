@@ -70,9 +70,7 @@ int main(void)
 		*(uint8_t*)i = 0;
 	}
 	
-	PORTA = 0x80;
-	DDRA = 0x80;
-	DDRB = 0x00;
+	PortInitialization();
 	
 	MainPowerOn();
 	CCP = 0xD8;		// Configuration Change Protection
