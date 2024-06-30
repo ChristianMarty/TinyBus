@@ -8,24 +8,19 @@
 #include "utility/softCRC.h"
 #include "main.h"
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
-
-#include <avr/boot.h>
 #include <inttypes.h>
-#include <avr/pgmspace.h>
 
 #ifndef BOOTLOADER_H_
 #define BOOTLOADER_H_
 
 #define RamOffset 0x0100
-#define RamSize RAMSIZE
+#define RamSize 0x0200
 
 #define EepromOffset 0x00810000
-#define EepromSize E2SIZE
+#define EepromSize 0x0200
 
-#define FlashByteSize (FLASHEND +1)
-#define FlashPageByteSize SPM_PAGESIZE
+#define FlashByteSize (0x1FFF +1)
+#define FlashPageByteSize 0x10
 #define AppFlashStart AppBaseByteAddress
 
 #define AppBaseWordAddressH (AppBaseWordAddress>>8)
@@ -43,15 +38,6 @@
 //**************************************************************************
 static inline void bootloader_eraseAppSection(void)
 {
-	cli();
-	eeprom_busy_wait ();
-	for(uint16_t i = AppBaseByteAddress; i < FlashByteSize; i += (FlashPageByteSize*4))
-	{
-		asm("WDR");
-		boot_page_erase(i);
-		boot_spm_busy_wait(); // Wait until the memory is erased.
-	}
-	sei();
 }
 
 //**************************************************************************
@@ -64,12 +50,7 @@ static inline void bootloader_eraseAppSection(void)
 //**************************************************************************
 static inline uint16_t bootloader_appCRC(void)
 {
-	uint16_t crcValue = 0xFFFF;
-	for(uint16_t i = AppBaseByteAddress; i < FlashByteSize-2; i++)
-	{
-		crcValue = crc16_addByte(crcValue, pgm_read_byte(i));
-	}
-	return crcValue;
+    return 0;
 }
 
 //**************************************************************************
@@ -82,10 +63,7 @@ static inline uint16_t bootloader_appCRC(void)
 //**************************************************************************
 static inline uint16_t bootloader_checkAppCRC(uint16_t crcValue)
 {
-	crcValue = crc16_addByte(crcValue, pgm_read_byte(FlashByteSize-2));
-	crcValue = crc16_addByte(crcValue, pgm_read_byte(FlashByteSize-1));
-
-	return crcValue;
+    return 0;
 }
 
 //**************************************************************************
@@ -98,22 +76,6 @@ static inline uint16_t bootloader_checkAppCRC(uint16_t crcValue)
 //**************************************************************************
 static inline void bootloader_writePage(uint16_t pageAddress, uint8_t *data)
 {
-	cli();
-	
-	for (uint8_t i=0; i<FlashPageByteSize; i++)
-	{
-		// Set up little-endian word.
-		uint16_t word = data[i];
-		i++;
-		word |= (data[i] << 8);
-		
-		boot_page_fill ((pageAddress + i), word);
-	}
-
-	boot_page_write(pageAddress);     // Store buffer in flash page.
-	boot_spm_busy_wait();       // Wait until the memory is written.
-	
-	sei();
 }
 
 //**************************************************************************
@@ -124,7 +86,10 @@ static inline void bootloader_writePage(uint16_t pageAddress, uint8_t *data)
 //	Return value: EEPROM Data
 //
 //**************************************************************************
-uint8_t bootloader_readEeprom(uint8_t *address);
+static inline uint8_t bootloader_readEeprom(uint8_t *address)
+{
+    return 0;
+}
 
 //**************************************************************************
 //
@@ -134,19 +99,22 @@ uint8_t bootloader_readEeprom(uint8_t *address);
 //	Return value: None
 //
 //**************************************************************************
-void bootloader_updateEeprom(uint8_t *address, uint8_t data);
+static inline void bootloader_updateEeprom(uint8_t *address, uint8_t data)
+{
+
+}
 
 //**************************************************************************
 //
 //  Read byte from flash
 //
-//	Parameter: Read byte address
-//	Return value: Flash Data
+//	Parameter: The byte address
+//	Return value: Value att address
 //
 //**************************************************************************
 static inline uint8_t bootloader_readByte(uint16_t address)
 {
-	return pgm_read_byte(address);
+    return 0;
 }
 
 #endif /* BOOTLOADER_H_ */

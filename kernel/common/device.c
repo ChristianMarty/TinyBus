@@ -5,19 +5,29 @@
 // Date		: 26.05.2024
 // Website  : www.christian-marty.ch
 //**********************************************************************************************************************
+#ifdef __cplusplus
+extern "C" {
+#endif
+	
 #include "device.h"
 #include "typedef.h"
 #include "main.h"
-#include <avr/pgmspace.h>
-
+	
 #ifdef TINYAVR_1SERIES
 	#include "bootloader_1series.h"
+    uint8_t eeDeviceAddress EEMEM = 0;
 #endif
 #ifdef ATTINYx41
 	#include "bootloader_x41.h"
+    uint8_t eeDeviceAddress EEMEM = 0;
+#endif
+#ifdef TEST_RUN
+    #include "bootloader_test.h"
+    uint8_t eeDeviceAddress = 0;
+    void app_main()
+    {}
 #endif
 
-uint8_t eeDeviceAddress EEMEM = 0;
 shared_t shared __attribute__((section (".shared")));
 
 uint8_t device_getAddress(void);
@@ -29,15 +39,23 @@ void device_init(void)
 	
 	shared.deviceState = APP_STOPPED;
 	shared.appCrc = bootloader_appCRC();
-	if(bootloader_checkAppCRC(shared.appCrc) != 0) shared.deviceState = APP_CRC_ERROR;
-	
+	if(bootloader_checkAppCRC(shared.appCrc) != 0){
+		shared.deviceState = APP_CRC_ERROR;
+	}
 	sei();
 	tickTimer_init();
 	com_init();
 	
-	if(shared.deviceState == APP_STOPPED && (MCUSR | 0x08) == false) //only in case watchdog reset was not triggered
+#ifdef ATTINYx41
+	uint8_t watchdogReset = (MCUSR | 0x08);
+#endif
+#ifdef TEST_RUN
+    uint8_t watchdogReset = false;
+#endif
+
+	if(shared.deviceState == APP_STOPPED && watchdogReset == false) //only in case watchdog reset was not triggered
 	{
-		uint8_t byte = pgm_read_byte(AppBaseByteAddress);
+		uint8_t byte = bootloader_readByte(AppBaseByteAddress);
 		if(byte&0x80){ // if autostart bit is set
 			shared.deviceState = APP_START;
 		}
@@ -131,3 +149,6 @@ uint8_t device_getAddress(void)
 	return bootloader_readEeprom(&eeDeviceAddress);
 }
 
+#ifdef __cplusplus
+}
+#endif

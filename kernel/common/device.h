@@ -9,14 +9,23 @@
 #define DEVICE_H_
 
 #include <main.h>
-#include <avr/eeprom.h>
 #include "com_uart.h"
 #include "tickTimer.h"
 
 #include "../common/typedef.h"
-extern shared_t shared __attribute__((section (".shared")));
 
-#define reset_watchdog() asm("WDR")
+#ifdef TINYAVR_1SERIES
+    #define reset_watchdog() asm("WDR")
+    extern shared_t shared __attribute__((section (".shared")));
+#endif
+#ifdef ATTINYx41
+    #define reset_watchdog() asm("WDR")
+    extern shared_t shared __attribute__((section (".shared")));
+#endif
+#ifdef TEST_RUN
+    #define reset_watchdog()
+    extern shared_t shared;
+#endif
 
 void device_init(void);
 void device_run(void)  __attribute__ ((naked));
@@ -26,5 +35,7 @@ void device_reboot(void);
 
 uint8_t device_updateAddress(uint8_t address);
 
-
+#ifdef __cplusplus
+}
+#endif
 #endif /* DEVICE_H_ */

@@ -11,13 +11,22 @@
 #include "typedef.h"
 #include "device.h"
 
-#include <avr/pgmspace.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifdef TINYAVR_1SERIES
+	#include <avr/pgmspace.h>
 	#include "bootloader_1series.h"
 #endif
 #ifdef ATTINYx41
+	#include <avr/pgmspace.h>
 	#include "bootloader_x41.h"
+#endif
+#ifdef TEST_RUN
+    #include "bootloader_test.h"
+    void app_com_receive_data(uint8_t instruction, uint8_t *data, uint8_t size, bool broadcast)
+    {}
 #endif
 
 #ifdef RxTxLedEnable
@@ -238,7 +247,7 @@ void com_receive_data(uint8_t instruction_byte, uint8_t *data, uint8_t size)
 					break;
 				}
 				for(uint8_t i = 0; i<18; i++){
-					uint8_t byte = pgm_read_byte(AppBaseByteAddress+14+i);
+					uint8_t byte = bootloader_readByte(AppBaseByteAddress+14+i);
 					if(byte == 0x00 || byte == 0xff) break;
 					acknowledgmentData[i+1] = byte;
 					acknowledgmentSize++;
@@ -250,8 +259,8 @@ void com_receive_data(uint8_t instruction_byte, uint8_t *data, uint8_t size)
 					error++;
 					break;
 				}
-				acknowledgmentData[1] = pgm_read_byte(AppBaseByteAddress+2);
-				acknowledgmentData[2] = pgm_read_byte(AppBaseByteAddress+3);
+				acknowledgmentData[1] = bootloader_readByte(AppBaseByteAddress+2);
+				acknowledgmentData[2] = bootloader_readByte(AppBaseByteAddress+3);
 				acknowledgmentSize += 2;
 				break;
 			}

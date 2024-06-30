@@ -5,3 +5,4 @@
 #include "_test_helper.hpp"
 
 #include "test_tickTimer.hpp"
+#include "test_comUart.hpp"

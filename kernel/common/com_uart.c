@@ -10,7 +10,11 @@
 #include "../common/typedef.h"
 #include "../common/protocol.h"
 
-typedef enum {UART_BAUD_DETECT, UART_IDEL, UART_TX, UART_TX_COMPLETE, UART_RX, UART_RX_COMPLETE} uart_state_t;
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef enum {UART_BAUD_DETECT, UART_IDLE, UART_TX, UART_TX_COMPLETE, UART_RX, UART_RX_COMPLETE} uart_state_t;
 
 #ifdef TINYAVR_1SERIES
 #define USART0_RX_ENABLE  USART0.CTRLB |= 0x80
@@ -20,6 +24,12 @@ typedef enum {UART_BAUD_DETECT, UART_IDEL, UART_TX, UART_TX_COMPLETE, UART_RX, U
 #ifdef ATTINYx41
 #define USART0_RX_ENABLE UCSR0B |= 0x90
 #define USART0_RX_DISABLE UCSR0B &= 0x6F
+#endif
+
+#ifdef TEST_RUN
+#define USART0_RX_ENABLE
+#define USART0_RX_DISABLE
+extern uint8_t rxRegister;
 #endif
 
 #ifdef RxTxLedEnable
@@ -35,6 +45,13 @@ volatile uint8_t rx_byte_count;
 volatile uart_state_t uart_state; 
 volatile uint8_t com_error;
 volatile uint8_t uart_timeout_counter;
+
+#ifdef TEST_RUN
+    void com_setUartIdle(void)
+    {
+        uart_state = UART_IDLE;
+    }
+#endif
 
 //**********************************************************************************************************************
 //
@@ -54,7 +71,7 @@ void com_autobaud_init(void)
 {
 #ifdef TINYAVR_1SERIES
 	// TODO
-	uart_state =  UART_IDEL;
+	uart_state =  UART_IDLE;
 #endif
 
 #ifdef ATTINYx41
@@ -87,7 +104,7 @@ void com_autobaud_update(void)
 
 	com_reset_autobaud();
 	USART0_RX_ENABLE;
-	uart_state = UART_IDEL;
+	uart_state = UART_IDLE;
 }
 
 void com_autobaudCapture_interruptHandler(void)
@@ -176,13 +193,13 @@ void com_5ms_tick(void)
 	
 	if(uart_timeout_counter > UartTimeout)
 	{
-		uart_state = UART_IDEL;	
+		uart_state = UART_IDLE;	
 		uart_timeout_counter = 0;
 		uart_buffer_position = 0;
 		com_error = 0;
 	}
 	
-	if(uart_state != UART_IDEL)
+	if(uart_state != UART_IDLE)
 	{
 		uart_timeout_counter ++;
 	}	
@@ -211,7 +228,7 @@ void com_handler(void)
 		}
 	}
 	com_error = 0;
-	uart_state = UART_IDEL;	
+	uart_state = UART_IDLE;	
 }
 
 //----------------------------------------------------------------------------------------------------------------------  
@@ -219,7 +236,7 @@ void USART0_RX_interruptHandler(void)
 {	
 	uart_timeout_counter = 0; // Reset UART Timeout 
 	
-	if(uart_state == UART_IDEL){
+	if(uart_state == UART_IDLE){
 		uart_state = UART_RX;
 		uart_buffer_position = 0;
 	}
@@ -228,23 +245,31 @@ void USART0_RX_interruptHandler(void)
 	
 #ifdef TINYAVR_1SERIES
 	if(USART0.RXDATAH & 0x46) {
-		com_error ++; // check for frame error / data over-run
+		com_error = true; // check for frame error / data over-run
 	}
 	uint8_t rx_byte =  USART0.RXDATAL;
 #endif
 
 #ifdef ATTINYx41
 	if(UCSR0A & 0x14){
-		com_error ++; // check for frame error / data over-run
+		com_error = true; // check for frame error / data over-run
 	}
 	uint8_t rx_byte =  UDR0;
+#endif
+
+#ifdef TEST_RUN
+	uint8_t rx_byte = rxRegister;
 #endif
 	
 	// Convert sync modified COBS to COBS
 	if(rx_byte == 0x00) rx_byte = 0x55;
 	else if(rx_byte == 0x55) rx_byte = 0x00;
 	
-	uart_buffer[uart_buffer_position] = rx_byte;
+	if(uart_buffer_position < UartBufferSize) {
+        uart_buffer[uart_buffer_position] = rx_byte;
+    }else{
+		com_error = true;
+	}
 	uart_buffer_position++;
 	
 	if((rx_byte == 0x00)&&(uart_buffer_position > 1)){
@@ -258,25 +283,27 @@ void transmit_byte(void)
 	if(uart_tx_size > uart_buffer_position) // transmitting
 	{
 		uint8_t tx_byte = uart_buffer[uart_buffer_position];
-		
-		// Convert COBS to sync modified COBS
+        uart_buffer_position ++;
+
+        // Convert COBS to sync modified COBS
 		if(tx_byte == 0x00) tx_byte = 0x55;
 		else if(tx_byte == 0x55) tx_byte = 0x00;
 		
 	#ifdef TINYAVR_1SERIES
 		USART0.TXDATAL = tx_byte;
 	#endif
-
 	#ifdef ATTINYx41
 		UDR0 = tx_byte;
-	#endif
+    #endif
+    #ifdef TEST_RUN
+        com_txMockCallback(tx_byte);
+    #endif
 
-		uart_buffer_position ++;
 	}
 	else // transmission completed
 	{
 		USART0_RX_ENABLE;
-		uart_state = UART_IDEL;
+		uart_state = UART_IDLE;
 	#ifdef RxTxLedEnable
 		TxLedOff();
 	#endif
@@ -333,3 +360,7 @@ void USART0_TX_interruptHandler(void)
 	
 }
 //----------------------------------------------------------------------------------------------------------------------   
+
+#ifdef __cplusplus
+}
+#endif
