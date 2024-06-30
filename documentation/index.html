@@ -1,29 +1,33 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 
-<style>
-
-@font-face {
-    font-family: jost;
-    src: url("jost.light.otf") format("opentype");
-}
-
-body {
-    font-family: 'jost';
-}
-
-</style>
-
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>TinyBus</title>
 	<link media="print" />
-	<link rel="stylesheet" href="documentTemplate_A4.css">
-	<link rel="stylesheet" href="pageLayout.css">
-	<script src="page.js"></script>
+	<link rel="stylesheet" href="https://www.christian-marty.ch/WebPaperLayout/documentTemplate_A4.css">
+	<link rel="stylesheet" href="https://www.christian-marty.ch/WebPaperLayout/pageLayout.css">
+    <link rel="stylesheet" href="https://www.christian-marty.ch/WebPaperLayout/navigation.css">
+    <link rel="stylesheet" href="global.css">
 </head>
 
-<document-page barcode="Interface and protocol documentation">
+<script src="https://www.christian-marty.ch/WebPaperLayout/page.js"></script>
+<script src="https://www.christian-marty.ch/WebPaperLayout/navigation.js"></script>
+
+<body>
+
+<div class="wpl_navigation">
+</div>
+
+<div class="main">
+
+<document-page 
+    title="TinyBus" 
+    subtitle="Interface and protocol documentation" 
+    footer="christian-marty.ch/tinybus/documentation/index.html"
+    link="https://www.christian-marty.ch/tinybus/documentation/index.html"
+>
+    <h1>TinyBus</h1>
     <p>The TinyBus is a galvanically isolated, half-duplex, request-response, master-slave, low-speed bus.</p>
     <p>It was primarily developed to enable easy and cheap, but reliable communication with small microcontrollers.</p>
             
@@ -126,6 +130,11 @@ body {
     <h4>Wake-Up Signal</h4>
     <p>The "RX_RAW" signal (see Interface) can be used as wake-up signal.</p> 
     <p>The output of the optocoupler being open-collector and not reliant on any auxiliary voltage supply allows for a true zero standby power consumption design.</p>
+
+    <h3>Electrical Characteristics</h3>
+    <p>TinyBus is based on a current loop.</p>
+    <p>The loop current must be limited to approximately 80 mA. The open loop voltage must be limited to approximately 12V DC.</p>
+
 </document-page>
 
 <document-page>
@@ -184,6 +193,11 @@ body {
             <td>Optional, for bus powered devices</td>
         </tr>
     </table>
+    <h3>Cabling Requirements</h3>
+    <h4>Maximum Cable Length</h4>
+    <p>TinyBus does not directly specifie a maximum cable length. The maximum cable length primarily depends on the cable's loop resistance.</p>
+    <p>Due to the current-loop-like operation of TinyBus, the resistance of the cable must not exceed a value causing a voltage drop of approximately 7V.</p>
+    <p>Considering the typical 100mA bus current and the 10 Ohms input resistance of a node, a loop resistance of approximately 60 Ohms must not be exceeded.</p>
 </document-page>
 
 <document-page>
@@ -223,12 +237,13 @@ body {
     </table>
 
     <h4>Acknowledgment</h4>
-    <p>Each frame sent to a specific device must be acknowledged. Broadcast frames shall not be acknowledged.</p>
-    <p>The acknowledgment frame is constructed the same way as a regular data frame.</p>
-    <p>The instruction byte shall be the same as it was in the request. If there is no data to be returned, the payload shall be left empty.</p>
+    <p>Each valid frame sent to an individual device must be acknowledged by that device. Broadcast frames shall not be acknowledged.</p>
+    <p>The acknowledgment frame is constructed the same way as a regular data frame. The instruction byte shall be the same as it was in the request. If there is no data to be returned, the payload shall be left empty.</p>
+    
     <h4>Non-Acknowledgment</h4>
-    <p>If an error is detected in the received frame or during the execution of the request a non-acknowledgment should be returned.</p>
-    <p>A non-acknowledgment uses the same frame format as an acknowledgment with the exception that the CRC shall be set to 0.</p>
+    <p>A non-acknowledgment should be returned if an error on a higher layer (Network Layer or  Application Layer) is detected.</p>
+    <p>Incorrect frames on the data link layer must not trigger a non-acknowledgment. Instead, the incorrect frame shall be ignored.</p>
+    <p>A non-acknowledgment uses the same frame format as an acknowledgment with the exception that no payload shall be returned and the CRC shall be set to 0.</p>
     
     <h3>CRC</h3>
     <p>The CRC16 uses an x16 + x12 + x5 + 1 polynomial (0x1021) initialized to 0xFFFF.</p>
@@ -1177,5 +1192,6 @@ body {
     <p><strong>Note: </strong>The address change will become effective after a device reboot.</p>
 
 </document-page>
-    
-    
+
+</div>
+</body>
