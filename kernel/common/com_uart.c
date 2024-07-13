@@ -58,6 +58,7 @@ volatile uint8_t uart_timeout_counter;
 //  Auto Baud detection
 //
 //**********************************************************************************************************************
+volatile uint16_t edge_time_last;
 volatile uint16_t edge_periode_min;
 volatile uint8_t  edge_count;
 
@@ -75,17 +76,18 @@ void com_autobaud_init(void)
 #endif
 
 #ifdef ATTINYx41
-	TCCR1A = 0b00000000; // No PWM
+	TCCR2B = 0x00; // disable timer
+	TIMSK2 = 0b00000000; // Disable Input Capture Interrupt 
+
 	TCCR2A = 0b00000000; // No PWM
-	TCCR1B = 0b00000000;
 	TCCR2B = 0b10000011; // Noise Filter on, Falling Edge, Clk/64
-	TCCR1C = 0b00000000;
 	TCCR2C = 0b00000000;
+	
 	ICR2 = 0x0000;	
 	
-	TIMSK2= 0b00100000; // Enable Input Capture Interrupt 
-	
 	com_reset_autobaud();
+	
+	TIMSK2 = 0b00100000; // Enable Input Capture Interrupt 
 #endif
 }
 
@@ -114,16 +116,18 @@ void com_autobaudCapture_interruptHandler(void)
 #endif
 
 #ifdef ATTINYx41
-	static uint16_t edge_time = 0;
-	uint16_t temp = ICR2;
+	uint16_t edge_time = ICR2;
 	
-	if(ICR2 > edge_time) // test for timer overflow
+	if(edge_time > edge_time_last && edge_count > 1) // test for timer overflow and ignore first 2 edges
 	{
-		uint16_t edge_periode =  temp - edge_time;
-		if(edge_periode_min > edge_periode) edge_periode_min = edge_periode;
+		uint16_t edge_periode =  edge_time - edge_time_last;	
+		if(edge_periode_min > edge_periode){
+			edge_periode_min = edge_periode;
+		}
 	}
+	
 	edge_count ++;
-	edge_time = temp;
+	edge_time_last = edge_time;
 #endif
 }
 
@@ -215,6 +219,7 @@ void com_5ms_tick(void)
 void com_handler(void)
 {
 	if(edge_count > 20 ) com_autobaud_update();
+	
 	if(uart_state != UART_RX_COMPLETE) return;
 	
 	if((!com_error)&&(uart_buffer_position > 4))
