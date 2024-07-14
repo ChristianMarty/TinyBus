@@ -140,6 +140,7 @@
       <Value>libm</Value>
     </ListValues>
   </avrgcc.linker.libraries.Libraries>
+  <avrgcc.linker.optimization.GarbageCollectUnusedSections>False</avrgcc.linker.optimization.GarbageCollectUnusedSections>
   <avrgcc.linker.memorysettings.Flash>
     <ListValues>
       <Value>.text=0x0610</Value>
@@ -174,11 +175,9 @@
     </Compile>
     <Compile Include="BH2221FV.c">
       <SubType>compile</SubType>
-      <Link>BH2221FV.c</Link>
     </Compile>
     <Compile Include="BH2221FV.h">
       <SubType>compile</SubType>
-      <Link>BH2221FV.h</Link>
     </Compile>
     <Compile Include="main.c">
       <SubType>compile</SubType>

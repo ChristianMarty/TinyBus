@@ -8,6 +8,10 @@
 #ifndef DEVICE_H_
 #define DEVICE_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+	
 #include <main.h>
 #include "com_uart.h"
 #include "tickTimer.h"

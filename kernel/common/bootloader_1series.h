@@ -1,18 +1,19 @@
-/*
- * bootloader.h
- *
- * Created: 03.08.2017 22:59:52
- * Author: Christian Marty
- */ 
+//**********************************************************************************************************************
+// FileName : bootloader_1series.h
+// FilePath : common/
+// Author   : Christian Marty
+// Date		: 14.07.2024
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
+#ifndef BOOTLOADER_H_
+#define BOOTLOADER_H_
 
 #include "utility/softCRC.h"
 #include "main.h"
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-
-#ifndef BOOTLOADER_H_
-#define BOOTLOADER_H_
+#include <avr/pgmspace.h>
 
 enum{
 	NVMCTRL_NC = 0,
@@ -25,24 +26,20 @@ enum{
 	NVMCTRL_WFU = 7
 };
 
+#define RamOffset RAMSTART
+#define RamSize RAMSIZE
+
+#define EepromOffset EEPROM_START
+#define EepromSize EEPROM_SIZE
+
 #define FlashByteSize PROGMEM_SIZE
+#define FlashPageByteSize PROGMEM_PAGE_SIZE
+#define AppFlashStart AppBaseByteAddress
 
-#define AppSize (FlashByteSize - AppBaseByteAddress)
-#define AppRamSize (RAMSIZE - AppRamAddress)
-#define AppEepromSize (512 - AppEEPROMAddress)
-
-#define AppBaseWordAddress (AppBaseByteAddress / 2)
 #define AppBaseWordAddressH (AppBaseWordAddress>>8)
 #define AppBaseWordAddressL (AppBaseWordAddress&0xFF)
 
-#define FlashPageByteSize PROGMEM_PAGE_SIZE
-
-#define AppByteSize (FlashByteSize-AppBaseByteAddress)
-#define AppBasePageAddress (AppBaseByteAddress>>6)
-
-#define BootloadTransmitChunkSize 16 
-
-#define CRC_INIT_VALUE 0xFFFF
+#define BootloadTransmitChunkSize 16
 
 //**************************************************************************
 //
@@ -89,7 +86,7 @@ static inline uint16_t bootloader_appCRC(void)
 {
 	uint8_t *nvm_addr = (uint8_t *)MAPPED_PROGMEM_START + PROGMEM_START;
 	
-	uint16_t CRC_value = CRC_INIT_VALUE;
+	uint16_t CRC_value = 0xFFFF;
 	for(uint16_t i = AppBaseByteAddress; i<FlashByteSize-2; i++)
 	{
 		CRC_value = crc16_addByte(CRC_value, nvm_addr[i]);
@@ -149,6 +146,39 @@ static inline void bootloader_writePage(uint16_t pageAddress, uint8_t *data)
 	
 	while(NVMCTRL.STATUS & 0x01);
 	sei();
+}
+
+//**************************************************************************
+//
+//  Read EEPROM
+//
+//	Parameter: Read address
+//	Return value: EEPROM Data
+//
+//**************************************************************************
+uint8_t bootloader_readEeprom(uint8_t *address);
+
+//**************************************************************************
+//
+//  Update EEPROM
+//
+//	Parameter: Write address, write data
+//	Return value: None
+//
+//**************************************************************************
+void bootloader_updateEeprom(uint8_t *address, uint8_t data);
+
+//**************************************************************************
+//
+//  Read byte from flash
+//
+//	Parameter: Read byte address
+//	Return value: Flash Data
+//
+//**************************************************************************
+static inline uint8_t bootloader_readByte(uint16_t address)
+{
+	return pgm_read_byte(address);
 }
 
 #endif /* BOOTLOADER_H_ */

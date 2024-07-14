@@ -10,9 +10,6 @@
 #define EEPROM_READ
 #define EEPROM_WRITE
 
-// KERNEL Rev 1.2
-#define KERNEL_VERSION_MAJOR 0x01
-#define KERNEL_VERSION_MINOR 0x02
 
 // Device HW Rev 2.2
 #define HARDWARE_VERSION_MAJOR 0x02 

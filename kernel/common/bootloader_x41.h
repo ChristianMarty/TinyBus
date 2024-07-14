@@ -5,6 +5,9 @@
 // Date		: 26.05.2024
 // Website  : www.christian-marty.ch
 //**********************************************************************************************************************
+#ifndef BOOTLOADER_H_
+#define BOOTLOADER_H_
+
 #include "utility/softCRC.h"
 #include "main.h"
 
@@ -14,9 +17,6 @@
 #include <avr/boot.h>
 #include <inttypes.h>
 #include <avr/pgmspace.h>
-
-#ifndef BOOTLOADER_H_
-#define BOOTLOADER_H_
 
 #define RamOffset 0x0100
 #define RamSize RAMSIZE

@@ -195,6 +195,10 @@
       <SubType>compile</SubType>
       <Link>common\device.h</Link>
     </Compile>
+    <Compile Include="..\common\kernel.h">
+      <SubType>compile</SubType>
+      <Link>common\kernel.h</Link>
+    </Compile>
     <Compile Include="..\common\main_x41.c">
       <SubType>compile</SubType>
       <Link>common\main_x41.c</Link>

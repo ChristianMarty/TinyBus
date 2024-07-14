@@ -1,5 +1,5 @@
 //**********************************************************************************************************************
-// FileName : tickTimer.h
+// FileName : tickTimer.c
 // FilePath : common/
 // Author   : Christian Marty
 // Date		: 26.05.2024

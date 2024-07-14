@@ -1,5 +1,5 @@
 //**********************************************************************************************************************
-// FileName : protocol.h
+// FileName : protocol.c
 // FilePath : common/
 // Author   : Christian Marty
 // Date		: 26.05.2024
@@ -10,6 +10,7 @@
 #include "com_uart.h"
 #include "typedef.h"
 #include "device.h"
+#include "kernel.h"
 
 #ifdef __cplusplus
 extern "C" {

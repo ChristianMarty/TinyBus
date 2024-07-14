@@ -1,18 +1,13 @@
-/*
- * bootloader.c
- *
- * Created: 31.07.2017 21:12:05
- * Author : Christian Marty
- */ 
+//**********************************************************************************************************************
+// FileName : main_x41.c
+// FilePath : common/
+// Author   : Christian Marty
+// Date		: 14.07.2024
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
 #include <main.h>
 #include "device.h"
-
-#ifdef TINYAVR_1SERIES
-	#include "../common/bootloader_1series.h"
-#endif
-#ifdef ATTINYx41
-	#include "../common/bootloader_x41.h"
-#endif
+#include "bootloader_x41.h"
 
 void InterruptVectorTable(void)  __attribute__ ((naked))  __attribute__ ((section (".vectors")));
 void InterruptVectorTable(void)

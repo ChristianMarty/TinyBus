@@ -1,5 +1,5 @@
 //**********************************************************************************************************************
-// FileName : device.h
+// FileName : device.c
 // FilePath : common/
 // Author   : Christian Marty
 // Date		: 26.05.2024
@@ -15,11 +15,11 @@ extern "C" {
 	
 #ifdef TINYAVR_1SERIES
 	#include "bootloader_1series.h"
-    uint8_t eeDeviceAddress EEMEM = 0;
+    uint8_t eeDeviceAddress __attribute__((section(".eeprom"))) = 0;
 #endif
 #ifdef ATTINYx41
 	#include "bootloader_x41.h"
-    uint8_t eeDeviceAddress EEMEM = 0;
+    uint8_t eeDeviceAddress __attribute__((section(".eeprom"))) = 0;
 #endif
 #ifdef TEST_RUN
     #include "bootloader_test.h"
@@ -46,6 +46,9 @@ void device_init(void)
 	tickTimer_init();
 	com_init();
 	
+#ifdef TINYAVR_1SERIES
+	uint8_t watchdogReset = (RSTCTRL.RSTFR | 0x08);
+#endif
 #ifdef ATTINYx41
 	uint8_t watchdogReset = (MCUSR | 0x08);
 #endif

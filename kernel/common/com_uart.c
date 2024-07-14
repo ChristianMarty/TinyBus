@@ -125,7 +125,6 @@ void com_autobaudCapture_interruptHandler(void)
 			edge_periode_min = edge_periode;
 		}
 	}
-	
 	edge_count ++;
 	edge_time_last = edge_time;
 #endif
