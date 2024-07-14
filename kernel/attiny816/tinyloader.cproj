@@ -143,8 +143,7 @@
   </avrgcc.linker.libraries.Libraries>
   <avrgcc.linker.memorysettings.Sram>
     <ListValues>
-      <Value>.shared=0x3F00</Value>
-      <Value>.bss=0x3F04</Value>
+      <Value>.shared=0x3E60</Value>
     </ListValues>
   </avrgcc.linker.memorysettings.Sram>
   <avrgcc.assembler.general.IncludePaths>
