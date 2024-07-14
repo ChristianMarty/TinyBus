@@ -168,6 +168,7 @@ void com_init(void)
 	
 #ifdef TINYAVR_1SERIES
 	PORTMUX.CTRLB |= 0x01; // Use PA1, PA2 for UART
+	#warning "auto baud detection not implemented. Baudrate set to 14'400 bauds" // TODO: implement
 	USART0.BAUD = 925;
 	USART0.CTRLB = 0xC0;
 	PORTA.DIRSET = 0x02; // TX as output

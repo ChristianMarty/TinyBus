@@ -139,7 +139,13 @@ uint8_t device_updateAddress(uint8_t address)
 {
 	// Note: Address changes apply AFTER restart of the device
 	if((address > 0x00)&&(address < 0x0F)){
+		
+	#ifdef TINYAVR_1SERIES
+		bootloader_updateEeprom((&eeDeviceAddress)+EepromOffset, address);
+	#endif
+	#ifdef ATTINYx41
 		bootloader_updateEeprom(&eeDeviceAddress, address);
+	#endif
 		if(address == device_getAddress()){
 			return true;
 		}
@@ -149,7 +155,14 @@ uint8_t device_updateAddress(uint8_t address)
 
 uint8_t device_getAddress(void)
 {
+	
+#ifdef TINYAVR_1SERIES
+	return bootloader_readEeprom(&eeDeviceAddress+EepromOffset);
+#endif
+#ifdef ATTINYx41
 	return bootloader_readEeprom(&eeDeviceAddress);
+#endif
+	
 }
 
 #ifdef __cplusplus

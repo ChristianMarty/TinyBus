@@ -18,18 +18,12 @@
 //**************************************************************************
 uint8_t bootloader_readEeprom(uint8_t *address)
 {
-	#warning "bootloader_readEeprom not implemented" // TODO: implement bootloader_readEeprom
-	/*cli();
-	while(EECR&0x02);
-	EEARH = ((uint16_t)address)>>8;
-	EEARL = ((uint16_t)address)&0xFF;
-	EECR |= 0x01;
+	cli();
+	while(NVMCTRL.STATUS&0x02);
 	
-	uint8_t data = EEDR;
+	uint8_t *eemem_addr = (uint8_t *) address;
 	sei();
-	return data;*/
-	
-	return 0;
+	return eemem_addr[0];
 }
 
 //**************************************************************************
@@ -42,23 +36,24 @@ uint8_t bootloader_readEeprom(uint8_t *address)
 //**************************************************************************
 void bootloader_updateEeprom(uint8_t *address, uint8_t data)
 {
-	#warning "bootloader_updateEeprom not implemented" // TODO: implement bootloader_updateEeprom
-	/*cli();
-	while(EECR&0x02);
+	cli();
+	while(NVMCTRL.STATUS&0x02);
 	
-	// read data
-	EEARH = ((uint16_t)address)>>8;
-	EEARL = ((uint16_t)address)&0xFF;
-	EECR |= 0x01;
-	
-	uint8_t oldData = EEDR;
-	if(oldData != data){
-		// write data
-		EEDR = data;
-		EECR |= 0x04;
-		EECR |= 0x02;
-		EECR = 0;
-	}
-	sei();*/
-}
+	CPU_CCP = CCP_SPM_gc; // unlock
+	NVMCTRL.CTRLA = NVMCTRL_PBC; // Page buffer clear
 
+	uint8_t *eemem_addr = (uint8_t *) address;
+	eemem_addr[0] = 0xFF;
+	
+	CPU_CCP = CCP_SPM_gc; // unlock
+	NVMCTRL.CTRLA = NVMCTRL_ER; // erase
+	while(NVMCTRL.STATUS&0x02);
+	
+	eemem_addr[0] = data;
+	
+	CPU_CCP = CCP_SPM_gc; // unlock
+	NVMCTRL.CTRLA = NVMCTRL_WP; // Write page buffer to memory
+		
+	while(NVMCTRL.STATUS&0x02);
+	sei();
+}

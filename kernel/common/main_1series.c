@@ -54,7 +54,7 @@ FUSES = {
 	.SYSCFG0 = CRCSRC_NOCRC_gc | RSTPINCFG_UPDI_gc,
 	.SYSCFG1 = SUT_64MS_gc,
 	.APPEND = 0x00, // Application data section disabled
-	.BOOTEND = 0x0A // Boot section size = 0x0A * 256 bytes = 0x0A00 bytes
+	.BOOTEND = 0x0C // Boot section size = 0x0C * 256 bytes = 0x0C00 bytes
 };
 
 
@@ -62,46 +62,26 @@ int main(void)
 {
 	asm("CLR R1");//		'Clear Register 
 	asm("OUT 0x3F,R1");//		Out to I/O location 
-	// Init Stackpointer
-	asm("SER R28");		//		Set Register 
-	asm("OUT 0x3D,R28");//		Out to I/O location 
-	asm("LDI R29,0x3F");//		Load immediate 
-	asm("OUT 0x3E,R29");//		Out to I/O location 
 	
-	// do_copy_data
-	asm("LDI R17,hi8(__data_end)");//		Load immediate 
-	asm("LDI R26,lo8(__data_start)");//		Load immediate 
-	asm("LDI R27,hi8(__data_start)");//		Load immediate 
-	asm("LDI R30,lo8(__data_load_start)");//		Load immediate 
-	asm("LDI R31,hi8(__data_load_start)");//		Load immediate 
-	asm("RJMP .L__do_copy_data_start");//	Relative jump 
+// set stack pointer to 0x01FF (top of kernel SRAM)
+	#define StackPointerInit  (RamSize+RamOffset-0x01)
+	asm("LDI R29, %0" ::  "i" ((StackPointerInit>>8)&0xFF):);
+	asm("LDI R28, %0" ::  "i" (StackPointerInit&0xFF):);
+	asm("OUT 0x3E,R29");//		Out to I/O location
+	asm("OUT 0x3D,R28");//		Out to I/O location
+
+// clear RAM to all 0
+	for(uint16_t i = RamOffset; i<RamOffset+RamSize; i++){
+	*(uint8_t*)i = 0;
+	}
+
+	PortInitialization();
 	
-	asm (".L__do_copy_data_loop:");
-	asm("LPM R0,Z+");//			Load program memory and post-increment 
-	asm("ST X+,R0");//			Store indirect and post-increment 
-	
-	asm (".L__do_copy_data_start:");
-	asm("CPI R26,lo8(__data_end)");//		Compare with immediate 
-	asm("CPC R27,R17");//		Compare with carry 
-	asm("BRNE .L__do_copy_data_loop");//		Branch if not equal 
-	
-	// do_clear_bss
-	asm("LDI R18,hi8(__bss_end)");//		Load immediate 
-	asm("LDI R26,lo8(__bss_start)");//		Load immediate 
-	asm("LDI R27,hi8(__bss_start)");//		Load immediate 
-	asm("RJMP .do_clear_bss_start");//	Relative jump 
-	
-	asm (".do_clear_bss_loop:");
-	asm("ST X+,__zero_reg__");//			Store indirect and post-increment 
-	
-	asm (".do_clear_bss_start:");
-	asm("CPI R26,lo8(__bss_end)");//		Compare with immediate 
-	asm("CPC R27,R18");//		Compare with carry 
-	asm("BRNE .do_clear_bss_loop");//		Branch if not equal 
-	
+	MainPowerOn();
 	CPU_CCP = CCP_IOREG_gc;
 	CPUINT.CTRLA = 0x40; //Interrupt vectors are placed at the start of the BOOT section of the Flash
-	
+	reset_watchdog();
+		
 	device_init();
 	device_run();	// this function contains the main while(1) loop
 }
