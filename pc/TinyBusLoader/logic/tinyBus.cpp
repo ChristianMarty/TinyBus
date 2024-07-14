@@ -11,7 +11,7 @@ void TinyBus::write(QByteArray data)
 {
     if(_connection == nullptr) return;
 
-    emit newMessage("TX: "+data.toHex().prepend("0x"));
+    emit newMessage("TX: "+data.toHex().toUpper().prepend("0x"));
     _connection->sendData(data);
 }
 
@@ -51,7 +51,7 @@ void TinyBus::_updateNextDevice()
 
 void TinyBus::on_newData(QByteArray data)
 {
-    emit newMessage("RX: "+data.toHex().prepend("0x"));
+    emit newMessage("RX: "+data.toHex().toUpper().prepend("0x"));
 
     if(data.size() < 2) return; // TODO: add error
 

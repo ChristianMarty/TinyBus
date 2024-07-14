@@ -654,7 +654,7 @@
               </font>
              </property>
              <property name="text">
-              <string>Output:</string>
+              <string>Bus Monitor:</string>
              </property>
             </widget>
            </item>
@@ -665,6 +665,12 @@
                <width>500</width>
                <height>0</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Consolas</family>
+               <kerning>false</kerning>
+              </font>
              </property>
              <property name="frameShape">
               <enum>QFrame::Box</enum>
