@@ -156,12 +156,15 @@
        <item>
         <widget class="QLineEdit" name="lineEdit_url">
          <property name="text">
-          <string>serial://com7</string>
+          <string>serial://com7:4800</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="pushButton_connect">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
          <property name="text">
           <string>Connect</string>
          </property>
@@ -169,6 +172,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="pushButton_disconnect">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
          <property name="text">
           <string>Disconnect</string>
          </property>
@@ -186,6 +192,36 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_connected">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="text">
+          <string>Not Connected</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_tx">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>TX</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_rx">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>RX</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -395,7 +431,7 @@
               </font>
              </property>
              <property name="text">
-              <string>Firmware:</string>
+              <string>Firmware Upload:</string>
              </property>
             </widget>
            </item>
@@ -427,6 +463,13 @@
                </property>
                <property name="text">
                 <string>...</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_reload">
+               <property name="text">
+                <string>Reload</string>
                </property>
               </widget>
              </item>
@@ -500,6 +543,9 @@
              </item>
              <item>
               <widget class="QPushButton" name="pushButton_upload">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="text">
                 <string>Start Upload</string>
                </property>
@@ -569,17 +615,47 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">
            <item>
-            <widget class="QLabel" name="label_5">
-             <property name="font">
-              <font>
-               <pointsize>15</pointsize>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Device Information:</string>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <widget class="QLabel" name="label_5">
+               <property name="font">
+                <font>
+                 <pointsize>15</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Device Information:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_4">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_address">
+               <property name="font">
+                <font>
+                 <pointsize>15</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item>
             <widget class="DeviceInformationWidget" name="widget_device" native="true">

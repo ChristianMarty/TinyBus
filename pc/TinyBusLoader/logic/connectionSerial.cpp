@@ -15,21 +15,34 @@ ConnectionSerial::~ConnectionSerial()
 
 void ConnectionSerial::open(QString url)
 {
+    QStringList parts = url.remove("serial://", Qt::CaseInsensitive).split(":");
+
+    QString port = parts[0];
+    int baud = 14400;
+    if(parts.length()>1){
+        baud = parts[1].toInt();
+    }
+
     _serialPort.setPortName(url.remove("serial://", Qt::CaseInsensitive));
-    _serialPort.setBaudRate(14400);
+    _serialPort.setBaudRate(baud);//14400);
     _serialPort.setParity(QSerialPort::Parity::NoParity);
     _serialPort.open(QIODeviceBase::ReadWrite);
+
+    emit connectionStateChanged();
 }
 
 void ConnectionSerial::close()
 {
     emit newMessage("Disconnecting");
     _serialPort.close();
+    _isConnected = false;
+
+    emit connectionStateChanged();
 }
 
 bool ConnectionSerial::connected()
 {
-    return _serialPort.isOpen();
+    return _isConnected;
 }
 
 void ConnectionSerial::sendData(QByteArray data)
@@ -49,6 +62,7 @@ void ConnectionSerial::sendData(QByteArray data)
         if((uint8_t)byte == 0x00) byte = (uint8_t)0x55;
         else if((uint8_t)byte == 0x55) byte = (uint8_t)0x00;
     }
+    emit tx();
     _serialPort.write(encodedData);
 }
 
@@ -72,6 +86,7 @@ void ConnectionSerial::on_readyRead()
             newMessage("CRC Error");
             return;
         }
+        emit rx();
         emit newData(message.mid(0,message.length()-2));
     }
 }
@@ -91,5 +106,16 @@ void ConnectionSerial::on_errorOccurred(QSerialPort::SerialPortError error)
         case QSerialPort::TimeoutError: emit newMessage("A timeout error occurred. "); break;
         case QSerialPort::UnknownError: emit newMessage("An unidentified error occurred."); break;
     }
+
+    if(error!=QSerialPort::NoError){
+        if(_serialPort.isOpen()){
+            _serialPort.close();
+        }
+        _isConnected = false;
+    }else{
+        _isConnected = true;
+    }
+
+    emit connectionStateChanged();
 }
 

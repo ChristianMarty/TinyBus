@@ -7,6 +7,7 @@ DeviceInformationWidget::DeviceInformationWidget(QWidget *parent) :
 {
     ui->setupUi(this);
     _device = nullptr;
+    setEnabled(false);
 }
 
 DeviceInformationWidget::~DeviceInformationWidget()
@@ -19,15 +20,73 @@ DeviceInformationWidget::~DeviceInformationWidget()
 
 void DeviceInformationWidget::setDevice(Device *device)
 {
-    if(_device != nullptr){
-        disconnect(device, &Device::changed, this, &DeviceInformationWidget::on_selectedDeviceChanged);
+    if(device == nullptr){
+        if(_device != nullptr){
+            disconnect(device, &Device::changed, this, &DeviceInformationWidget::on_selectedDeviceChanged);
+        }
+        setEnabled(false);
+        _device = device;
+        return;
     }
 
     _device = device;
-    if(device == nullptr) return;
-
     connect(_device, &Device::changed, this, &DeviceInformationWidget::on_selectedDeviceChanged);
     _update();
+    setEnabled(true);
+
+    if(_memoryWidget != nullptr){
+        _memoryWidget->setDevice(device);
+    }
+
+    if(_eepromMemoryWidget != nullptr){
+        _eepromMemoryWidget->setDevice(device);
+    }
+}
+
+void DeviceInformationWidget::setEnabled(bool enabled)
+{
+    ui->pushButton_start->setEnabled(enabled);
+    ui->pushButton_stop->setEnabled(enabled);
+    ui->pushButton_writeAddress->setEnabled(enabled);
+    ui->pushButton_getDeviceState->setEnabled(enabled);
+    ui->pushButton_getCrc->setEnabled(enabled);
+    ui->pushButton_reboot->setEnabled(enabled);
+    ui->pushButton_getName->setEnabled(enabled);
+    ui->pushButton_getVersion->setEnabled(enabled);
+    ui->pushButton_readRam->setEnabled(enabled);
+    ui->pushButton_readEeprom->setEnabled(enabled);
+    ui->pushButton_readMemoryInformation->setEnabled(enabled);
+    ui->pushButton_readHardwareInformation->setEnabled(enabled);
+    ui->spinBox_newAddress->setEnabled(enabled);
+}
+
+void DeviceInformationWidget::clear()
+{
+    ui->label_crc->clear();
+    ui->label_state->clear();
+
+    ui->label_applicationName->clear();
+    ui->label_applicationVersion->clear();
+
+    // Kernel
+    ui->label_kernelRevision->clear();
+
+    // Hardware
+    ui->label_hardwareRevision->clear();
+    ui->label_hardwareId->clear();
+    ui->label_controllerId->clear();
+
+    // Device Information
+    ui->label_flashAppStart->clear();
+    ui->label_flashSize->clear();
+
+    ui->label_flashPageSize->clear();
+
+    ui->label_ramSize->clear();
+    ui->label_ramAppStart->clear();
+
+    ui->label_eepromSize->clear();
+    ui->label_eepromAppStart->clear();
 }
 
 void DeviceInformationWidget::on_selectedDeviceChanged()

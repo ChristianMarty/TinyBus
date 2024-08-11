@@ -6,6 +6,22 @@ EepromMemoryWidget::EepromMemoryWidget(Device *device, QWidget *parent)
     , ui(new Ui::EepromMemoryWidget)
 {
     ui->setupUi(this);
+
+    setDevice(device);
+
+}
+
+EepromMemoryWidget::~EepromMemoryWidget()
+{
+    delete ui;
+}
+
+void EepromMemoryWidget::setDevice(Device *device)
+{
+    if(_device != nullptr){
+        disconnect(_device, &Device::eepromDataChanged, this, &EepromMemoryWidget::on_eepromDataChanged);
+    }
+
     _device = device;
 
     _initMemory();
@@ -19,16 +35,6 @@ EepromMemoryWidget::EepromMemoryWidget(Device *device, QWidget *parent)
     ui->spinBox_stop->setValue(eepromSize);
 
     ui->spinBox_writeAddress->setMaximum(eepromSize);
-}
-
-EepromMemoryWidget::~EepromMemoryWidget()
-{
-    delete ui;
-}
-
-void EepromMemoryWidget::dataReceived(QByteArray data)
-{
-
 }
 
 void EepromMemoryWidget::on_pushButton_read_clicked()
@@ -56,6 +62,7 @@ void EepromMemoryWidget::_initMemory()
     if(_device == nullptr){
         return;
     }
+
     for(uint16_t i = 0; i<_device->bootSystemInformation().eepromSize; i++){
         _memory.append(MemoryByte{.read=false,.byte=0});
     }

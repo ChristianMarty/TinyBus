@@ -40,6 +40,14 @@ private slots:
     void on_pushButton_upload_clicked();
     void on_lineEdit_firmwarePath_textChanged(const QString &arg1);
 
+    void on_pushButton_reload_clicked();
+
+    void on_connectionStateChanged(void);
+    void on_dataRx(void);
+    void on_dataTx(void);
+    void on_dataRxTimer(void);
+    void on_dataTxTimer(void);
+
 private:
     Ui::MainWindow *ui;
     Connection* _connection = nullptr;
@@ -47,5 +55,6 @@ private:
     Device *_selectedDevice = nullptr;
 
     void _update(void);
+    void _updateConnectionState(void);
 };
 #endif // MAINWINDOW_H

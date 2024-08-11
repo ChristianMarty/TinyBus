@@ -16,7 +16,7 @@ public:
     explicit MemoryWidget(Device *device, QWidget *parent = nullptr);
     ~MemoryWidget();
 
-    void dataReceived(QByteArray data);
+    void setDevice(Device *device);
 
     struct MemoryByte {
         bool read = false;

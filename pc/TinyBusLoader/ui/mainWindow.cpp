@@ -4,6 +4,8 @@
 #include "queueItemWidget.h"
 #include <QFileDialog>
 
+#include "colorPalette.h"
+
 #include "logic/connectionTcp.h"
 #include "logic/connectionSerial.h"
 
@@ -17,6 +19,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&_tinyBus, &TinyBus::deviceChanged, this, &MainWindow::on_deviceChanged);
     connect(&_tinyBus, &TinyBus::hexFileChanged, this, &MainWindow::on_hexFileChanged);
     connect(&_tinyBus, &TinyBus::newMessage, this, &MainWindow::on_message);
+
+    ui->label_rx->setPalette(ColorPalette::status());
+    ui->label_tx->setPalette(ColorPalette::status());
+
+    _updateConnectionState();
+    _update();
 }
 
 MainWindow::~MainWindow()
@@ -28,6 +36,13 @@ void MainWindow::selectDevice(Device *device)
 {
     _selectedDevice = device;
     ui->widget_device->setDevice(_selectedDevice);
+
+    if(_selectedDevice != nullptr){
+        ui->label_address->setText(QString::number(_selectedDevice->address()));
+    }else{
+        ui->label_address->clear();
+        ui->widget_device->clear();
+    }
 }
 
 void MainWindow::on_deviceListChanged()
@@ -65,6 +80,9 @@ void MainWindow::on_deviceChanged(Device *device)
             selectedList.append(QString::number(device->address()));
         }
     }
+    if(selectedList.isEmpty()) ui->pushButton_upload->setEnabled(false);
+    else ui->pushButton_upload->setEnabled(true);
+
     ui->label_selectedDevices->setText(selectedList);
 }
 
@@ -86,16 +104,27 @@ void MainWindow::on_pushButton_connect_clicked()
         if(type == Connection::Type::TCP) _connection = new ConnectionTcp();
         else if(type == Connection::Type::SerialPort) _connection = new ConnectionSerial();
 
+        connect(_connection, &Connection::connectionStateChanged, this, &MainWindow::on_connectionStateChanged);
+        connect(_connection, &Connection::rx, this, &MainWindow::on_dataRx);
+        connect(_connection, &Connection::tx, this, &MainWindow::on_dataTx);
+
         _tinyBus.setConnection(_connection);
     }
     _connection->open(ui->lineEdit_url->text());
+
+    _updateConnectionState();
 }
 
 void MainWindow::on_pushButton_disconnect_clicked()
 {
+    disconnect(_connection, &Connection::connectionStateChanged, this, &MainWindow::on_connectionStateChanged);
+    disconnect(_connection, &Connection::rx, this, &MainWindow::on_dataRx);
+    disconnect(_connection, &Connection::tx, this, &MainWindow::on_dataTx);
     delete _connection;
     _connection = nullptr;
     _tinyBus.setConnection(_connection);
+
+    _updateConnectionState();
 }
 
 void MainWindow::_update()
@@ -117,6 +146,33 @@ void MainWindow::_update()
     }
 }
 
+void MainWindow::_updateConnectionState()
+{
+    bool isConnected;
+
+    if(_connection == nullptr){
+        isConnected = false;
+    }else{
+        isConnected = _connection->connected();
+    }
+
+    if(isConnected){
+        ui->label_connected->setText("Connected");
+        ui->label_connected->setPalette(ColorPalette::ok());
+
+        ui->pushButton_connect->setEnabled(false);
+        ui->pushButton_disconnect->setEnabled(true);
+        ui->lineEdit_url->setEnabled(false);
+    }else{
+        ui->label_connected->setText("Not Connected");
+        ui->label_connected->setPalette(ColorPalette::error());
+
+        ui->pushButton_connect->setEnabled(true);
+        ui->pushButton_disconnect->setEnabled(false);
+        ui->lineEdit_url->setEnabled(true);
+    }
+}
+
 void MainWindow::on_pushButton_clear_clicked()
 {
     ui->textEdit_output->clear();
@@ -125,7 +181,7 @@ void MainWindow::on_pushButton_clear_clicked()
 void MainWindow::on_pushButton_startScan_clicked()
 {
     ui->listWidget_devices->clear();
-
+    selectDevice(nullptr);
     _tinyBus.startScan();
 }
 
@@ -153,6 +209,38 @@ void MainWindow::on_pushButton_upload_clicked()
 
 void MainWindow::on_lineEdit_firmwarePath_textChanged(const QString &arg1)
 {
-     _tinyBus.setHexFilePath(ui->lineEdit_firmwarePath->text());
+    _tinyBus.setHexFilePath(ui->lineEdit_firmwarePath->text());
+}
+
+void MainWindow::on_pushButton_reload_clicked()
+{
+    _tinyBus.setHexFilePath(ui->lineEdit_firmwarePath->text());
+}
+
+void MainWindow::on_connectionStateChanged()
+{
+    _updateConnectionState();
+}
+
+void MainWindow::on_dataRx()
+{
+    ui->label_rx->setEnabled(true);
+    QTimer::singleShot(100, this, &MainWindow::on_dataRxTimer);
+}
+
+void MainWindow::on_dataTx()
+{
+    ui->label_tx->setEnabled(true);
+    QTimer::singleShot(100, this, &MainWindow::on_dataTxTimer);
+}
+
+void MainWindow::on_dataRxTimer()
+{
+    ui->label_rx->setEnabled(false);
+}
+
+void MainWindow::on_dataTxTimer()
+{
+    ui->label_tx->setEnabled(false);
 }
 

@@ -16,7 +16,7 @@ public:
     explicit EepromMemoryWidget(Device *device, QWidget *parent = nullptr);
     ~EepromMemoryWidget();
 
-    void dataReceived(QByteArray data);
+    void setDevice(Device *device);
 
     struct MemoryByte {
         bool read = false;

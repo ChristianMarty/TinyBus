@@ -34,6 +34,7 @@ HEADERS += \
     logic/connectionTcp.h \
     logic/tinyBus.h \
     logic/device.h \
+    ui/colorPalette.h \
     ui/deviceInformationWidget.h \
     ui/deviceItemWidget.h \
     ui/eepromMemoryWidget.h \

@@ -24,6 +24,7 @@ private slots:
 
 private:
     QSerialPort _serialPort;
+    bool _isConnected = false;
 };
 
 #endif // CONNECTIONSERIAL_H

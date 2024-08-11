@@ -30,6 +30,11 @@ signals:
     void newData(QByteArray data);
     void newMessage(QString message);
 
+    void connectionStateChanged(void);
+
+    void rx(void);
+    void tx(void);
+
 protected:
     QuCLib::Cobs _cobsDecoder;
 };

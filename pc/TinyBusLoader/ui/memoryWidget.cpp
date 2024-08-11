@@ -6,6 +6,21 @@ MemoryWidget::MemoryWidget(Device *device, QWidget *parent)
     , ui(new Ui::MemoryWidget)
 {
     ui->setupUi(this);
+
+    setDevice(device);
+}
+
+MemoryWidget::~MemoryWidget()
+{
+    delete ui;
+}
+
+void MemoryWidget::setDevice(Device *device)
+{
+    if(_device != nullptr){
+        disconnect(_device, &Device::ramDataChanged, this, &MemoryWidget::on_ramDataChanged);
+    }
+
     _device = device;
 
     _initMemory();
@@ -17,16 +32,6 @@ MemoryWidget::MemoryWidget(Device *device, QWidget *parent)
     ui->spinBox_start->setMaximum(ramSize);
     ui->spinBox_stop->setMaximum(ramSize);
     ui->spinBox_stop->setValue(ramSize);
-}
-
-MemoryWidget::~MemoryWidget()
-{
-    delete ui;
-}
-
-void MemoryWidget::dataReceived(QByteArray data)
-{
-
 }
 
 void MemoryWidget::on_pushButton_read_clicked()
@@ -83,6 +88,8 @@ void MemoryWidget::_read()
 void MemoryWidget::_printMemory()
 {
     ui->textEdit_memory->clear();
+    ui->textEdit_memory->append("           00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F");
+    ui->textEdit_memory->append("         ..................................................");
 
     uint16_t appRamStart = _device->bootSystemInformation().ramAppStart;
 

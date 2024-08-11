@@ -18,6 +18,7 @@ void TinyBus::write(QByteArray data)
 void TinyBus::startUpdate()
 {
     _updateQueue.clear();
+
     for(Device *device: _devices){
         if(device->selectedForUpdate()){
             _updateQueue.append(device);
@@ -74,7 +75,10 @@ void TinyBus::startScan()
 
     qDeleteAll(_devices);
     _devices.clear();
+    _updateQueue.clear();
 
+    emit deviceChanged(nullptr);
+    emit updateQueueChanged();
     emit deviceListChanged();
 
     _busScanDevcieAddress = 0;
