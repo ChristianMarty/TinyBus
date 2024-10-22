@@ -165,6 +165,57 @@ uint8_t device_getAddress(void)
 	
 }
 
+
+bool device_readEepromAppSection(uint16_t offset, uint8_t *data, uint16_t size)
+{
+	#define EepromAppSize (EepromSize-AppEepromStart)
+	
+	if(size+offset > EepromAppSize){
+		return false;
+	}
+	
+	#ifdef TINYAVR_1SERIES
+		#error APP EEPROM section read not implemented!
+	#endif
+	
+	#ifdef ATTINYx41
+	
+		uint16_t baseAddress = ((uint16_t)&eeDeviceAddress) + AppEepromStart + offset;
+		for(uint16_t i = 0; i<size ;i++){
+			data[i] = bootloader_readEeprom((uint8_t*)(baseAddress+i));	
+		}
+		return  true;
+		
+	#endif
+	
+	return false;
+}
+
+bool device_writeEepromAppSection(uint16_t offset, uint8_t *data, uint16_t size)
+{
+	#define EepromAppSize (EepromSize-AppEepromStart)
+	
+	if(size+offset > EepromAppSize){
+		return false;
+	}
+	
+	#ifdef TINYAVR_1SERIES
+		#error APP EEPROM section write not implemented!
+	#endif
+	
+	#ifdef ATTINYx41
+	
+		uint16_t baseAddress = ((uint16_t)&eeDeviceAddress) + AppEepromStart + offset;
+		for(uint16_t i = 0; i<size ;i++){
+			bootloader_updateEeprom((uint8_t*)(baseAddress+i), data[i]);
+		}
+		return  true;
+	
+	#endif
+
+	return false;
+}
+
 #ifdef __cplusplus
 }
 #endif

@@ -39,6 +39,25 @@ void device_reboot(void);
 
 uint8_t device_updateAddress(uint8_t address);
 
+
+//**************************************************************************
+//  Read EEPROM App Section
+//
+//	Parameter: Offset within app section, read data, read size
+//	Return value: true if successful
+//	
+//**************************************************************************
+bool device_readEepromAppSection(uint16_t offset, uint8_t *data, uint16_t size);
+
+//**************************************************************************
+//  Write EEPROM App Section
+//
+//	Parameter: Offset within app section, write data, write size
+//	Return value: true if successful
+//
+//**************************************************************************
+bool device_writeEepromAppSection(uint16_t offset, uint8_t *data, uint16_t size);
+
 #ifdef __cplusplus
 }
 #endif
