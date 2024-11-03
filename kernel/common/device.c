@@ -35,7 +35,9 @@ uint8_t device_getAddress(void);
 void device_init(void)
 {
 	shared.address = device_getAddress();
-	if(shared.address >= 0xF) shared.address = 0x00; // in case the EEPROM was never programmed or address is out of range (>15)
+	if(shared.address >= 0xF){
+		shared.address = 0x00; // in case the EEPROM was never programmed or address is out of range (>15)
+	}
 	
 	shared.deviceState = APP_STOPPED;
 	shared.appCrc = bootloader_appCRC();
@@ -166,7 +168,6 @@ uint8_t device_getAddress(void)
 	
 }
 
-
 bool device_readEepromAppSection(uint16_t offset, uint8_t *data, uint16_t size)
 {
 	#define EepromAppSize (EepromSize-AppEepromStart)
@@ -182,7 +183,7 @@ bool device_readEepromAppSection(uint16_t offset, uint8_t *data, uint16_t size)
 	#ifdef ATTINYx41
 	
 		uint16_t baseAddress = ((uint16_t)&eeDeviceAddress) + AppEepromStart + offset;
-		for(uint16_t i = 0; i<size ;i++){
+		for(uint16_t i = 0; i<size; i++){
 			data[i] = bootloader_readEeprom((uint8_t*)(baseAddress+i));	
 		}
 		return  true;
@@ -207,7 +208,7 @@ bool device_writeEepromAppSection(uint16_t offset, uint8_t *data, uint16_t size)
 	#ifdef ATTINYx41
 	
 		uint16_t baseAddress = ((uint16_t)&eeDeviceAddress) + AppEepromStart + offset;
-		for(uint16_t i = 0; i<size ;i++){
+		for(uint16_t i = 0; i<size; i++){
 			bootloader_updateEeprom((uint8_t*)(baseAddress+i), data[i]);
 		}
 		return  true;
