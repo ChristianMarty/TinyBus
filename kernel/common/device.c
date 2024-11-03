@@ -47,15 +47,16 @@ void device_init(void)
 	com_init();
 	
 #ifdef TINYAVR_1SERIES
-	uint8_t watchdogReset = (RSTCTRL.RSTFR | 0x08);
+	bool watchdogReset = (RSTCTRL.RSTFR & 0x08);
 #endif
 #ifdef ATTINYx41
-	uint8_t watchdogReset = (MCUSR | 0x08);
+	bool watchdogReset = (MCUSR & 0x08);
 #endif
 #ifdef TEST_RUN
-    uint8_t watchdogReset = false;
+    bool watchdogReset = false;
 #endif
 
+// Autostart app
 	if(shared.deviceState == APP_STOPPED && watchdogReset == false) //only in case watchdog reset was not triggered
 	{
 		uint8_t byte = bootloader_readByte(AppBaseByteAddress);
