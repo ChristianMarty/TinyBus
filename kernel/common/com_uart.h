@@ -14,18 +14,29 @@
 extern "C" {
 #endif
 
-#include "utility/softCRC.h"
-#include "utility/cobs_u8.h"
 #ifndef TEST_RUN
 #include "application.h"
 #endif
 
 #include "main.h"
 
+typedef enum {
+	BAUD_300,
+	BAUD_600,
+	BAUD_1200,
+	BAUD_2400,
+	BAUD_4800,
+	BAUD_9600,
+	BAUD_14400,
+	BAUD_19200,
+	BAUD_LENGTH
+}com_baudRate;
+
 #define UartBufferSize 30
 #define UartTimeout 10 // In 5ms ticks -> 10 x 5ms = 50ms
 
 void com_init(void);
+void com_setBaudrate(com_baudRate baudRate);
 
 void com_transmitData(uint8_t instruction_byte, uint8_t *data, uint8_t size, bool is_nAck);
 void com_receiveData(uint8_t instruction_byte, uint8_t *data, uint8_t size);

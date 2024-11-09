@@ -17,14 +17,23 @@ extern "C" {
 #include "tickTimer.h"
 
 #include "../common/typedef.h"
+	
+typedef struct{
+	uint8_t deviceAddress;
+	uint8_t hardwareVersionMajor;
+	uint8_t hardwareVersionMinor;
+	com_baudRate baudRate;
+}settings_t;
 
 #ifdef TINYAVR_1SERIES
     #define reset_watchdog() asm("WDR")
     extern shared_t shared __attribute__((section (".shared")));
+	extern settings_t eeSettings  __attribute__((section(".eeprom")));
 #endif
 #ifdef ATTINYx41
     #define reset_watchdog() asm("WDR")
     extern shared_t shared __attribute__((section (".shared")));
+	extern settings_t eeSettings  __attribute__((section(".eeprom")));
 #endif
 #ifdef TEST_RUN
     #define reset_watchdog()
@@ -37,8 +46,10 @@ void device_run(void)  __attribute__ ((naked));
 void device_eraseApp(void);
 void device_reboot(void);
 
-uint8_t device_updateAddress(uint8_t address);
+void device_saveBaudRate(void);
+void device_setBaudRate(uint8_t baudRateIndex);
 
+uint8_t device_updateAddress(uint8_t address);
 
 //**************************************************************************
 //  Read EEPROM App Section

@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-typedef enum {UART_BAUD_DETECT, UART_IDLE, UART_TX, UART_TX_COMPLETE, UART_RX, UART_RX_COMPLETE} uart_state_t;
+typedef enum {UART_IDLE, UART_TX, UART_TX_COMPLETE, UART_RX, UART_RX_COMPLETE} uart_state_t;
 
 #ifdef TINYAVR_1SERIES
 #define USART0_RX_ENABLE  USART0.CTRLB |= 0x80
@@ -53,83 +53,6 @@ volatile uint8_t uart_timeout_counter;
     }
 #endif
 
-//**********************************************************************************************************************
-//
-//  Auto Baud detection
-//
-//**********************************************************************************************************************
-volatile uint16_t edge_time_last;
-volatile uint16_t edge_periode_min;
-volatile uint8_t  edge_count;
-
-void com_reset_autobaud(void)
-{
-	edge_periode_min = 0xFFFF;
-	edge_count = 0;
-}
-
-void com_autobaud_init(void)
-{
-#ifdef TINYAVR_1SERIES
-	// TODO
-	uart_state =  UART_IDLE;
-#endif
-
-#ifdef ATTINYx41
-	TCCR2B = 0x00; // disable timer
-	TIMSK2 = 0b00000000; // Disable Input Capture Interrupt 
-
-	TCCR2A = 0b00000000; // No PWM
-	TCCR2B = 0b10000011; // Noise Filter on, Falling Edge, Clk/64
-	TCCR2C = 0b00000000;
-	
-	ICR2 = 0x0000;	
-	
-	com_reset_autobaud();
-	
-	TIMSK2 = 0b00100000; // Enable Input Capture Interrupt 
-#endif
-}
-
-void com_autobaud_update(void)
-{
-	if(uart_state != UART_BAUD_DETECT) return;
-
-#ifdef TINYAVR_1SERIES
-	//TODO
-#endif
-
-#ifdef ATTINYx41
-	UBRR0 = (edge_periode_min *4)-1;
-	edge_periode_min = 0xFFFF;
-#endif
-
-	com_reset_autobaud();
-	USART0_RX_ENABLE;
-	uart_state = UART_IDLE;
-}
-
-void com_autobaudCapture_interruptHandler(void)
-{
-#ifdef TINYAVR_1SERIES
-	//TODO
-#endif
-
-#ifdef ATTINYx41
-	uint16_t edge_time = ICR2;
-	
-	if(edge_time > edge_time_last && edge_count > 1) // test for timer overflow and ignore first 2 edges
-	{
-		uint16_t edge_periode =  edge_time - edge_time_last;	
-		if(edge_periode_min > edge_periode){
-			edge_periode_min = edge_periode;
-		}
-	}
-	edge_count ++;
-	edge_time_last = edge_time;
-#endif
-}
-
 void com_setBaudrate(com_baudRate baudRate)
 {	
 #ifdef TINYAVR_1SERIES
@@ -137,12 +60,32 @@ void com_setBaudrate(com_baudRate baudRate)
 #endif
 
 #ifdef ATTINYx41
-	if(baudsetting & 0x8000) UCSR0A |= 0x02; // Double the USART Transmission Speed
-	else UCSR0A &= 0xFD;
-	UBRR0H = ((baudsetting >> 8) & 0x000F);
-	UBRR0L = (baudsetting & 0x00FF);
-	
-	TCCR2B = 0x00; // disable timer
+	switch(baudRate){
+		case BAUD_300:
+		UBRR0 = 0x1A00;
+		break;
+		case BAUD_600:
+		UBRR0 = 0x0D00;
+		break;
+		case BAUD_1200:
+		UBRR0 = 0x0680;
+		break;
+		case BAUD_2400:
+		UBRR0 = 0x0340;
+		break;
+		case BAUD_4800:
+		UBRR0 = 0x01A0;
+		break;
+		case BAUD_9600:
+		UBRR0 = 0x00CF;
+		break;
+		case BAUD_14400:
+		UBRR0 = 0x008A;
+		break;
+		case BAUD_19200:
+		UBRR0 = 0x0067;
+		break;
+	}
 #endif
 }
 
@@ -153,7 +96,7 @@ void com_setBaudrate(com_baudRate baudRate)
 //**********************************************************************************************************************
 void com_init(void)
 {
-	uart_state = UART_BAUD_DETECT; 
+	uart_state = UART_IDLE; 
 	uart_buffer_position = 0;
 
 	uart_tx_size = 0;
@@ -168,7 +111,6 @@ void com_init(void)
 	
 #ifdef TINYAVR_1SERIES
 	PORTMUX.CTRLB |= 0x01; // Use PA1, PA2 for UART
-	#warning "auto baud detection not implemented. Baudrate set to 14'400 bauds" // TODO: implement
 	USART0.BAUD = 925;
 	USART0.CTRLB = 0xC0;
 	PORTA.DIRSET = 0x02; // TX as output
@@ -177,22 +119,17 @@ void com_init(void)
 #endif
 
 #ifdef ATTINYx41
-	UCSR0C = 0b00000110;
-	
 	uint8_t rx_byte = UDR0;
-	UCSR0B = 0b01001000; // normal
+	UCSR0A = 0b00000010 ; // Double the USART Transmission Speed
+	UCSR0C = 0b00000110;
+	UCSR0B = 0b11011000; // normal
 	rx_byte = UDR0;
 	
-	REMAP = 0x01;   // Pin mapping
-	UCSR0A |= 0x02; // Double the USART Transmission Speed
+	REMAP = 0x01;  // Pin mapping
 #endif
-
-	com_autobaud_init();
 }
 
 //----------------------------------------------------------------------------------------------------------------------  
-	if(uart_state == UART_BAUD_DETECT) return;
-	
 void com_5msTickHandler(void)
 {		
 	if(uart_timeout_counter > UartTimeout)
@@ -217,9 +154,7 @@ void com_5msTickHandler(void)
 
 //----------------------------------------------------------------------------------------------------------------------  
 void com_handler(void)
-{
-	if(edge_count > 20 ) com_autobaud_update();
-	
+{	
 	if(uart_state != UART_RX_COMPLETE) return;
 	
 	if((!com_error)&&(uart_buffer_position > 4))

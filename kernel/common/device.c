@@ -12,14 +12,25 @@ extern "C" {
 #include "device.h"
 #include "typedef.h"
 #include "main.h"
-	
+
+
 #ifdef TINYAVR_1SERIES
 	#include "bootloader_1series.h"
-    uint8_t eeDeviceAddress __attribute__((section(".eeprom"))) = 0;
+	settings_t eeSettings  __attribute__((section(".eeprom"))) = {
+		.deviceAddress = 0,
+		.hardwareVersionMajor = HARDWARE_VERSION_MAJOR,
+		.hardwareVersionMinor = HARDWARE_VERSION_MINOR,
+		.baudRate = BAUD_4800
+	};
 #endif
 #ifdef ATTINYx41
 	#include "bootloader_x41.h"
-    uint8_t eeDeviceAddress __attribute__((section(".eeprom"))) = 0;
+	settings_t eeSettings  __attribute__((section(".eeprom"))) = {
+		.deviceAddress = 0,
+		.hardwareVersionMajor = HARDWARE_VERSION_MAJOR,
+		.hardwareVersionMinor = HARDWARE_VERSION_MINOR,
+		.baudRate = BAUD_4800
+	};
 #endif
 #ifdef TEST_RUN
     #include "bootloader_test.h"
@@ -31,6 +42,7 @@ extern "C" {
 shared_t shared __attribute__((section (".shared")));
 
 uint8_t device_getAddress(void);
+com_baudRate baudRate;
 
 void device_init(void)
 {
@@ -39,6 +51,8 @@ void device_init(void)
 		shared.address = 0x00; // in case the EEPROM was never programmed or address is out of range (>15)
 	}
 	
+	device_setBaudRate(bootloader_readEeprom(&eeSettings.baudRate));
+	
 	shared.deviceState = APP_STOPPED;
 	shared.appCrc = bootloader_appCRC();
 	if(bootloader_checkAppCRC(shared.appCrc) != 0){
@@ -46,6 +60,7 @@ void device_init(void)
 	}
 	sei();
 	tickTimer_init();
+	com_setBaudrate(baudRate);
 	com_init();
 	
 #ifdef TINYAVR_1SERIES
@@ -144,10 +159,10 @@ uint8_t device_updateAddress(uint8_t address)
 	if((address > 0x00)&&(address < 0x0F)){
 		
 	#ifdef TINYAVR_1SERIES
-		bootloader_updateEeprom((&eeDeviceAddress)+EepromOffset, address);
+		bootloader_updateEeprom((&eeSettings.deviceAddress)+EepromOffset, address);
 	#endif
 	#ifdef ATTINYx41
-		bootloader_updateEeprom(&eeDeviceAddress, address);
+		bootloader_updateEeprom(&eeSettings.deviceAddress, address);
 	#endif
 		if(address == device_getAddress()){
 			return true;
@@ -158,14 +173,31 @@ uint8_t device_updateAddress(uint8_t address)
 
 uint8_t device_getAddress(void)
 {
-	
 #ifdef TINYAVR_1SERIES
-	return bootloader_readEeprom(&eeDeviceAddress+EepromOffset);
+	return bootloader_readEeprom(&eeSettings.deviceAddress+EepromOffset);
 #endif
 #ifdef ATTINYx41
-	return bootloader_readEeprom(&eeDeviceAddress);
+	return bootloader_readEeprom(&eeSettings.deviceAddress);
 #endif
-	
+}
+
+void device_setBaudRate(uint8_t baudRateIndex)
+{
+	if(baudRateIndex >= BAUD_LENGTH){
+		baudRateIndex = BAUD_4800; // in case value is invalid
+	}
+	baudRate = baudRateIndex;
+	com_setBaudrate(baudRate);
+}
+
+void device_saveBaudRate(void)
+{
+#ifdef TINYAVR_1SERIES
+
+#endif
+#ifdef ATTINYx41
+	return bootloader_updateEeprom(&eeSettings.baudRate, baudRate);
+#endif
 }
 
 bool device_readEepromAppSection(uint16_t offset, uint8_t *data, uint16_t size)
@@ -182,7 +214,7 @@ bool device_readEepromAppSection(uint16_t offset, uint8_t *data, uint16_t size)
 	
 	#ifdef ATTINYx41
 	
-		uint16_t baseAddress = ((uint16_t)&eeDeviceAddress) + AppEepromStart + offset;
+		uint16_t baseAddress = ((uint16_t)&eeSettings.deviceAddress) + AppEepromStart + offset;
 		for(uint16_t i = 0; i<size; i++){
 			data[i] = bootloader_readEeprom((uint8_t*)(baseAddress+i));	
 		}
@@ -207,7 +239,7 @@ bool device_writeEepromAppSection(uint16_t offset, uint8_t *data, uint16_t size)
 	
 	#ifdef ATTINYx41
 	
-		uint16_t baseAddress = ((uint16_t)&eeDeviceAddress) + AppEepromStart + offset;
+		uint16_t baseAddress = ((uint16_t)&eeSettings.deviceAddress) + AppEepromStart + offset;
 		for(uint16_t i = 0; i<size; i++){
 			bootloader_updateEeprom((uint8_t*)(baseAddress+i), data[i]);
 		}

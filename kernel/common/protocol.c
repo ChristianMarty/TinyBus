@@ -53,6 +53,9 @@ typedef enum  {
 	CMD_GET_APP_VERSION,
 	CMD_SET_ADDRESS,
 	
+	CMD_SET_BAUD_RATE = 32,
+	CMD_SAVE_BAUD_RATE,
+	
 	CMD_UNDEFINED = 0xFF
 }kernel_command_t;
 
@@ -118,8 +121,8 @@ void com_receiveData(uint8_t instruction_byte, uint8_t *data, uint8_t size)
 				acknowledgmentData[3] = (HARDWARE_ID>>8);
 				acknowledgmentData[4] = (HARDWARE_ID&0xff);
 				
-				acknowledgmentData[5] = HARDWARE_VERSION_MAJOR;
-				acknowledgmentData[6] = HARDWARE_VERSION_MINOR;
+				acknowledgmentData[5] = bootloader_readEeprom(&eeSettings.hardwareVersionMajor);
+				acknowledgmentData[6] = bootloader_readEeprom(&eeSettings.hardwareVersionMinor);
 				
 				acknowledgmentData[7] = KERNEL_VERSION_MAJOR;
 				acknowledgmentData[8] = KERNEL_VERSION_MINOR;
@@ -269,6 +272,16 @@ void com_receiveData(uint8_t instruction_byte, uint8_t *data, uint8_t size)
 				if(!device_updateAddress(data[1])) error ++;
 				break;
 			}
+			
+			case CMD_SET_BAUD_RATE:{
+				device_setBaudRate(data[1]);
+				break;
+			}
+			case CMD_SAVE_BAUD_RATE:{
+				device_saveBaudRate();
+				break;
+			}
+			
 			default:{
 				error++;
 				break;

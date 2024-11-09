@@ -28,7 +28,7 @@ void InterruptVectorTable(void)
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+24):); //ADC_READY
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+26):); //EE_RDY
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+28):); //ANA_COMP1
-	asm("rjmp com_autobaudCapture_interruptHandler"); //TIM2_CAPT
+	asm("rjmp %0" ::  "i" (AppBaseByteAddress+30):); //TIM2_CAPT
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+32):); //TIM2_COMPA
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+34):); //TIM2_COMPB
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+36):); //TIM2_OVF
