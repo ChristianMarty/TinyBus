@@ -10,6 +10,10 @@
 #include "../common/typedef.h"
 #include "../common/protocol.h"
 
+#define COBS_DELIMITER 0x55 // IMPORTANT! This must be defined before cobs_u8.h is included
+#include "utility/cobs_u8.h"
+#include "utility/softCRC.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -201,10 +205,6 @@ void USART0_RX_interruptHandler(void)
 	uint8_t rx_byte = rxRegister;
 #endif
 	
-	// Convert sync modified COBS to COBS
-	if(rx_byte == 0x00) rx_byte = 0x55;
-	else if(rx_byte == 0x55) rx_byte = 0x00;
-	
 	if(uart_buffer_position < UartBufferSize) {
         uart_buffer[uart_buffer_position] = rx_byte;
     }else{
@@ -212,7 +212,7 @@ void USART0_RX_interruptHandler(void)
 	}
 	uart_buffer_position++;
 	
-	if((rx_byte == 0x00)&&(uart_buffer_position > 1)){
+	if((rx_byte == COBS_DELIMITER)&&(uart_buffer_position > 1)){
 		uart_state = UART_RX_COMPLETE;
 	}
 }
@@ -224,10 +224,6 @@ void transmitByte(void)
 	{
 		uint8_t tx_byte = uart_buffer[uart_buffer_position];
         uart_buffer_position ++;
-
-        // Convert COBS to sync modified COBS
-		if(tx_byte == 0x00) tx_byte = 0x55;
-		else if(tx_byte == 0x55) tx_byte = 0x00;
 		
 	#ifdef TINYAVR_1SERIES
 		USART0.TXDATAL = tx_byte;
@@ -260,7 +256,7 @@ void com_transmitData(uint8_t instruction_byte,  uint8_t * data, uint8_t size, b
 	USART0_RX_DISABLE;
 	
 	uint8_t i = 0;
-	uart_buffer[0] = 0;
+	uart_buffer[0] = COBS_DELIMITER;
 	// Copy data to uart buffer
 	uart_buffer[2] = instruction_byte;
 	for(i = 0; i<size; i++){

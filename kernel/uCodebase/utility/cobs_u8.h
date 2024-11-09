@@ -10,6 +10,10 @@
 
 #include <main.h>
 
+#ifndef COBS_DELIMITER
+#define COBS_DELIMITER 0
+#endif
+
 #ifdef __cplusplus
 	extern "C" {
 #endif
@@ -27,14 +31,14 @@ static inline uint8_t cobs_encode(uint8_t *destination, const uint8_t *source, u
     for(i = 1; i<source_length+1; i++)
     {
         destination[i] = source[i-1];
-        if(destination[i] == 0)
+        if(destination[i] == COBS_DELIMITER)
         {
             destination[nullIndex]= (i-nullIndex);
             nullIndex = i;
         }
     }
     destination[nullIndex]= (i-nullIndex);
-    destination[i] = 0;
+    destination[i] = COBS_DELIMITER;
     return i+1;
 }
 
@@ -48,8 +52,8 @@ static inline uint8_t cobs_encode(uint8_t *destination, const uint8_t *source, u
 static inline uint8_t cobs_decode(uint8_t *destination, const uint8_t *source, uint8_t length)
 {
     if(length < 2) return  0; // If size to short for valid frame -> empty frame / no data
-    if(source[0] < 1) return  0; // If first byte is null -> empty frame / no data
-    if(source[length-1]) return  0; // If last byte is not null -> No valid data
+    if(source[0] == COBS_DELIMITER) return  0; // If first byte is COBS_DELIMITER -> empty frame / no data
+    if(source[length-1] != COBS_DELIMITER) return  0; // If last byte is not COBS_DELIMITER -> No valid data
 
     uint8_t i = 0;
     uint8_t nullIndex = (source[0]-1);
@@ -59,12 +63,12 @@ static inline uint8_t cobs_decode(uint8_t *destination, const uint8_t *source, u
         destination[i] = source[i+1]; // +1 because first byte is cobs overhead
         if(nullIndex == i)
         {
-            if(source[i+1] == 0) return i;
+            if(source[i+1] == COBS_DELIMITER) return i;
 
             nullIndex += source[i+1];
-            destination[i] = 0;
+            destination[i] = COBS_DELIMITER;
         }
-        else if(source[i+1] == 0) // In case a 0 is in a position it should not be.
+        else if(source[i+1] == COBS_DELIMITER) // In case a delimiter is in a position it should not be.
         {
             return 0;
         }
@@ -92,7 +96,7 @@ static inline void cobs_decodeStreamStart(cobs_decodeStream_t *decodeStream)
 
 static inline uint16_t cobs_decodeStream(cobs_decodeStream_t *decodeStream, uint8_t data, uint8_t *destination)
 {
-    if(data == 0) // End of frame detection
+    if(data == COBS_DELIMITER) // End of frame detection
     {
         if(decodeStream->nullIndex == decodeStream->dataIndex){
             uint16_t tmp = decodeStream->dataIndex;
@@ -107,7 +111,9 @@ static inline uint16_t cobs_decodeStream(cobs_decodeStream_t *decodeStream, uint
 
     if(decodeStream->nullIndex == decodeStream->dataIndex){
         decodeStream->nullIndex += data;
-        if(decodeStream->nullIndex != 0) destination[decodeStream->dataIndex-1] = 0; // Ignore first COBS Byte
+        if(decodeStream->nullIndex != COBS_DELIMITER){
+			destination[decodeStream->dataIndex-1] = 0; // Ignore first COBS delimiter
+		}
     }else{
         destination[decodeStream->dataIndex-1] = data;
     }
