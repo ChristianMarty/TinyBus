@@ -12,9 +12,8 @@
 extern "C" {
 #endif
 	
-// KERNEL Rev 1.3
-#define KERNEL_VERSION_MAJOR 0x01
-#define KERNEL_VERSION_MINOR 0x04
+#define KERNEL_VERSION_MAJOR 0x02
+#define KERNEL_VERSION_MINOR 0x00
 
 #ifdef __cplusplus
 }

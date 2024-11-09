@@ -85,6 +85,10 @@ td.protocol {
 	border: 0px;
 }
 
+th.command_header {
+	width: 75px;
+}
+
 table {
 	border:1px solid #b3adad;
 	border-collapse:collapse;

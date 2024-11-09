@@ -49,7 +49,7 @@
     <p>TinyBus was partially inspired by the "Digital Addressable Lighting Interface" (DALI) and "Musical Instrument Digital Interface" (MIDI).
         However, neither the hardware nor software layer of TinyBus is compatible with DALI or MIDI.</p>
 
-    <p>The name TinyBus was chosen because it is a bus and was developed for AVR ATtiny microcontrollers.</p>
+    <p>The name TinyBus was chosen because it is a bus and was developed for <s>Atmel</s> Microchip AVR ATtiny microcontrollers.</p>
 </document-page>
 
 <document-page>
@@ -134,7 +134,6 @@
     <h3>Electrical Characteristics</h3>
     <p>TinyBus is based on a current loop.</p>
     <p>The loop current must be limited to approximately 80 mA. The open loop voltage must be limited to approximately 12V DC.</p>
-
 </document-page>
 
 <document-page>
@@ -560,8 +559,22 @@
             <td>New Address</td>
             <td>Acknowledgment</td>
         </tr>
+        <tr>
+            <td colspan="4" ></td>
+        </tr>
+        <tr>
+            <td>32</td>
+            <td>Set Baud Rate</td>
+            <td>New Baud Rate</td>
+            <td>Acknowledgment</td>
+        </tr>
+        <tr>
+            <td>33</td>
+            <td>Save Baud Rate</td>
+            <td>Empty</td>
+            <td>Acknowledgment</td>
+        </tr>
     </table>
-
 </document-page>
 
 <document-page>
@@ -848,7 +861,7 @@
     <p>The application image is transferred in 16-Byte junks. Shorter frames must be padded with 255 (FFh).</p>
     <table>
         <tr>
-            <th>Byte</th>
+            <th class='command_header'>Byte</th>
             <th>0</th>
             <th>1</th>
             <th>2</th>
@@ -895,7 +908,7 @@
     <p>The EEPROM data can be transferred in 1 - 16 byte junks. Unused bytes shall not be transmitted.</p>
     <table>
         <tr>
-            <th>Byte</th>
+            <th class='command_header'>Byte</th>
             <th>0</th>
             <th>1</th>
             <th>2</th>
@@ -940,7 +953,7 @@
     <p>The EEPROM data can be requested in 1-16 byte junks. Unused bytes shall not be transmitted.</p>
     <table>
         <tr>
-            <th>Byte</th>
+            <th class='command_header'>Byte</th>
             <th>0</th>
             <th>1</th>
             <th>2</th>
@@ -955,7 +968,7 @@
     <p><b>Reply</b></p>
     <table>
         <tr>
-            <th>Byte</th>
+            <th class='command_header'>Byte</th>
             <th>0</th>
             <th>1</th>
             <th>2</th>
@@ -997,7 +1010,7 @@
     <p>The RAM data can be requested in 1-16-Byte junks. Unused bytes shall not be transmitted.</p>
     <table>
         <tr>
-            <th>Byte</th>
+            <th class='command_header'>Byte</th>
             <th>0</th>
             <th>1</th>
             <th>2</th>
@@ -1012,7 +1025,7 @@
     <p><b>Reply</b></p>
     <table>
         <tr>
-            <th>Byte</th>
+            <th class='command_header'>Byte</th>
             <th>0</th>
             <th>1</th>
             <th>2</th>
@@ -1020,7 +1033,7 @@
             <th>4</th>
             <th>5</th>
             <th>6</th>
-            <th>7</th>
+            <th>7</th>  
             <th>8</th>
             <th>9</th>
             <th>10</th>
@@ -1114,7 +1127,7 @@
     <p><b>Reply</b></p>
     <table>
         <tr>
-            <th>Byte</th>
+            <th class='command_header'>Byte</th>
             <th>0</th>
             <th>1</th>
             <th>2</th>
@@ -1160,7 +1173,7 @@
     <p><b>Reply</b></p>
     <table>
         <tr>
-            <th>Byte</th>
+            <th class='command_header'>Byte</th>
             <th>0</th>
             <th>1</th>
         </tr>
@@ -1193,5 +1206,94 @@
 
 </document-page>
 
+<document-page>
+    <h3>Command 0x20 - Set Baud Rate</h3>
+    <table class='protocol'>
+        <tr class='protocol'>
+            <th class='protocol'>Payload</th>
+            <td class='protocol'>New baud rate index</td>
+        </tr>
+        <tr class='protocol'>
+            <th class='protocol'>Reply</th>
+            <td class='protocol'>None</td>
+        </tr>
+        <tr class='protocol'>
+            <th class='protocol'>Error Handling</th>
+            <td class='protocol'>If the command exicution fails, a non-acknowledgment will be replied.</td>
+        </tr>
+    </table>
+    <p>This command changes the current baud rate to the new baud rate.</p>
+    <p><strong>Note:</strong> The baud rate change is not saved to non-volatile memory.</p>
+    <p>To save the baud rate change use the "Save Baud Rate" command.</p>
+
+    <table>
+        <tr>
+            <th class='command_header'>Byte</th>
+            <th>0</th>
+        </tr>
+        <tr>
+            <th>Data</th>
+            <td>Baud Rate Index</td>
+        </tr>
+    </table>
+
+    <p></p>
+    <table style="border: none;">
+        <tr>
+            <th class='command_header'>Index</th>
+            <th>Baud Rate</th>
+            <td style="border: none;"></td>
+            <th class='command_header'>Index</th>
+            <th>Baud Rate</th>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>300</td>
+            <td style="border: none;"></td>
+            <td>4</td>
+            <td>4800</td>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>600</td>
+            <td style="border: none;"></td>
+            <td>5</td>
+            <td>9600</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>1200</td>
+            <td style="border: none;"></td>
+            <td>6</td>
+            <td>14400</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>2400</td>
+            <td style="border: none;"></td>
+            <td>7</td>
+            <td>19200</td>
+        </tr>
+    </table>
+
+
+
+    <h3>Command 0x21 - Save Baud Rate</h3>
+    <table class='protocol'>
+        <tr class='protocol'>
+            <th class='protocol'>Payload</th>
+            <td class='protocol'>Empty</td>
+        </tr>
+        <tr class='protocol'>
+            <th class='protocol'>Reply</th>
+            <td class='protocol'>Acknowledgment</td>
+        </tr>
+        <tr class='protocol'>
+            <th class='protocol'>Error Handling</th>
+            <td class='protocol'>If the command exicution fails, a non-acknowledgment will be replied.</td>
+        </tr>
+    </table>
+   <p>This command will save the current baud rate to non-volatile memory.</p>
+</document-page>
 </div>
 </body>
