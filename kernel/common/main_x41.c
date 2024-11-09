@@ -13,17 +13,17 @@ void InterruptVectorTable(void)  __attribute__ ((naked))  __attribute__ ((sectio
 void InterruptVectorTable(void)
 {
 	asm("rjmp main"); //RESET
-	asm("rjmp %0" ::  "i" (AppBaseByteAddress+0):);	//INT0
-	asm("rjmp %0" ::  "i" (AppBaseByteAddress+2):);	//PCINT0
-	asm("rjmp %0" ::  "i" (AppBaseByteAddress+4):);	//PCINT1
-	asm("rjmp %0" ::  "i" (AppBaseByteAddress+6):);	//WDT
-	asm("rjmp %0" ::  "i" (AppBaseByteAddress+8):); //TIM1_CAPT
+	asm("rjmp %0" ::  "i" (AppBaseByteAddress+0):);	 //INT0
+	asm("rjmp %0" ::  "i" (AppBaseByteAddress+2):);	 //PCINT0
+	asm("rjmp %0" ::  "i" (AppBaseByteAddress+4):);	 //PCINT1
+	asm("rjmp %0" ::  "i" (AppBaseByteAddress+6):);	 //WDT
+	asm("rjmp %0" ::  "i" (AppBaseByteAddress+8):);  //TIM1_CAPT
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+10):); //TIM1_COMPA
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+12):); //TIM1_COMPB
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+14):); //TIM1_OVF
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+16):); //TIM0_COMPA
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+18):); //TIM0_COMPB
-	asm("rjmp tickTimer_interruptHandler");	//TIM0_OVF
+	asm("rjmp tickTimer_interruptHandler");	         //TIM0_OVF
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+22):); //ANA_COMP0
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+24):); //ADC_READY
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+26):); //EE_RDY
@@ -34,9 +34,9 @@ void InterruptVectorTable(void)
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+36):); //TIM2_OVF
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+38):); //SPI
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+40):); //USART0_RXS
-	asm("rjmp USART0_RX_interruptHandler");	//USART0_RXC 
-	asm("rjmp %0" ::  "i" (AppBaseByteAddress+44):); //USART0_DREasm("reti");//
-	asm("rjmp USART0_TX_interruptHandler");	//USART0_TXC
+	asm("rjmp USART0_RX_interruptHandler");          //USART0_RXC
+	asm("rjmp %0" ::  "i" (AppBaseByteAddress+44):); //USART0_DRE
+	asm("rjmp USART0_TX_interruptHandler");          //USART0_TXC
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+48):); //USART1_RXS
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+50):); //USART1_RXC
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+52):); //USART1_DRE
@@ -45,7 +45,7 @@ void InterruptVectorTable(void)
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+58):); //RESERVED
 	asm("nop");
 	
-	asm("rjmp com_transmit_data");
+	asm("rjmp com_transmitData");
 	asm("rjmp device_readEepromAppSection");
 	asm("rjmp device_writeEepromAppSection");
 }

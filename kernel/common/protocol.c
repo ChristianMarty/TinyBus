@@ -26,7 +26,7 @@ extern "C" {
 #endif
 #ifdef TEST_RUN
     #include "bootloader_test.h"
-    void app_com_receive_data(uint8_t instruction, uint8_t *data, uint8_t size, bool broadcast)
+    void app_receiveDataHandler(uint8_t instruction, uint8_t *data, uint8_t size, bool broadcast)
     {}
 #endif
 
@@ -67,7 +67,7 @@ uint16_t unpackU16( uint8_t *data){
 //	Communication Handler -> RX Complete Call Back
 //
 //**************************************************************************  
-void com_receive_data(uint8_t instruction_byte, uint8_t *data, uint8_t size)
+void com_receiveData(uint8_t instruction_byte, uint8_t *data, uint8_t size)
 {
 	// Extract destination address from received data
 	uint8_t des_address = (instruction_byte >> 4);
@@ -84,7 +84,7 @@ void com_receive_data(uint8_t instruction_byte, uint8_t *data, uint8_t size)
 	if(command != 15)
 	{
 		if(shared.deviceState == APP_RUNNING){
-			app_com_receive_data(command, data, size, (des_address == BROADCAST_ADDRESS));
+			app_receiveDataHandler(command, data, size, (des_address == BROADCAST_ADDRESS));
 		}else if(shared.deviceState == APP_STOPPED){
 			shared.deviceState = APP_CHECK_CRC;
 		}
@@ -274,8 +274,6 @@ void com_receive_data(uint8_t instruction_byte, uint8_t *data, uint8_t size)
 				break;
 			}
 		}
-		com_transmit_data(instruction_byte, &acknowledgmentData[0], acknowledgmentSize, error);
+		com_transmitData(instruction_byte, &acknowledgmentData[0], acknowledgmentSize, error);
 	}
 }
-
-

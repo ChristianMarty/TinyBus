@@ -27,11 +27,11 @@ extern "C" {
 
 void com_init(void);
 
-void com_transmit_data(uint8_t instruction_byte, uint8_t *data, uint8_t size, bool is_nAck);
-void com_receive_data(uint8_t instruction_byte, uint8_t *data, uint8_t size);
+void com_transmitData(uint8_t instruction_byte, uint8_t *data, uint8_t size, bool is_nAck);
+void com_receiveData(uint8_t instruction_byte, uint8_t *data, uint8_t size);
 
 void com_handler(void);
-void com_5ms_tick(void);
+void com_5msTickHandler(void);
 
 #ifndef TEST_RUN
 void USART0_RX_interruptHandler(void)  __attribute__ ((signal));

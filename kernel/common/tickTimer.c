@@ -59,8 +59,8 @@ void tickTimer_reset(tickTimer_t *counter)
 void tickTimer_interruptHandler(void)
 {
 #ifndef TEST_RUN
-	com_5ms_tick();
-	if(shared.deviceState == APP_RUNNING) app_5ms_tick();
+	com_5msTickHandler();
+	if(shared.deviceState == APP_RUNNING) app_5msTickHandler();
 #endif
 	tickCounter ++;
 

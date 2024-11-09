@@ -130,7 +130,7 @@ void com_autobaudCapture_interruptHandler(void)
 #endif
 }
 
-void com_set_baudrate(uint16_t baudsetting)
+void com_setBaudrate(com_baudRate baudRate)
 {	
 #ifdef TINYAVR_1SERIES
 	USART0.BAUD = baudsetting;
@@ -191,10 +191,10 @@ void com_init(void)
 }
 
 //----------------------------------------------------------------------------------------------------------------------  
-void com_5ms_tick(void)
-{	
 	if(uart_state == UART_BAUD_DETECT) return;
 	
+void com_5msTickHandler(void)
+{		
 	if(uart_timeout_counter > UartTimeout)
 	{
 		uart_state = UART_IDLE;	
@@ -229,7 +229,7 @@ void com_handler(void)
 			
 		uint16_t crc_16 = crc16((uint8_t*)&uart_buffer[0], rx_dataSize);
 		if(crc_16 == 0){
-			com_receive_data(uart_buffer[0], (uint8_t*)&uart_buffer[1], (rx_dataSize - 3)); // -3 because 2 bytes of crc and data_buffer[0] is passed separately 
+			com_receiveData(uart_buffer[0], (uint8_t*)&uart_buffer[1], (rx_dataSize - 3)); // -3 because 2 bytes of crc and data_buffer[0] is passed separately 
 		}
 	}
 	com_error = 0;
@@ -283,7 +283,7 @@ void USART0_RX_interruptHandler(void)
 }
 
 //----------------------------------------------------------------------------------------------------------------------   
-void transmit_byte(void)
+void transmitByte(void)
 {
 	if(uart_tx_size > uart_buffer_position) // transmitting
 	{
@@ -315,7 +315,7 @@ void transmit_byte(void)
 	}
 }
 //---------------------------------------------------------------------------------------------------------------------- 
-void com_transmit_data(uint8_t instruction_byte,  uint8_t * data, uint8_t size, bool is_nAck)
+void com_transmitData(uint8_t instruction_byte,  uint8_t * data, uint8_t size, bool is_nAck)
 {	
 #ifdef RxTxLedEnable
 	TxLedOn();
@@ -351,13 +351,13 @@ void com_transmit_data(uint8_t instruction_byte,  uint8_t * data, uint8_t size, 
 	uart_tx_size = tx_size;
 	uart_buffer_position = 0;
 	
-	transmit_byte();
+	transmitByte();
 }
 //----------------------------------------------------------------------------------------------------------------------   
 void USART0_TX_interruptHandler(void) 
 {
 	uart_timeout_counter = 0; // Reset UART Timeout
-	transmit_byte();
+	transmitByte();
 
 #ifdef  TINYAVR_1SERIES
 	USART0.STATUS = 0x40; // USART Transmit Complete Interrupt Clear

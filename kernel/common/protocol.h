@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-void com_receive_data(uint8_t instruction_byte, uint8_t *data, uint8_t size);
+void com_receiveData(uint8_t instruction_byte, uint8_t *data, uint8_t size);
 
 #ifdef __cplusplus
 }
