@@ -8,6 +8,18 @@ class Device : public QObject
 {
     Q_OBJECT
 public:
+    enum BaudRate:uint8_t {
+        BAUD_300,
+        BAUD_600,
+        BAUD_1200,
+        BAUD_2400,
+        BAUD_4800,
+        BAUD_9600,
+        BAUD_14400,
+        BAUD_19200,
+        BAUD_LENGTH
+    };
+
     typedef uint8_t Address;
     typedef uint8_t Command;
     static Address extractAddress(uint8_t instructionByte);
@@ -31,6 +43,9 @@ public:
     void requestRamData(uint16_t offset, uint8_t size);
     void requestEepromData(uint16_t offset, uint8_t size);
     void writeEepromData(uint16_t offset, QByteArray data);
+
+    void setBaudRate(BaudRate baudRate);
+    void saveBaudRate(void);
 
     void requestApplicationName(void);
     void requestApplicationVerion(void);
@@ -56,7 +71,10 @@ public:
         CMD_APP_STOP,
         CMD_GET_APP_NAME,
         CMD_GET_APP_VERSION,
-        CMD_SET_ADDRESS
+        CMD_SET_ADDRESS,
+
+        CMD_SET_BAUD_RATE = 32,
+        CMD_SAVE_BAUD_RATE
     };
 
     enum DeviceState:uint8_t {

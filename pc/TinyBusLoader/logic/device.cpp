@@ -136,6 +136,20 @@ void Device::writeEepromData(uint16_t offset, QByteArray data)
     _sendKernelCommand(KernelCommand::CMD_WRITE_EEPROM, txData);
 }
 
+void Device::setBaudRate(BaudRate baudRate)
+{
+    emit newMessage("---- Set Baud Rate ----");
+    QByteArray txData;
+    txData.append(baudRate);
+    _sendKernelCommand(KernelCommand::CMD_SET_BAUD_RATE, txData);
+}
+
+void Device::saveBaudRate()
+{
+    emit newMessage("---- Save Baud Rate ----");
+    _sendKernelCommand(KernelCommand::CMD_SAVE_BAUD_RATE, QByteArray());
+}
+
 void Device::requestApplicationName()
 {
     emit newMessage("---- Request Application Name ----");

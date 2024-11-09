@@ -58,6 +58,9 @@ void DeviceInformationWidget::setEnabled(bool enabled)
     ui->pushButton_readMemoryInformation->setEnabled(enabled);
     ui->pushButton_readHardwareInformation->setEnabled(enabled);
     ui->spinBox_newAddress->setEnabled(enabled);
+    ui->pushButton_setBaudRate->setEnabled(enabled);
+    ui->pushButton_saveBaudRate->setEnabled(enabled);
+    ui->comboBox_baudRate->setEnabled(enabled);
 }
 
 void DeviceInformationWidget::clear()
@@ -212,5 +215,19 @@ void DeviceInformationWidget::on_pushButton_readHardwareInformation_clicked()
 {
     if(_device == nullptr) return;
     _device->requestHardwareInformation();
+}
+
+void DeviceInformationWidget::on_pushButton_setBaudRate_clicked()
+{
+    if(_device == nullptr) return;
+    Device::BaudRate baudRate;
+    baudRate = (Device::BaudRate)ui->comboBox_baudRate->currentIndex();
+    _device->setBaudRate(baudRate);
+}
+
+void DeviceInformationWidget::on_pushButton_saveBaudRate_clicked()
+{
+    if(_device == nullptr) return;
+    _device->saveBaudRate();
 }
 

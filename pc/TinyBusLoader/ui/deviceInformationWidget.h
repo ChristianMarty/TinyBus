@@ -41,6 +41,10 @@ private slots:
     void on_pushButton_readMemoryInformation_clicked();
     void on_pushButton_readHardwareInformation_clicked();
 
+    void on_pushButton_setBaudRate_clicked();
+
+    void on_pushButton_saveBaudRate_clicked();
+
 private:
     Ui::DeviceInformationWidget *ui;
     Device *_device = nullptr;
