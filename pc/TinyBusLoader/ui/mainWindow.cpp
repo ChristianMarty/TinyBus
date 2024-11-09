@@ -20,15 +20,20 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&_tinyBus, &TinyBus::hexFileChanged, this, &MainWindow::on_hexFileChanged);
     connect(&_tinyBus, &TinyBus::newMessage, this, &MainWindow::on_message);
 
+    connect(&_busPassThrough, &BusPassThrough::stateChanged, this, &MainWindow::on_passthroughStateChanged);
+
+
     ui->label_rx->setPalette(ColorPalette::status());
     ui->label_tx->setPalette(ColorPalette::status());
 
     _updateConnectionState();
+    _updatePassthroughState();
     _update();
 }
 
 MainWindow::~MainWindow()
 {
+    disconnect(&_busPassThrough, &BusPassThrough::stateChanged, this, &MainWindow::on_passthroughStateChanged);
     delete ui;
 }
 
@@ -109,6 +114,7 @@ void MainWindow::on_pushButton_connect_clicked()
         connect(_connection, &Connection::tx, this, &MainWindow::on_dataTx);
 
         _tinyBus.setConnection(_connection);
+        _busPassThrough.setConnection(_connection);
     }
     _connection->open(ui->lineEdit_url->text());
 
@@ -123,6 +129,7 @@ void MainWindow::on_pushButton_disconnect_clicked()
     delete _connection;
     _connection = nullptr;
     _tinyBus.setConnection(_connection);
+    _busPassThrough.setConnection(_connection);
 
     _updateConnectionState();
 }
@@ -170,6 +177,21 @@ void MainWindow::_updateConnectionState()
         ui->pushButton_connect->setEnabled(true);
         ui->pushButton_disconnect->setEnabled(false);
         ui->lineEdit_url->setEnabled(true);
+    }
+}
+
+void MainWindow::_updatePassthroughState()
+{
+    if(_busPassThrough.isOpen()){
+        ui->pushButton_passthroughOpen->setEnabled(false);
+        ui->pushButton_passthroughClose->setEnabled(true);
+        ui->spinBox_passthroughPort->setEnabled(false);
+        ui->label_passthroughState->setText(QString::number(_busPassThrough.numberOfClients())+" clients connected");
+    }else{
+        ui->pushButton_passthroughOpen->setEnabled(true);
+        ui->pushButton_passthroughClose->setEnabled(false);
+        ui->spinBox_passthroughPort->setEnabled(true);
+        ui->label_passthroughState->clear();
     }
 }
 
@@ -244,3 +266,17 @@ void MainWindow::on_dataTxTimer()
     ui->label_tx->setEnabled(false);
 }
 
+void MainWindow::on_pushButton_passthroughOpen_clicked()
+{
+    _busPassThrough.open(ui->spinBox_passthroughPort->value());
+}
+
+void MainWindow::on_pushButton_passthroughClose_clicked()
+{
+    _busPassThrough.close();
+}
+
+void MainWindow::on_passthroughStateChanged()
+{
+    _updatePassthroughState();
+}

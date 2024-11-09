@@ -12,6 +12,7 @@ SOURCES += \
     QuCLib/cobs.cpp \
     QuCLib/crc.cpp \
     QuCLib/hexFileParser.cpp \
+    logic/busPassThrough.cpp \
     logic/connection.cpp \
     logic/connectionSerial.cpp \
     logic/connectionTcp.cpp \
@@ -29,6 +30,7 @@ HEADERS += \
     QuCLib/cobs.h \
     QuCLib/crc.h \
     QuCLib/hexFileParser.h \
+    logic/busPassThrough.h \
     logic/connection.h \
     logic/connectionSerial.h \
     logic/connectionTcp.h \

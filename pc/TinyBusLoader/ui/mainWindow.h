@@ -7,6 +7,7 @@
 #include "logic/connection.h"
 #include "logic/device.h"
 #include "logic/tinyBus.h"
+#include "logic/busPassThrough.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -48,13 +49,19 @@ private slots:
     void on_dataRxTimer(void);
     void on_dataTxTimer(void);
 
+    void on_pushButton_passthroughOpen_clicked();
+    void on_pushButton_passthroughClose_clicked();
+    void on_passthroughStateChanged(void);
+
 private:
     Ui::MainWindow *ui;
     Connection* _connection = nullptr;
+    BusPassThrough _busPassThrough;
     TinyBus _tinyBus = TinyBus();
     Device *_selectedDevice = nullptr;
 
     void _update(void);
     void _updateConnectionState(void);
+    void _updatePassthroughState(void);
 };
 #endif // MAINWINDOW_H
