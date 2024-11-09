@@ -36,7 +36,7 @@ signals:
     void tx(void);
 
 protected:
-    QuCLib::Cobs _cobsDecoder;
+    QuCLib::Cobs _cobs{0x55};
 };
 
 #endif // CONNECTION_H

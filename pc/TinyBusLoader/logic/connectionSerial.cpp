@@ -56,25 +56,20 @@ void ConnectionSerial::sendData(QByteArray data)
     data.append((crc>>8)&0xFF);
     data.append(crc&0xFF);
 
-    QByteArray encodedData = QuCLib::Cobs::encode(data);
-    encodedData.prepend((uint8_t)0x00);
-    for(auto &byte: encodedData){
-        if((uint8_t)byte == 0x00) byte = (uint8_t)0x55;
-        else if((uint8_t)byte == 0x55) byte = (uint8_t)0x00;
-    }
+    QByteArray encodedData = _cobs.encode(data);
+    encodedData.prepend((uint8_t)_cobs.delimiter());
+
     emit tx();
+
+   // if(_serialPort.bytesToWrite()) return;
+
     _serialPort.write(encodedData);
 }
 
 void ConnectionSerial::on_readyRead()
 {
     QByteArray decodeData = _serialPort.readAll();
-    for(auto &byte: decodeData){
-        if((uint8_t)byte == 0x00) byte = (uint8_t)0x55;
-        else if((uint8_t)byte == 0x55) byte = (uint8_t)0x00;
-    }
-
-    QByteArrayList data = _cobsDecoder.streamDecode(decodeData);
+    QByteArrayList data = _cobs.streamDecode(decodeData);
 
     for(QByteArray &message : data){
         uint16_t crc = QuCLib::Crc::crc16(message);

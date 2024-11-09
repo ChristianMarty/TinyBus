@@ -15,7 +15,7 @@ ConnectionTcp::~ConnectionTcp()
 
 void ConnectionTcp::open(QString url)
 {
-    _cobsDecoder.clear();
+    _cobs.clear();
     emit newMessage("Connecting to "+url);
 
     url = url.remove("tcp://", Qt::CaseInsensitive);
@@ -45,13 +45,13 @@ void ConnectionTcp::sendData(QByteArray data)
         emit newMessage("not open");
         return;
     }
-    _tcpClient.write(QuCLib::Cobs::encode(data));
+    _tcpClient.write(_cobs.encode(data));
 }
 
 
 void ConnectionTcp::on_readyRead()
 {
-    QByteArrayList data = _cobsDecoder.streamDecode(_tcpClient.readAll());
+    QByteArrayList data = _cobs.streamDecode(_tcpClient.readAll());
 
     for(QByteArray &message : data){
         emit newData(message);
