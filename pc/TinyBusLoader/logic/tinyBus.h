@@ -7,7 +7,7 @@
 
 #include "device.h"
 #include "connection.h"
-#include "QuCLib/hexFileParser.h"
+#include "../QuCLib/source/hexFileParser.h"
 
 class TinyBus : public QObject
 {
@@ -32,7 +32,7 @@ public:
 
     void setHexFile(const QuCLib::HexFileParser &newHexFile);
 
-    const QuCLib::HexFileParser &hexFile() const;
+    QuCLib::HexFileParser hexFile() const;
 
     void setConnection(Connection *newConnection);
 

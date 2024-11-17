@@ -1,5 +1,5 @@
 #include "connection.h"
-#include <QuCLib/crc.h>
+#include "../QuCLib/source/crc.h"
 
 Connection::Connection(QObject *parent)
     : QObject{parent}

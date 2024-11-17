@@ -1,6 +1,6 @@
 #include "device.h"
 #include "tinyBus.h"
-#include "../QuCLib/crc.h"
+#include "../QuCLib/source/crc.h"
 
 Device::Address Device::extractAddress(uint8_t instructionByte)
 {

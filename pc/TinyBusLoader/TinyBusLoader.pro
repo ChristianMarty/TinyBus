@@ -9,9 +9,9 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    QuCLib/cobs.cpp \
-    QuCLib/crc.cpp \
-    QuCLib/hexFileParser.cpp \
+    ../QuCLib/source/cobs.cpp \
+    ../QuCLib/source/crc.cpp \
+    ../QuCLib/source/hexFileParser.cpp \
     logic/busPassThrough.cpp \
     logic/connection.cpp \
     logic/connectionSerial.cpp \
@@ -27,9 +27,9 @@ SOURCES += \
     ui/queueItemWidget.cpp
 
 HEADERS += \
-    QuCLib/cobs.h \
-    QuCLib/crc.h \
-    QuCLib/hexFileParser.h \
+    ../QuCLib/source/cobs.h \
+    ../QuCLib/source/crc.h \
+    ../QuCLib/source/hexFileParser.h \
     logic/busPassThrough.h \
     logic/connection.h \
     logic/connectionSerial.h \

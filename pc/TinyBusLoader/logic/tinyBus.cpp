@@ -109,13 +109,17 @@ void TinyBus::setHexFilePath(QString path)
 
 uint32_t TinyBus::appOffset()
 {
-    if(_hexFile.binary().isEmpty()) return 0;
+    if(_hexFile.binary().isEmpty()){
+        return 0;
+    }
     return _hexFile.binary().at(0).offset;
 }
 
 uint32_t TinyBus::appSize()
 {
-    if(_hexFile.binary().isEmpty()) return 0;
+    if(_hexFile.binary().isEmpty()){
+        return 0;
+    }
     return _hexFile.binary().at(0).data.size();
 }
 
@@ -161,7 +165,7 @@ void TinyBus::setConnection(Connection *newConnection)
     }
 }
 
-const QuCLib::HexFileParser &TinyBus::hexFile() const
+QuCLib::HexFileParser TinyBus::hexFile() const
 {
     return _hexFile;
 }

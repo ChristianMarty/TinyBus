@@ -2,8 +2,8 @@
 #define CONNECTION_H
 
 #include <QObject>
-#include <QuCLib/cobs.h>
-#include <QuCLib/crc.h>
+#include "../QuCLib/source/CANbeSerial.h"
+#include "../QuCLib/source/crc.h"
 
 class Connection : public QObject
 {
