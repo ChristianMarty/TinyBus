@@ -250,10 +250,6 @@
     <p>The CRC calculation includes the data contained in a network layer packet, namely the instruction byte and the payload bytes. 
         The start-byte and stop-byte as well as the overhead-byte are not included in the CRC calculation.</p>
 
-    <h3>Automatic Baud Rate Detection</h3>
-    <p>The bus baud rate is automatically detected based on the COBS delimiter byte (55h / 01010101b).</p>
-    <p>The supported baud rates shall not be limited to standard baud rates.</p>
-    <p>The baud rate detection may be done only once at device startup and does not need to be repeted for each frame.</p>
 </document-page>
 
 <document-page>
@@ -1295,5 +1291,22 @@
     </table>
    <p>This command will save the current baud rate to non-volatile memory.</p>
 </document-page>
+
+<document-page>
+    <h2>Appendix</h2>
+    <h3>Why the automatic baud rate detection was removed</h3>
+    <p>The automatic baud detection needs hardware support in some form. This reduces the selection of hardware.</p>
+    <p>Most UART hardware only has support for LIN-Style baud rate detection, using a 'break' before synchronization. TinyBus was designed to be compatible with standard UART/RS-232 interfaces and therefore does not rely on the ability to send breaks.</p>
+    <p>Automatic baud detection can be implemented by using only a timer but smaller microcontrollers only have a few timers. Dedicating a timer to automatic baud detection seems too restrictive on the application.</p>
+    
+    <h4>Removed section</h4>
+    <p><b>Automatic Baud Rate Detection</b></p>
+    <p>The bus baud rate is automatically detected based on the COBS delimiter byte (55h / 01010101b).</p>
+    <p>The supported baud rates shall not be limited to standard baud rates.</p>
+    <p>The baud rate detection may be done only once at device startup and does not need to be repeted for each frame.</p>
+</document-page>
+
+
+
 </div>
 </body>
