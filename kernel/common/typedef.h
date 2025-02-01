@@ -21,7 +21,9 @@ typedef enum {
 typedef struct {
 	uint8_t address;
 	uint16_t appCrc;
-	device_state_t deviceState;
+	device_state_t deviceState:4;
+	uint8_t carrierDetected:1;
+	uint8_t reserved0:3;
 } shared_t;
 
 typedef struct {

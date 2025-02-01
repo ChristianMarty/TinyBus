@@ -30,7 +30,7 @@ Port Initialization
 ******************************************************************************/
 
 #define PortInitialization();
-
+#define RxPinState (bool)(true)
 
 /******************************************************************************
 Configure pin for zero-power

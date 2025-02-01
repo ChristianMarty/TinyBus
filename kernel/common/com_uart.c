@@ -18,8 +18,12 @@
 extern "C" {
 #endif
 
-typedef enum {UART_IDLE, UART_TX, UART_TX_COMPLETE, UART_RX, UART_RX_COMPLETE} uart_state_t;
+#ifndef TEST_RUN
+extern shared_t shared __attribute__((section (".shared")));
+#endif
 
+typedef enum {UART_IDLE, UART_TX, UART_TX_COMPLETE, UART_RX, UART_RX_COMPLETE} uart_state_t;
+	
 #ifdef TINYAVR_1SERIES
 #define USART0_RX_ENABLE  USART0.CTRLB |= 0x80
 #define USART0_RX_DISABLE USART0.CTRLB &= 0x7F
@@ -49,6 +53,7 @@ volatile uint8_t rx_byte_count;
 volatile uart_state_t uart_state; 
 volatile uint8_t com_error;
 volatile uint8_t uart_timeout_counter;
+volatile uint8_t uart_carrierSenseTimeoutCounter;
 
 #ifdef TEST_RUN
     void com_setUartIdle(void)
@@ -106,8 +111,10 @@ void com_init(void)
 	uart_tx_size = 0;
 	rx_byte_count = 0;
 
-	com_error = 0;
+  	com_error = 0;
 	uart_timeout_counter = 0;
+	uart_carrierSenseTimeoutCounter = 0;
+	shared.carrierDetected = RxPinState;
 	
 #ifdef RxTxLedEnable
 	rxLedTimer5ms = 0;
@@ -131,23 +138,30 @@ void com_init(void)
 	
 	REMAP = 0x01;  // Pin mapping
 #endif
+
 }
 
 //----------------------------------------------------------------------------------------------------------------------  
 void com_5msTickHandler(void)
 {		
-	if(uart_timeout_counter > UartTimeout)
-	{
+	if(uart_timeout_counter > UartTimeout){
 		uart_state = UART_IDLE;	
 		uart_timeout_counter = 0;
 		uart_buffer_position = 0;
 		com_error = 0;
 	}
 	
-	if(uart_state != UART_IDLE)
-	{
+	if(uart_state != UART_IDLE){
 		uart_timeout_counter ++;
 	}	
+	
+	if(uart_carrierSenseTimeoutCounter > UartCarrierSenseTimeout){
+		shared.carrierDetected = false;
+	}else{
+		uart_carrierSenseTimeoutCounter++;
+		shared.carrierDetected = true;
+	}
+	
 	
 #ifdef RxTxLedEnable
 	if(rxLedTimer5ms == 0) RxLedOn();
@@ -158,27 +172,33 @@ void com_5msTickHandler(void)
 
 //----------------------------------------------------------------------------------------------------------------------  
 void com_handler(void)
-{	
-	if(uart_state != UART_RX_COMPLETE) return;
-	
-	if((!com_error)&&(uart_buffer_position > 4))
-	{
-		uint8_t rx_dataSize = 0;
-		rx_dataSize = cobs_decode((uint8_t*)&uart_buffer[0], (const uint8_t*)&uart_buffer[1], uart_buffer_position-1); // uart_buffer[0] -> byte 0 is cobs 0 and can be ignored
-			
-		uint16_t crc_16 = crc16((uint8_t*)&uart_buffer[0], rx_dataSize);
-		if(crc_16 == 0){
-			com_receiveData(uart_buffer[0], (uint8_t*)&uart_buffer[1], (rx_dataSize - 3)); // -3 because 2 bytes of crc and data_buffer[0] is passed separately 
-		}
+ {	
+	if(RxPinState){
+		uart_carrierSenseTimeoutCounter = 0;
 	}
-	com_error = 0;
-	uart_state = UART_IDLE;	
+	
+	if(uart_state == UART_RX_COMPLETE)
+	{
+		if((!com_error)&&(uart_buffer_position > 4))
+		{
+			uint8_t rx_dataSize = 0;
+			rx_dataSize = cobs_decode((uint8_t*)&uart_buffer[0], (const uint8_t*)&uart_buffer[1], uart_buffer_position-1); // uart_buffer[0] -> byte 0 is cobs 0 and can be ignored
+			
+			uint16_t crc_16 = crc16((uint8_t*)&uart_buffer[0], rx_dataSize);
+			if(crc_16 == 0){
+				com_receiveData(uart_buffer[0], (uint8_t*)&uart_buffer[1], (rx_dataSize - 3)); // -3 because 2 bytes of crc and data_buffer[0] is passed separately 
+			}
+		}
+		com_error = 0;
+		uart_state = UART_IDLE;	
+	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------  
 void USART0_RX_interruptHandler(void)
 {	
 	uart_timeout_counter = 0; // Reset UART Timeout 
+	uart_carrierSenseTimeoutCounter = 0; // Reset Carrier Sense Timeout 
 	
 	if(uart_state == UART_IDLE){
 		uart_state = UART_RX;
@@ -245,6 +265,7 @@ void transmitByte(void)
 	#endif
 	}
 }
+
 //---------------------------------------------------------------------------------------------------------------------- 
 void com_transmitData(uint8_t instruction_byte,  uint8_t * data, uint8_t size, bool is_nAck)
 {	

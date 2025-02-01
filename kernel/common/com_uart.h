@@ -33,7 +33,8 @@ typedef enum {
 }com_baudRate;
 
 #define UartBufferSize 30
-#define UartTimeout 10 // In 5ms ticks -> 10 x 5ms = 50ms
+#define UartTimeout 10 // In 5ms ticks -> 10 x 5ms => 50ms
+#define UartCarrierSenseTimeout 20 // In 5ms ticks -> 20 x 5ms => 100 ms
 
 void com_init(void);
 void com_setBaudrate(com_baudRate baudRate);
