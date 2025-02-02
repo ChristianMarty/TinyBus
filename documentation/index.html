@@ -112,14 +112,12 @@
     <p>TinyBus is conceived to be single-master, however, multi-master operation is technically feasible.</p>
 
     <h3>Addressing</h3>
-    <p>The TinyBus supports up to 14 individually addressable devices.</p>
+    <p>The TinyBus supports up to 14 individually addressable devices plus one master-node.</p>
     <p>Additionally, all nodes can be commanded simultaneously via a broadcast address.</p>
     
     <h3>Baud Rates</h3>
-    <p>Each TinyBus node must support auto-baud detection. 
-        Therefore, there is no strict specification for supported baud rates.</p>
-    
-    <p>However, the master node (which defines the baud rate on the bus) should preferably use standard baud rates.</p>
+    <p>Each TinyBus node must support all eight specified baud rates.</p>
+
     <h4>Limitations</h4>
     <p>Empirical testing has shown that the highest realistically achievable standard baud rate is 14'400 baud</p>
     <p>This was tested over multiple meters of cabling in a tree topology.</p>
