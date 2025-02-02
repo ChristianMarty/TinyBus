@@ -37,6 +37,7 @@ private:
     uint16_t _readOffset;
     uint16_t _readPosition;
 
+    void _update(void);
     void _initMemory(void);
     void _printMemory(void);
     void _read(void);

@@ -23,20 +23,17 @@ void MemoryWidget::setDevice(Device *device)
 
     _device = device;
 
+    _update();
     _initMemory();
     _printMemory();
+    ui->spinBox_readStopAddress->setValue(_device->bootSystemInformation().ramSize);
 
     connect(_device, &Device::ramDataChanged, this, &MemoryWidget::on_ramDataChanged);
-
-    uint16_t ramSize = _device->bootSystemInformation().ramSize;
-    ui->spinBox_start->setMaximum(ramSize);
-    ui->spinBox_stop->setMaximum(ramSize);
-    ui->spinBox_stop->setValue(ramSize);
 }
 
 void MemoryWidget::on_pushButton_read_clicked()
 {
-    _startRead(ui->spinBox_start->value(), ui->spinBox_stop->value());
+    _startRead(ui->spinBox_readStartAddress->value(), ui->spinBox_readStopAddress->value());
 }
 
 void MemoryWidget::on_ramDataChanged(QByteArray data)
@@ -51,6 +48,17 @@ void MemoryWidget::on_ramDataChanged(QByteArray data)
     }
     _printMemory();
     _read();
+}
+
+void MemoryWidget::_update()
+{
+    uint16_t ramSize = _device->bootSystemInformation().ramSize;
+
+    ui->label_startAddress->setText("0");
+    ui->label_stopAddress->setText(QString::number(ramSize));
+
+    ui->spinBox_readStartAddress->setMaximum(ramSize);
+    ui->spinBox_readStopAddress->setMaximum(ramSize);
 }
 
 void MemoryWidget::_initMemory()
@@ -121,7 +129,9 @@ void MemoryWidget::_printMemory()
 
 void MemoryWidget::on_pushButton_clear_clicked()
 {
+    _update();
     _initMemory();
     _printMemory();
 }
+
 

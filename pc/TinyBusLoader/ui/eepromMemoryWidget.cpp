@@ -24,22 +24,28 @@ void EepromMemoryWidget::setDevice(Device *device)
 
     _device = device;
 
+    _update();
     _initMemory();
     _printMemory();
+    ui->spinBox_readStopAddress->setValue(_device->bootSystemInformation().eepromSize);
 
     connect(_device, &Device::eepromDataChanged, this, &EepromMemoryWidget::on_eepromDataChanged);
+}
 
-    uint16_t eepromSize = _device->bootSystemInformation().eepromSize;
-    ui->spinBox_start->setMaximum(eepromSize);
-    ui->spinBox_stop->setMaximum(eepromSize);
-    ui->spinBox_stop->setValue(eepromSize);
+void EepromMemoryWidget::_update()
+{
+    uint16_t ramSize = _device->bootSystemInformation().ramSize;
 
-    ui->spinBox_writeAddress->setMaximum(eepromSize);
+    ui->label_startAddress->setText("0");
+    ui->label_stopAddress->setText(QString::number(ramSize));
+
+    ui->spinBox_readStartAddress->setMaximum(ramSize);
+    ui->spinBox_readStopAddress->setMaximum(ramSize);
 }
 
 void EepromMemoryWidget::on_pushButton_read_clicked()
 {
-    _startRead(ui->spinBox_start->value(), ui->spinBox_stop->value());
+    _startRead(ui->spinBox_readStartAddress->value(), ui->spinBox_readStopAddress->value());
 }
 
 void EepromMemoryWidget::on_eepromDataChanged(QByteArray data)
@@ -123,10 +129,10 @@ void EepromMemoryWidget::_printMemory()
 
 void EepromMemoryWidget::on_pushButton_clear_clicked()
 {
+    _update();
     _initMemory();
     _printMemory();
 }
-
 
 void EepromMemoryWidget::on_pushButton_write_clicked()
 {
