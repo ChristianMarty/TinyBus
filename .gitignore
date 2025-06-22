@@ -16,3 +16,5 @@ application/par16/PAR-16/Debug
 application/Ring Light Controller/Dimmermodul/Debug
 kernel/updater/Debug
 kernel/attiny816/Debug
+application/_library/_test/cmake-build-debug
+application/Teelicht Rev1.0/Teelicht/Debug
