@@ -17,18 +17,20 @@
 
 void BH2221FV_sendAll( uint8_t *data)
 {
-	BH2221FV_send(1,data[0]);
-	BH2221FV_send(2,data[1]);
-	BH2221FV_send(3,data[2]);
-	BH2221FV_send(4,data[3]);
-	BH2221FV_send(5,data[4]);
-	BH2221FV_send(6,data[5]);
-	BH2221FV_send(7,data[6]);
-	BH2221FV_send(8,data[7]);
-	BH2221FV_send(9,data[8]);
-	BH2221FV_send(10,data[9]);
-	BH2221FV_send(11,data[10]);
-	BH2221FV_send(12,data[11]);	
+	BH2221FV_send( 8,data[ 0]); //R1
+	BH2221FV_send( 7,data[ 1]); //G1
+	BH2221FV_send( 6,data[ 2]); //B1
+	BH2221FV_send( 5,data[ 3]); //W1
+	
+	BH2221FV_send( 4,data[ 4]); //R2
+	BH2221FV_send( 3,data[ 5]); //G2
+	BH2221FV_send(10,data[ 6]); //B2
+	BH2221FV_send( 9,data[ 7]); //W2
+	
+	BH2221FV_send( 1,data[ 8]); //R3
+	BH2221FV_send( 2,data[ 9]); //G3
+	BH2221FV_send(11,data[10]); //B3
+	BH2221FV_send(12,data[11]);	//W3
 }
 	
 

@@ -18,16 +18,13 @@
 #define MAJOR_SW_REV 1
 #define MINOR_SW_REV 0
 
-#define MAJOR_HW_REV 1
-#define MINOR_HW_REV 0
+#define HARDWARE_ID 0x0005
 
-#define HARDWARE_ID 0x0003
-
-#define APPLICATION_NAME "Ring Light" // Max 18 characters
+#define APPLICATION_NAME "Ring Light Driver" // Max 18 characters
 
 volatile shared_t shared __attribute__((section (".shared")));
 volatile const application_header_t header __attribute__((section (".header"))) = {
-	.autostart = false,
+	.autostart = true,
 	.header_version = 0,
 	.firmwareVersion_major = MAJOR_SW_REV,
 	.firmwareVersion_minor = MINOR_SW_REV,
@@ -41,13 +38,20 @@ void app_main(void)
 	if(shared.deviceState == APP_START)
 	{
 		analog_init();
+		
+		if(shared.carrierDetected == false){
+			uint8_t data[12];
+			readEepromAppSection(0, &data[0], sizeof(data));
+			BH2221FV_sendAll(&data[0]);
+		}
 	}
 	
 	// Add main code here
 	
 	if(shared.deviceState == APP_SHUTDOWN)
 	{
-
+		uint8_t data[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
+		BH2221FV_sendAll(&data[0]);
 	}
 }
 
