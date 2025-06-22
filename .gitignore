@@ -25,3 +25,4 @@ application/4-Channel Dimmer Rev2.2/Dimmermodul/Debug
 kernel/attiny841_ringLightDriver/Debug
 kernel/attiny841_par-16/Debug
 kernel/attiny841_4-channelDimmer/Debug
+*.vs
