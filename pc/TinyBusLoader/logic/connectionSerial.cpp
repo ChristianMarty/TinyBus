@@ -3,7 +3,6 @@
 ConnectionSerial::ConnectionSerial(QObject *parent)
     : Connection{parent}
 {
-
     connect(&_serialPort, &QSerialPort::readyRead, this, &ConnectionSerial::on_readyRead);
     connect(&_serialPort, &QSerialPort::errorOccurred, this, &ConnectionSerial::on_errorOccurred);
 }
@@ -24,7 +23,7 @@ void ConnectionSerial::open(QString url)
     }
 
     _serialPort.setPortName(url.remove("serial://", Qt::CaseInsensitive));
-    _serialPort.setBaudRate(baud);//14400);
+    _serialPort.setBaudRate(baud) ;
     _serialPort.setParity(QSerialPort::Parity::NoParity);
     _serialPort.open(QIODeviceBase::ReadWrite);
 
@@ -61,7 +60,7 @@ void ConnectionSerial::sendData(QByteArray data)
 
     emit tx();
 
-   // if(_serialPort.bytesToWrite()) return;
+    if(_serialPort.bytesToWrite()) return;
 
     _serialPort.write(encodedData);
 }

@@ -82,7 +82,7 @@ void TinyBus::startScan()
     emit deviceListChanged();
 
     _busScanDevcieAddress = 0;
-    _busScanTimer.start(250);
+    _busScanTimer.start(500);
 }
 
 void TinyBus::abortScan()

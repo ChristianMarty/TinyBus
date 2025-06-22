@@ -22,7 +22,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(&_busPassThrough, &BusPassThrough::stateChanged, this, &MainWindow::on_passthroughStateChanged);
 
-
     ui->label_rx->setPalette(ColorPalette::status());
     ui->label_tx->setPalette(ColorPalette::status());
 
@@ -33,7 +32,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    disconnect(&_busPassThrough, &BusPassThrough::stateChanged, this, &MainWindow::on_passthroughStateChanged);
     delete ui;
 }
 

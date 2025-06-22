@@ -42,7 +42,6 @@ private slots:
     void on_pushButton_readHardwareInformation_clicked();
 
     void on_pushButton_setBaudRate_clicked();
-
     void on_pushButton_saveBaudRate_clicked();
 
 private:

@@ -18,7 +18,7 @@ MemoryWidget::~MemoryWidget()
 void MemoryWidget::setDevice(Device *device)
 {
     if(_device != nullptr){
-        disconnect(_device, &Device::ramDataChanged, this, &MemoryWidget::on_ramDataChanged);
+        //disconnect(_device, &Device::ramDataChanged, this, &MemoryWidget::on_ramDataChanged);
     }
 
     _device = device;
@@ -96,13 +96,14 @@ void MemoryWidget::_read()
 void MemoryWidget::_printMemory()
 {
     ui->textEdit_memory->clear();
-    ui->textEdit_memory->append("           00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F");
-    ui->textEdit_memory->append("         ..................................................");
+    ui->textEdit_memory->append("                   00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F");
+    ui->textEdit_memory->append("                   ................................................");
 
     uint16_t appRamStart = _device->bootSystemInformation().ramAppStart;
 
     for(uint16_t i = 0; i<_memory.count(); i+=16){
-        QString line = QString::number(i,16).toUpper().rightJustified(4,'0').prepend("0x");
+        QString line = QString::number(i).rightJustified(5,' ')+" / ";
+        line += QString::number(i,16).toUpper().rightJustified(4,'0').prepend("0x");
         line += "  : ";
         for(uint16_t j = 0; j<16; j++){
 
@@ -110,7 +111,7 @@ void MemoryWidget::_printMemory()
             if(offset >= _memory.count()) break;
 
             if(appRamStart == offset){
-                ui->textEdit_memory->append("------  :  APP Start --------------------------------------");
+                ui->textEdit_memory->append("--------------  :  APP Start --------------------------------------");
             }
 
             MemoryByte byte = _memory.at(offset);

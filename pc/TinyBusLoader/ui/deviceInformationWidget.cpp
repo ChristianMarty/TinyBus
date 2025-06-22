@@ -12,6 +12,16 @@ DeviceInformationWidget::DeviceInformationWidget(QWidget *parent) :
 
 DeviceInformationWidget::~DeviceInformationWidget()
 {
+    if(_memoryWidget != nullptr){
+        _memoryWidget->close();
+        delete _memoryWidget;
+    }
+
+    if(_eepromMemoryWidget != nullptr){
+        _eepromMemoryWidget->close();
+        delete _eepromMemoryWidget;
+    }
+
     if(_device != nullptr){
         //disconnect(_device, &Device::changed, this, &DeviceInformationWidget::on_selectedDeviceChanged);
     }
