@@ -42,6 +42,7 @@ extern "C" {
 shared_t shared __attribute__((section (".shared")));
 
 uint8_t device_getAddress(void);
+com_baudRate device_getBaudRate(void);
 com_baudRate baudRate;
 
 void device_init(void)
@@ -51,7 +52,7 @@ void device_init(void)
 		shared.address = 0x00; // in case the EEPROM was never programmed or address is out of range (>15)
 	}
 	
-	device_setBaudRate(bootloader_readEeprom(&eeSettings.baudRate));
+	device_setBaudRate(device_getBaudRate());
 	
 	shared.deviceState = APP_STOPPED;
 	shared.appCrc = bootloader_appCRC();
@@ -174,10 +175,20 @@ uint8_t device_updateAddress(uint8_t address)
 uint8_t device_getAddress(void)
 {
 #ifdef TINYAVR_1SERIES
-	return bootloader_readEeprom(&eeSettings.deviceAddress+EepromOffset);
+	return bootloader_readEeprom((&eeSettings.deviceAddress)+EepromOffset);
 #endif
 #ifdef ATTINYx41
 	return bootloader_readEeprom(&eeSettings.deviceAddress);
+#endif
+}
+
+com_baudRate device_getBaudRate(void)
+{
+#ifdef TINYAVR_1SERIES
+	return bootloader_readEeprom((&eeSettings.baudRate)+EepromOffset);
+#endif
+#ifdef ATTINYx41
+	return bootloader_readEeprom(&eeSettings.baudRate);
 #endif
 }
 
@@ -193,7 +204,7 @@ void device_setBaudRate(uint8_t baudRateIndex)
 void device_saveBaudRate(void)
 {
 #ifdef TINYAVR_1SERIES
-
+	return bootloader_updateEeprom((&eeSettings.baudRate)+EepromOffset, baudRate);
 #endif
 #ifdef ATTINYx41
 	return bootloader_updateEeprom(&eeSettings.baudRate, baudRate);
@@ -209,7 +220,13 @@ bool device_readEepromAppSection(uint16_t offset, uint8_t *data, uint16_t size)
 	}
 	
 	#ifdef TINYAVR_1SERIES
-		#error APP EEPROM section read not implemented!
+	
+		uint16_t baseAddress = ((uint16_t)&eeSettings.deviceAddress) + AppEepromStart + offset;
+		for(uint16_t i = 0; i<size; i++){
+			data[i] = bootloader_readEeprom((uint8_t*)(baseAddress+i));
+		}
+		return  true;
+		
 	#endif
 	
 	#ifdef ATTINYx41
@@ -234,7 +251,13 @@ bool device_writeEepromAppSection(uint16_t offset, uint8_t *data, uint16_t size)
 	}
 	
 	#ifdef TINYAVR_1SERIES
-		#error APP EEPROM section write not implemented!
+		
+		uint16_t baseAddress = ((uint16_t)&eeSettings.deviceAddress) + AppEepromStart + offset;
+		for(uint16_t i = 0; i<size; i++){
+			bootloader_updateEeprom((uint8_t*)(baseAddress+i), data[i]);
+		}
+		return  true;
+		
 	#endif
 	
 	#ifdef ATTINYx41

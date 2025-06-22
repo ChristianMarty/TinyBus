@@ -65,7 +65,32 @@ volatile uint8_t uart_carrierSenseTimeoutCounter;
 void com_setBaudrate(com_baudRate baudRate)
 {	
 #ifdef TINYAVR_1SERIES
-	USART0.BAUD = baudsetting;
+	switch(baudRate){
+		case BAUD_300:
+		USART0.BAUD = 44444;
+		break;
+		case BAUD_600:
+		USART0.BAUD = 22222;
+		break;
+		case BAUD_1200:
+		USART0.BAUD = 11111;
+		break;
+		case BAUD_2400:
+		USART0.BAUD = 5555;
+		break;
+		case BAUD_4800:
+		USART0.BAUD = 2778;
+		break;
+		case BAUD_9600:
+		USART0.BAUD = 1389;
+		break;
+		case BAUD_14400:
+		USART0.BAUD = 925;
+		break;
+		case BAUD_19200:
+		USART0.BAUD = 694;
+		break;
+	}
 #endif
 
 #ifdef ATTINYx41
@@ -122,7 +147,6 @@ void com_init(void)
 	
 #ifdef TINYAVR_1SERIES
 	PORTMUX.CTRLB |= 0x01; // Use PA1, PA2 for UART
-	USART0.BAUD = 925;
 	USART0.CTRLB = 0xC0;
 	PORTA.DIRSET = 0x02; // TX as output
 	USART0.CTRLC = 0x03; // 8N1

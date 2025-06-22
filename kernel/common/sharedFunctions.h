@@ -1,9 +1,10 @@
-/*
- * SharedFunctions.h
- *
- * Created: 01.08.2017 00:33:17
- *  Author: Christian
- */ 
+//**********************************************************************************************************************
+// FileName : sharedFunctions.c
+// FilePath : common/
+// Author   : Christian Marty
+// Date		: 26.05.2024
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
 #ifndef SHAREDFUNCTIONS_H_
 #define SHAREDFUNCTIONS_H_
 
@@ -52,11 +53,9 @@ void InterruptVectorTable(void)
 	asm("rjmp app_5ms_tick");
 }
 
-
 #define COM_TRANSMIT_DATA_ADDR 0x20
 #define EEPROM_READ_DATA_ADDR 0x21
 #define EEPROM_WRITE_DATA_ADDR 0x22
-
 
 #endif
 
@@ -85,7 +84,5 @@ bool writeEepromAppSection(uint16_t offset, uint8_t *data, uint16_t size)
 {
 	return ((PF_EEPROM) (EEPROM_WRITE_DATA_ADDR))(offset, data, size);
 }
-
-
 
 #endif /* SHAREDFUNCTIONS_H_ */

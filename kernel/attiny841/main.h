@@ -4,7 +4,7 @@
 #define ATTINYx41
 
 #define CONTROLLER_ID 0x01
-#define HARDWARE_ID 0x0002
+#define HARDWARE_ID 0x0001
 
 #define RAM_READ
 #define EEPROM_READ
@@ -13,7 +13,7 @@
 
 // Device HW Rev 2.2
 #define HARDWARE_VERSION_MAJOR 0x02 
-#define HARDWARE_VERSION_MINOR 0x02 
+#define HARDWARE_VERSION_MINOR 0x02
 
 
 /******************************************************************************

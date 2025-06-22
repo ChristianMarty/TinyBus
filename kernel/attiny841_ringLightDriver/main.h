@@ -1,19 +1,19 @@
 #include <avr/io.h>
 #include <stdbool.h>
 
-#define TINYAVR_1SERIES
+#define ATTINYx41
 
-#define CONTROLLER_ID 0x02
-#define HARDWARE_ID 0x0001
+#define CONTROLLER_ID 0x01
+#define HARDWARE_ID 0x0005
 
 #define RAM_READ
 #define EEPROM_READ
 #define EEPROM_WRITE
 
 
-// Device HW Rev 2.0
-#define HARDWARE_VERSION_MAJOR 0x02
-#define HARDWARE_VERSION_MINOR 0x00
+// Device HW Rev 1.3
+#define HARDWARE_VERSION_MAJOR 0x01
+#define HARDWARE_VERSION_MINOR 0x03
 
 
 /******************************************************************************
@@ -29,8 +29,9 @@ Application memory configuration
 Port Initialization
 ******************************************************************************/
 
-#define PortInitialization();
-#define RxPinState (bool)(true)
+#define PortInitialization() PORTA = 0x80; DDRA = 0xFF; DDRB = 0x00;
+#define RxPinState (bool)(PINB & 0x04)
+
 
 /******************************************************************************
 Configure pin for zero-power
@@ -40,16 +41,18 @@ Configure pin for zero-power
 #define  MainPowerOff()
 
 
-/******************************************************************************
-Enable and configure Rx and TX LED
+/****************************************************************************** 
+Enable and configure Rx and TX LED 
 ******************************************************************************/
 
-//#define RxTxLedEnable // Uncomment to Enable
+#define RxTxLedEnable // Uncomment to Enable 
 
 #define RxTxLedOnTime 1 // in 5ms steps, int8_t -> max 127 -> 635ms
 
-#define TxLedOn()
-#define TxLedOff()
+#define TxLedOn() (PORTA |= 0x20)
+#define TxLedOff() (PORTA &= 0xDF)
 
-#define RxLedOn()
-#define RxLedOff()
+#define RxLedOn() (PORTA |= 0x40)
+#define RxLedOff() (PORTA &= 0xBF)
+
+

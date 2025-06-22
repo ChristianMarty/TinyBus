@@ -45,7 +45,9 @@ void InterruptVectorTable(void)
 	asm("nop");
 	asm("nop");
 	
-	asm("rjmp com_transmit_data");
+	asm("rjmp com_transmitData");
+	asm("rjmp device_readEepromAppSection");
+	asm("rjmp device_writeEepromAppSection");
 }
 
 
