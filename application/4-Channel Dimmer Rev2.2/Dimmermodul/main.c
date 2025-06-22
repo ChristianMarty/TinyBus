@@ -12,26 +12,28 @@
 
 #include "PWM.h"
 #include "analog.h"
-#include "SharedFunctions.h"
+#include "sharedFunctions.h"
 #include "typedef.h"
 
 #define MAJOR_SW_REV 2
-#define MINOR_SW_REV 1
+#define MINOR_SW_REV 3
 
 #define MAJOR_HW_REV 2
 #define MINOR_HW_REV 0
 
-#define HARDWARE_ID 0x1234
+#define HARDWARE_ID 0x0002
+
+#define APPLICATION_NAME "4-Ch PWM Dimmer" // Max 18 characters
 
 volatile shared_t shared __attribute__((section (".shared")));
 volatile const application_header_t header __attribute__((section (".header"))) = {
-	.autostart = false,
+	.autostart = true,
 	.header_version = 0,
 	.firmwareVersion_major = MAJOR_SW_REV,
 	.firmwareVersion_minor = MINOR_SW_REV,
 	.hardwareId_h = (uint8_t)(HARDWARE_ID>>8),
 	.hardwareId_l = (uint8_t)(HARDWARE_ID),
-	.name = "4-Ch PWM Dimmer"
+	.name = APPLICATION_NAME
 };
 
 const PROGMEM uint16_t dimmingCurve[] = { 
@@ -107,6 +109,8 @@ void cmd_set_pwm_with_curve(uint8_t pwm_ch, uint8_t master, uint8_t value)
 	pwm_fade(pwm_ch, 20, output, false);	
 }
 
+uint16_t dimmerValue[4];
+
 void app_main(void)
 {
 	if(shared.deviceState == APP_START)
@@ -123,12 +127,20 @@ void app_main(void)
 		PORTA |= 0x80;
 	
 		analog_init();
+		
+		if(shared.carrierDetected == false){
+			readEepromAppSection(0, (uint8_t*)&dimmerValue[0], 8);
+			
+			pwm_set_ch1(dimmerValue[0]);
+			pwm_set_ch2(dimmerValue[1]);
+			pwm_set_ch3(dimmerValue[2]);
+			pwm_set_ch4(dimmerValue[3]);
+		}
 	}
 	
 	// Add main code here
 	
-	if(shared.deviceState == APP_SHUTDOWN)
-	{
+	if(shared.deviceState == APP_SHUTDOWN){
 		// Turn LED off
 		pwm_set_ch1(0x00);
 		pwm_set_ch2(0x00);
@@ -151,7 +163,7 @@ void app_com_receive_data(uint8_t instruction, uint8_t *data, uint8_t size, bool
 		case 0:
 		case 1:
 		case 2:
-		case 3:	cmd_set_pwm(instruction,data);
+		case 3:	cmd_set_pwm(instruction, data);
 				break;
 			
 		// Set channel 0 - 3
@@ -207,10 +219,10 @@ void cmd_set_pwm(uint8_t pwm_ch, uint8_t *data)
 	uint16_t pwm_data = (data[1]<<8);
 	pwm_data |= data[2];
 	
-	bool wfe = false;
-	if(data[0]&0x80) wfe = true;
+	bool waitForExecution = false;
+	if(data[0]&0x80) waitForExecution = true;
 	
-	pwm_fade(pwm_ch,(data[0]&0x7F),pwm_data,wfe);
+	pwm_fade(pwm_ch,(data[0]&0x7F),pwm_data,waitForExecution);
 }
 
 void app_5ms_tick(void)

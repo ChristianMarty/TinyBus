@@ -125,6 +125,7 @@
   </avrgcc.compiler.symbols.DefSymbols>
   <avrgcc.compiler.directories.IncludePaths>
     <ListValues>
+      <Value>..</Value>
       <Value>../../../../kernel/common</Value>
       <Value>%24(PackRepoDir)\Atmel\ATtiny_DFP\2.0.368\include\</Value>
     </ListValues>
@@ -163,6 +164,10 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\kernel\common\sharedFunctions.h">
+      <SubType>compile</SubType>
+      <Link>sharedFunctions.h</Link>
+    </Compile>
     <Compile Include="..\..\..\kernel\common\typedef.h">
       <SubType>compile</SubType>
       <Link>typedef.h</Link>
@@ -176,13 +181,13 @@
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="main.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="PWM.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="PWM.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="SharedFunctions.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>
