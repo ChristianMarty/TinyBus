@@ -7,18 +7,10 @@
 
 #include "analog.h"
 
-uint16_t adc_voltage = 0;
-uint16_t adc_current = 0;
-uint16_t adc_temperature = 0;
-
 void analog_init(void)
 {
 	DIDR0 = 0x03; // Disable digital input buffer for ADC pins 
 	ADCSRA = 0b10010111;
-	
-	adc_voltage = 0;
-	adc_current = 0;
-	adc_temperature = 0;
 }
 
 // Returns Voltage reading in 10mV 
