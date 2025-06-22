@@ -109,7 +109,10 @@
 <document-page>
     <h2>Topology</h2>
     <p>The TinyBus is a strictly master-slave, request-response based protocol.</p>
-    <p>TinyBus is conceived to be single-master, however, multi-master operation is technically feasible.</p>
+    <p>Each bus consists of one bus power supply, one master node, and up to 14 slave nodes.</p>
+    <img src="system.png" style="display:block; margin: auto; width: 60%;">
+
+
 
     <h3>Addressing</h3>
     <p>The TinyBus supports up to 14 individually addressable devices plus one master-node.</p>
@@ -119,19 +122,21 @@
     <p>Each TinyBus node must support all eight specified baud rates.</p>
 
     <h4>Limitations</h4>
-    <p>Empirical testing has shown that the highest realistically achievable standard baud rate is 14'400 baud</p>
-    <p>This was tested over multiple meters of cabling in a tree topology.</p>
+    <p>Empirical testing has shown that the highest realistically achievable standard baud rate is 14'400 baud. This was tested over multiple meters of cabling in a tree topology.</p>
     
     <h3>Idle state, power conservation and node wake-up</h3>
-    <p>In idle state, the bus is logical high. This allows a node to detect if it is currently connected to the bus and if the bus is active.</p>
+    <p>In idle state, the bus is logical high. This allows a node to detect if it is currently connected to an active bus.</p>
     <p>If a node is disconnected or the bus becomes inactive, the node can enter standby or power down.</p>
     <h4>Wake-Up Signal</h4>
     <p>The "RX_RAW" signal (see Interface) can be used as wake-up signal.</p> 
     <p>The output of the optocoupler being open-collector and not reliant on any auxiliary voltage supply allows for a true zero standby power consumption design.</p>
 
-    <h3>Electrical Characteristics</h3>
+    <h3>Electrical Characteristics and the Bus Power Supply</h3>
     <p>TinyBus is based on a current loop.</p>
     <p>The loop current must be limited to approximately 80 mA. The open loop voltage must be limited to approximately 12V DC.</p>
+
+    
+    
 </document-page>
 
 <document-page>
@@ -195,6 +200,7 @@
     <p>TinyBus does not directly specifie a maximum cable length. The maximum cable length primarily depends on the cable's loop resistance.</p>
     <p>Due to the current-loop-like operation of TinyBus, the resistance of the cable must not exceed a value causing a voltage drop of approximately 7V.</p>
     <p>Considering the typical 100mA bus current and the 10 Ohms input resistance of a node, a loop resistance of approximately 60 Ohms must not be exceeded.</p>
+
 </document-page>
 
 <document-page>
@@ -321,6 +327,13 @@
         </tr>
     </table>
     <p>1) Only if individual addressed, broadcast messages get no reply.</p>
+
+    <h3>Visual Indicators</h3>
+    <p>Visual indicators can be used to visualize network activity.</p>
+    <p>The recieve indcator </p>
+    <h4>Colours</h4>
+    <p>The indicator light for receiving data shall be green while the indicator light for transmitting shall be red.</p>
+    
 
 </document-page>
 
