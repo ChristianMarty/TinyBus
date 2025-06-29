@@ -94,6 +94,16 @@ void MainWindow::on_hexFileChanged()
     ui->label_appOffset->setText(QString::number(_tinyBus.appOffset(),16).toUpper().rightJustified(2,'0').prepend("0x"));
     ui->label_appSize->setText(QString::number(_tinyBus.appSize(),16).toUpper().rightJustified(2,'0').prepend("0x"));
     ui->label_appCrc->setText(QString::number(_tinyBus.appCrc(),16).toUpper().rightJustified(2,'0').prepend("0x"));
+
+    ApplicationHeader applicationHeader = _tinyBus.appliactionHeader();
+
+    ui->label_autostart->setText(applicationHeader.autostart?"true":"false");
+    ui->label_headerVersion->setText(QString::number(applicationHeader.headerVersion));
+    ui->label_hardwareId->setText(QString::number(applicationHeader.hardwareId,16).toUpper().rightJustified(2,'0').prepend("0x"));
+    ui->label_firmwareVersion->setText(QString::number(applicationHeader.firmwareVersion.major)+"."+QString::number(applicationHeader.firmwareVersion.minor));
+    ui->label_hardwareVersion->setText(QString::number(applicationHeader.hardwareVersion.major)+"."+QString::number(applicationHeader.hardwareVersion.minor));
+    ui->label_applicationName->setText(applicationHeader.applicationName);
+
 }
 
 void MainWindow::on_message(QString message)

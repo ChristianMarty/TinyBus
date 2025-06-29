@@ -1,5 +1,37 @@
 #include "decode.h"
 
+ApplicationHeader Decode::extractApplicationHeader(const QByteArray &data)
+{
+    if(data.size() < 32) return ApplicationHeader();
+
+    ApplicationHeader applicationHeader;
+    applicationHeader.headerVersion = (bool)(data.at(0) & 0x03);
+    if(applicationHeader.headerVersion != 0) return ApplicationHeader();
+
+    applicationHeader.autostart = (bool)(data.at(0) & 0x80);
+
+    applicationHeader.firmwareVersion.major = data.at(2);
+    applicationHeader.firmwareVersion.minor = data.at(3);
+
+    uint16_t hardwareId = data.at(4);
+    hardwareId = (hardwareId<<8) & 0xFF00;
+    hardwareId |= data.at(5);
+    applicationHeader.hardwareId = hardwareId;
+
+    applicationHeader.hardwareVersion.major = data.at(6);
+    applicationHeader.hardwareVersion.minor = data.at(7);
+
+    QString applicationName;
+    for(uint8_t i = 0; i<18; i++){
+        char byte = data.at(14+i);
+        if(byte == 0)break;
+        applicationName.append(byte);
+    }
+    applicationHeader.applicationName =    applicationName;
+
+    return applicationHeader;
+}
+
 Address Decode::extractAddress(InstructionByte instructionByte)
 {
     return (instructionByte>>4)&0x0F;

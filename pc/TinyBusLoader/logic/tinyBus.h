@@ -30,6 +30,7 @@ public:
     uint32_t appOffset(void);
     uint32_t appSize(void);
     uint32_t appCrc(void);
+    ApplicationHeader appliactionHeader(void);
 
     void setHexFile(const QuCLib::HexFileParser &newHexFile);
 

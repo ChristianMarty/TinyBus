@@ -132,6 +132,11 @@ uint32_t TinyBus::appCrc()
     return QuCLib::Crc::crc16(_hexFile.binary().at(0).data);
 }
 
+ApplicationHeader TinyBus::appliactionHeader()
+{
+    return Decode::extractApplicationHeader(_hexFile.binary().at(0).data);
+}
+
 void TinyBus::on_deviceChanged(Device *device)
 {
     if(device == _currentUpdate && (device->updateState().state == Update::State::Done || device->updateState().state == Update::State::Faild)){

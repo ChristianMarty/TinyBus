@@ -3,6 +3,20 @@
 
 #include <QObject>
 
+struct Version {
+    uint8_t major = 0;
+    uint8_t minor = 0;
+};
+
+struct ApplicationHeader {
+    bool autostart;
+    uint8_t headerVersion;
+    Version firmwareVersion;
+    uint16_t hardwareId;
+    Version hardwareVersion;
+    QString applicationName;
+};
+
 typedef uint8_t Address;
 typedef uint8_t Command;
 typedef uint8_t InstructionByte;
@@ -19,10 +33,7 @@ enum class BaudRate:uint8_t {
     BAUD_LENGTH
 };
 
-struct Version {
-    uint8_t major = 0;
-    uint8_t minor = 0;
-};
+
 
 enum ApplicationState:uint8_t {
     Unknown,

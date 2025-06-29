@@ -7,6 +7,8 @@
 class Decode
 {
 public:
+    static ApplicationHeader extractApplicationHeader(const QByteArray &data);
+
     static Address extractAddress(InstructionByte instructionByte);
     static Command extractCommand(InstructionByte instructionByte);
 
