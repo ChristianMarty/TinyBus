@@ -12,32 +12,34 @@ void Update::handle()
 {
     switch(_updateState.state)
     {
-    case UpdateState::Unknown:
-    case UpdateState::Idle:
-    case UpdateState::Pending:
-    case UpdateState::Done:
-    case UpdateState::Faild:
+    case State::Unknown:
+    case State::Idle:
+    case State::Pending:
+    case State::Done:
+    case State::Faild:
         break;
 
-    case UpdateState::StartUpload: {
+    case State::StartUpload: {
         _device.requestMemoryInformation();
-        _updateState.state = UpdateState::GetDeviceInformation;
+        _updateState.state = State::GetDeviceInformation;
         _emitChange();
         break;
     }
 
-    case UpdateState::GetDeviceInformation: {
+    case State::GetDeviceInformation: {
         _eraseAppSection();
-        _updateState.state = UpdateState::Erase;
+        _updateState.state = State::Erase;
         _emitChange();
         break;
     }
 
-    case UpdateState::Erase: {
+    case State::Erase: {
         QuCLib::HexFileParser::binaryChunk binary = _device._tinyBus->hexFile().binary().at(0);
         _appCrc16_write = QuCLib::Crc::crc16(binary.data);
 
-        uint16_t appSize = _device._bootSystemInformation.memoryInformation.flashSize - _device._bootSystemInformation.memoryInformation.flashAppStart;
+        MemoryInformation memoryInformation = _device._bootSystemInformation.memoryInformation;
+
+        uint16_t appSize = memoryInformation.flashSize - memoryInformation.flashAppStart;
         for(uint16_t i = 0; i < (appSize-binary.data.size())-2; i++)
         {
             _appCrc16_write = QuCLib::Crc::crc16_addByte(_appCrc16_write,(uint8_t)0xFF);
@@ -45,7 +47,7 @@ void Update::handle()
 
         _imageAddress = 0;
         _updateState.progress = 0;
-        _updateState.state = UpdateState::DataTransfere;
+        _updateState.state = State::DataTransfere;
 
         _writeNextPage();
 
@@ -53,22 +55,22 @@ void Update::handle()
         break;
     }
 
-    case UpdateState::DataTransfere: {
+    case State::DataTransfere: {
         _writeNextPage();
         if(_updateState.progress == 100){
             _device.requestApplicationCrc();
-            _updateState.state = UpdateState::GetCrc;
+            _updateState.state = State::GetCrc;
             _emitChange();
         }
         break;
     }
 
-    case UpdateState::GetCrc: {
+    case State::GetCrc: {
         if(_device._crc == _appCrc16_write) {
-            _updateState.state = UpdateState::Done;
+            _updateState.state = State::Done;
             _emitChange();
         }else{
-            _updateState.state = UpdateState::Faild;
+            _updateState.state = State::Faild;
             _emitChange();
         }
         break;
@@ -78,7 +80,7 @@ void Update::handle()
 
 void Update::setUpdatePending()
 {
-    _updateState.state = UpdateState::Pending;
+    _updateState.state = State::Pending;
     _updateState.progress = 0;
 }
 
@@ -89,11 +91,11 @@ void Update::setSelectedForUpdate(bool selected)
 
 void Update::start()
 {
-    _updateState.state = UpdateState::StartUpload;
+    _updateState.state = State::StartUpload;
     handle();
 }
 
-Update::UpdateState Update::updateState() const
+Update::State Update::updateState() const
 {
     return _updateState;
 }
@@ -111,9 +113,10 @@ void Update::_eraseAppSection()
 void Update::_writeNextPage(void)
 {
     QuCLib::HexFileParser::binaryChunk binary = _device._tinyBus->hexFile().binary().at(0);
+    MemoryInformation memoryInformation = _device._bootSystemInformation.memoryInformation;
 
-    uint16_t appSize = _device._bootSystemInformation.memoryInformation.flashSize - _device._bootSystemInformation.memoryInformation.flashAppStart;
-    uint32_t flashSize = _device._bootSystemInformation.memoryInformation.flashSize;
+    uint16_t appSize = memoryInformation.flashSize - memoryInformation.flashAppStart;
+    uint32_t flashSize = memoryInformation.flashSize;
 
     if(_imageAddress < binary.data.size())
     {
@@ -124,7 +127,7 @@ void Update::_writeNextPage(void)
         _imageAddress += 16;
     }
     // fill last written page
-    else if(_imageAddress % _device._bootSystemInformation.memoryInformation.flashPageSize != 0 && _imageAddress <  _device._bootSystemInformation.memoryInformation.flashPageSize*((binary.data.size()/_device._bootSystemInformation.memoryInformation.flashPageSize)+1))
+    else if(_imageAddress % memoryInformation.flashPageSize != 0 && _imageAddress <  memoryInformation.flashPageSize*((binary.data.size() / memoryInformation.flashPageSize)+1))
     {
         QByteArray data;
         for(uint8_t i = 0; i<16; i++)
@@ -135,9 +138,9 @@ void Update::_writeNextPage(void)
         _imageAddress += 16;
     }
     // scipt emty pages
-    else if(_imageAddress < appSize - _device._bootSystemInformation.memoryInformation.flashPageSize)
+    else if(_imageAddress < appSize - memoryInformation.flashPageSize)
     {
-        _imageAddress = (appSize - _device._bootSystemInformation.memoryInformation.flashPageSize);
+        _imageAddress = (appSize - memoryInformation.flashPageSize);
 
         QByteArray data;
         for(uint8_t i = 0; i<16; i++)

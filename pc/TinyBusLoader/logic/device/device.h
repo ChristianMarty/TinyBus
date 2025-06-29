@@ -53,7 +53,7 @@ public:
 
     bool selectedForUpdate() const;
 
-    Update::UpdateState updateState() const;
+    Update::State updateState() const;
 
     const Version &firmwareVersion() const;
     const QString &firmwareName() const;

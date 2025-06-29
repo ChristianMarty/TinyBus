@@ -41,7 +41,7 @@ void TinyBus::abortUpdate()
 void TinyBus::_updateNextDevice()
 {
     for(Device *device: _updateQueue){
-        if(device->updateState().state == Update::UpdateState::Pending){
+        if(device->updateState().state == Update::State::Pending){
             _currentUpdate = device;
             _currentUpdate->startUpload();
             return;
@@ -124,9 +124,17 @@ uint32_t TinyBus::appSize()
     return _hexFile.binary().at(0).data.size();
 }
 
+uint32_t TinyBus::appCrc()
+{
+    if(_hexFile.binary().isEmpty()){
+        return 0;
+    }
+    return QuCLib::Crc::crc16(_hexFile.binary().at(0).data);
+}
+
 void TinyBus::on_deviceChanged(Device *device)
 {
-    if(device == _currentUpdate && (device->updateState().state == Update::UpdateState::Done || device->updateState().state == Update::UpdateState::Faild)){
+    if(device == _currentUpdate && (device->updateState().state == Update::State::Done || device->updateState().state == Update::State::Faild)){
         _updateNextDevice();
     }
     emit deviceChanged(device);

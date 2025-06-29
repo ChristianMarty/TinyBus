@@ -499,6 +499,20 @@
            </item>
            <item>
             <layout class="QGridLayout" name="gridLayout">
+             <item row="0" column="3">
+              <widget class="QLabel" name="label_appSize">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QLabel" name="label_10">
+               <property name="text">
+                <string>App Size:</string>
+               </property>
+              </widget>
+             </item>
              <item row="0" column="1">
               <widget class="QLabel" name="label_appOffset">
                <property name="text">
@@ -513,15 +527,15 @@
                </property>
               </widget>
              </item>
-             <item row="0" column="2">
-              <widget class="QLabel" name="label_10">
+             <item row="0" column="4">
+              <widget class="QLabel" name="label_13">
                <property name="text">
-                <string>App Size:</string>
+                <string>App CRC:</string>
                </property>
               </widget>
              </item>
-             <item row="0" column="3">
-              <widget class="QLabel" name="label_appSize">
+             <item row="0" column="5">
+              <widget class="QLabel" name="label_appCrc">
                <property name="text">
                 <string/>
                </property>

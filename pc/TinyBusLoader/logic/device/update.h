@@ -10,7 +10,7 @@ public:
     explicit Update(Device &device);
 
 
-    struct UpdateState {
+    struct State {
         uint8_t progress;
         enum {
             Unknown,
@@ -33,7 +33,7 @@ public:
 
     void start(void);
 
-    Update::UpdateState updateState() const;
+    Update::State updateState() const;
 
     bool selectedForUpdate() const;
 
@@ -45,7 +45,7 @@ private:
     uint16_t _appCrc16_write;
 
     bool _selectedForUpdate = false;
-    Update::UpdateState _updateState = {.progress = 0, .state = Update::UpdateState::Unknown};
+    Update::State _updateState = {.progress = 0, .state = Update::State::Unknown};
 
     void _eraseAppSection(void);
     void _writePage(uint16_t dataAddress, QByteArray data);

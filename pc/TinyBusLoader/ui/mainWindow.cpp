@@ -93,6 +93,7 @@ void MainWindow::on_hexFileChanged()
 {
     ui->label_appOffset->setText(QString::number(_tinyBus.appOffset(),16).toUpper().rightJustified(2,'0').prepend("0x"));
     ui->label_appSize->setText(QString::number(_tinyBus.appSize(),16).toUpper().rightJustified(2,'0').prepend("0x"));
+    ui->label_appCrc->setText(QString::number(_tinyBus.appCrc(),16).toUpper().rightJustified(2,'0').prepend("0x"));
 }
 
 void MainWindow::on_message(QString message)

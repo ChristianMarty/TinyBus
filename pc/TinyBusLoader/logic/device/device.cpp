@@ -238,7 +238,7 @@ bool Device::selectedForUpdate() const
     return _update.selectedForUpdate();
 }
 
-Update::UpdateState Device::updateState() const
+Update::State Device::updateState() const
 {
     return _update.updateState();
 }
