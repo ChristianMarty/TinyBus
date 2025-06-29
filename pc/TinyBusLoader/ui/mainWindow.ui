@@ -374,6 +374,11 @@
              <height>16777215</height>
             </size>
            </property>
+           <property name="font">
+            <font>
+             <bold>false</bold>
+            </font>
+           </property>
            <property name="autoFillBackground">
             <bool>false</bool>
            </property>
@@ -681,6 +686,11 @@
                <width>0</width>
                <height>550</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <bold>false</bold>
+              </font>
              </property>
              <property name="autoFillBackground">
               <bool>false</bool>

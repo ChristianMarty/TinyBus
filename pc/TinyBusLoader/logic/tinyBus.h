@@ -5,7 +5,7 @@
 #include <QTimer>
 #include <QMap>
 
-#include "device.h"
+#include "device/device.h"
 #include "connection.h"
 #include "../QuCLib/source/hexFileParser.h"
 
@@ -52,9 +52,9 @@ private slots:
 private:
     Connection *_connection = nullptr;
     QTimer _busScanTimer;
-    Device::Address _busScanDevcieAddress;
+    Address _busScanDevcieAddress;
     QuCLib::HexFileParser _hexFile;
-    QMap<Device::Address, Device*> _devices;
+    QMap<Address, Device*> _devices;
     QList<Device*> _updateQueue;
 
     Device* _currentUpdate = nullptr;

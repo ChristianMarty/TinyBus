@@ -26,7 +26,7 @@ void MemoryWidget::setDevice(Device *device)
     _update();
     _initMemory();
     _printMemory();
-    ui->spinBox_readStopAddress->setValue(_device->bootSystemInformation().ramSize);
+    ui->spinBox_readStopAddress->setValue(_device->bootSystemInformation().memoryInformation.ramSize);
 
     connect(_device, &Device::ramDataChanged, this, &MemoryWidget::on_ramDataChanged);
 }
@@ -52,7 +52,7 @@ void MemoryWidget::on_ramDataChanged(QByteArray data)
 
 void MemoryWidget::_update()
 {
-    uint16_t ramSize = _device->bootSystemInformation().ramSize;
+    uint16_t ramSize = _device->bootSystemInformation().memoryInformation.ramSize;
 
     ui->label_startAddress->setText("0");
     ui->label_stopAddress->setText(QString::number(ramSize));
@@ -67,7 +67,7 @@ void MemoryWidget::_initMemory()
     if(_device == nullptr){
         return;
     }
-    for(uint16_t i = 0; i<_device->bootSystemInformation().ramSize; i++){
+    for(uint16_t i = 0; i<_device->bootSystemInformation().memoryInformation.ramSize; i++){
         _memory.append(MemoryByte{.read=false,.byte=0});
     }
 }
@@ -99,7 +99,7 @@ void MemoryWidget::_printMemory()
     ui->textEdit_memory->append("                   00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F");
     ui->textEdit_memory->append("                   ................................................");
 
-    uint16_t appRamStart = _device->bootSystemInformation().ramAppStart;
+    uint16_t appRamStart = _device->bootSystemInformation().memoryInformation.ramAppStart;
 
     for(uint16_t i = 0; i<_memory.count(); i+=16){
         QString line = QString::number(i).rightJustified(5,' ')+" / ";

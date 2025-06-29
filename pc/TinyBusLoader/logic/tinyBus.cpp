@@ -1,4 +1,5 @@
 #include "tinyBus.h"
+#include "device/decode.h"
 
 TinyBus::TinyBus(Connection *connection, QObject *parent)
     : QObject{parent}
@@ -40,7 +41,7 @@ void TinyBus::abortUpdate()
 void TinyBus::_updateNextDevice()
 {
     for(Device *device: _updateQueue){
-        if(device->updateState().state == Device::UpdateState::Pending){
+        if(device->updateState().state == Update::UpdateState::Pending){
             _currentUpdate = device;
             _currentUpdate->startUpload();
             return;
@@ -56,7 +57,7 @@ void TinyBus::on_newData(QByteArray data)
 
     if(data.size() < 2) return; // TODO: add error
 
-    Device::Address address = Device::extractAddress(data.at(0));
+    Address address = Decode::extractAddress(data.at(0));
 
     if(!(data.at(1)&0x80)) return; // ignore non-responces e.g. interface loopback
 
@@ -125,7 +126,7 @@ uint32_t TinyBus::appSize()
 
 void TinyBus::on_deviceChanged(Device *device)
 {
-    if(device == _currentUpdate && (device->updateState().state == Device::UpdateState::Done || device->updateState().state == Device::UpdateState::Faild)){
+    if(device == _currentUpdate && (device->updateState().state == Update::UpdateState::Done || device->updateState().state == Update::UpdateState::Faild)){
         _updateNextDevice();
     }
     emit deviceChanged(device);

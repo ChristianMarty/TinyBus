@@ -2,7 +2,7 @@
 #define DEVICEINFORMATIONWIDGET_H
 
 #include <QWidget>
-#include "logic/device.h"
+#include "logic/device/device.h"
 #include "memoryWidget.h"
 #include "eepromMemoryWidget.h"
 

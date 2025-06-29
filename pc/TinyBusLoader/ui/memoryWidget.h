@@ -2,7 +2,7 @@
 #define MEMORYWIDGET_H
 
 #include <QWidget>
-#include "logic/device.h"
+#include "logic/device/device.h"
 
 namespace Ui {
 class MemoryWidget;

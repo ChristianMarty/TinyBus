@@ -27,14 +27,14 @@ void EepromMemoryWidget::setDevice(Device *device)
     _update();
     _initMemory();
     _printMemory();
-    ui->spinBox_readStopAddress->setValue(_device->bootSystemInformation().eepromSize);
+    ui->spinBox_readStopAddress->setValue(_device->bootSystemInformation().memoryInformation.eepromSize);
 
     connect(_device, &Device::eepromDataChanged, this, &EepromMemoryWidget::on_eepromDataChanged);
 }
 
 void EepromMemoryWidget::_update()
 {
-    uint16_t eepromSize = _device->bootSystemInformation().eepromSize;
+    uint16_t eepromSize = _device->bootSystemInformation().memoryInformation.eepromSize;
 
     ui->label_startAddress->setText("0");
     ui->label_stopAddress->setText(QString::number(eepromSize));
@@ -73,7 +73,7 @@ void EepromMemoryWidget::_initMemory()
         return;
     }
 
-    for(uint16_t i = 0; i<_device->bootSystemInformation().eepromSize; i++){
+    for(uint16_t i = 0; i<_device->bootSystemInformation().memoryInformation.eepromSize; i++){
         _memory.append(MemoryByte{.read=false,.byte=0});
     }
 }
@@ -105,7 +105,7 @@ void EepromMemoryWidget::_printMemory()
     ui->textEdit_memory->append("                   00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F");
     ui->textEdit_memory->append("                   ................................................");
 
-    uint16_t appEepromStart = _device->bootSystemInformation().eepromAppStart;
+    uint16_t appEepromStart = _device->bootSystemInformation().memoryInformation.eepromAppStart;
 
     for(uint16_t i = 0; i<_memory.count(); i+=16){
         QString line = QString::number(i).rightJustified(5,' ')+" / ";

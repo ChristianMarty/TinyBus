@@ -5,7 +5,7 @@
 #include <QMap>
 
 #include "logic/connection.h"
-#include "logic/device.h"
+#include "logic/device/device.h"
 #include "logic/tinyBus.h"
 #include "logic/busPassThrough.h"
 

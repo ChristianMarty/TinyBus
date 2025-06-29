@@ -16,8 +16,10 @@ SOURCES += \
     logic/connection.cpp \
     logic/connectionSerial.cpp \
     logic/connectionTcp.cpp \
+    logic/device/decode.cpp \
+    logic/device/update.cpp \
     logic/tinyBus.cpp \
-    logic/device.cpp \
+    logic/device/device.cpp \
     main.cpp \
     ui/deviceInformationWidget.cpp \
     ui/deviceItemWidget.cpp \
@@ -34,8 +36,11 @@ HEADERS += \
     logic/connection.h \
     logic/connectionSerial.h \
     logic/connectionTcp.h \
+    logic/device/datatype.h \
+    logic/device/decode.h \
+    logic/device/update.h \
     logic/tinyBus.h \
-    logic/device.h \
+    logic/device/device.h \
     ui/colorPalette.h \
     ui/deviceInformationWidget.h \
     ui/deviceItemWidget.h \

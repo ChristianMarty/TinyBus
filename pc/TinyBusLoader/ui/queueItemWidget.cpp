@@ -33,39 +33,39 @@ void QueueItemWidget::_update()
             break;
         }
 
-        case Device::UpdateState::Pending:{
+        case Update::UpdateState::Pending:{
             ui->label_state->setText("<font color='black'>Pending</font>");
             break;
         }
 
-        case Device::UpdateState::StartUpload:
-        case Device::UpdateState::GetDeviceInformation:
+        case Update::UpdateState::StartUpload:
+        case Update::UpdateState::GetDeviceInformation:
         {
             ui->label_state->setText("<font color='black'>Get Device Information</font>");
             break;
         }
-        case Device::UpdateState::Erase:
+        case Update::UpdateState::Erase:
         {
             ui->label_state->setText("<font color='black'>Erase</font>");
             break;
         }
-        case Device::UpdateState::DataTransfere:
+        case Update::UpdateState::DataTransfere:
         {
             ui->label_state->setText("<font color='black'>Data Transfere</font>");
             break;
         }
-        case Device::UpdateState::GetCrc:
+        case Update::UpdateState::GetCrc:
         {
             ui->label_state->setText("<font color='black'>Checking CRC</font>");
             break;
         }
 
-        case Device::UpdateState::Done: {
+        case Update::UpdateState::Done: {
             ui->label_state->setText("<font color='green'>Done</font>");
             break;
         }
 
-        case Device::UpdateState::Faild: {
+        case Update::UpdateState::Faild: {
             ui->label_state->setText("<font color='red'>Faild</font>");
             break;
         }
