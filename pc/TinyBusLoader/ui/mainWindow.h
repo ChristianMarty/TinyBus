@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QMap>
 
-#include "logic/connection.h"
+#include "logic/connection/connection.h"
 #include "logic/device/device.h"
 #include "logic/tinyBus.h"
 #include "logic/busPassThrough.h"

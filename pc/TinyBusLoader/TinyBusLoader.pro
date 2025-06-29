@@ -13,9 +13,9 @@ SOURCES += \
     ../QuCLib/source/crc.cpp \
     ../QuCLib/source/hexFileParser.cpp \
     logic/busPassThrough.cpp \
-    logic/connection.cpp \
-    logic/connectionSerial.cpp \
-    logic/connectionTcp.cpp \
+    logic/connection/connection.cpp \
+    logic/connection/connectionSerial.cpp \
+    logic/connection/connectionTcp.cpp \
     logic/device/decode.cpp \
     logic/device/update.cpp \
     logic/tinyBus.cpp \
@@ -33,9 +33,9 @@ HEADERS += \
     ../QuCLib/source/crc.h \
     ../QuCLib/source/hexFileParser.h \
     logic/busPassThrough.h \
-    logic/connection.h \
-    logic/connectionSerial.h \
-    logic/connectionTcp.h \
+    logic/connection/connection.h \
+    logic/connection/connectionSerial.h \
+    logic/connection/connectionTcp.h \
     logic/device/datatype.h \
     logic/device/decode.h \
     logic/device/update.h \

@@ -6,7 +6,7 @@
 #include <QMap>
 
 #include "device/device.h"
-#include "connection.h"
+#include "connection/connection.h"
 #include "../QuCLib/source/hexFileParser.h"
 
 class TinyBus : public QObject

@@ -6,8 +6,8 @@
 
 #include "colorPalette.h"
 
-#include "logic/connectionTcp.h"
-#include "logic/connectionSerial.h"
+#include "logic/connection/connectionTcp.h"
+#include "logic/connection/connectionSerial.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
