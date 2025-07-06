@@ -1,11 +1,11 @@
 #include "update.h"
 #include "device.h"
 #include "../tinyBus.h"
+#include "../QuCLib/source/crc.h"
 
 Update::Update(Device &device)
     : _device{device}
 {
-
 }
 
 void Update::handle()
@@ -34,7 +34,7 @@ void Update::handle()
     }
 
     case State::Erase: {
-        QuCLib::HexFileParser::binaryChunk binary = _device._tinyBus->hexFile().binary().at(0);
+        QuCLib::HexFileParser::BinaryChunk binary = _device._tinyBus->hexFile().binary().at(0);
         _appCrc16_write = QuCLib::Crc::crc16(binary.data);
 
         MemoryInformation memoryInformation = _device._bootSystemInformation.memoryInformation;
@@ -112,7 +112,7 @@ void Update::_eraseAppSection()
 
 void Update::_writeNextPage(void)
 {
-    QuCLib::HexFileParser::binaryChunk binary = _device._tinyBus->hexFile().binary().at(0);
+    QuCLib::HexFileParser::BinaryChunk binary = _device._tinyBus->hexFile().binary().at(0);
     MemoryInformation memoryInformation = _device._bootSystemInformation.memoryInformation;
 
     uint16_t appSize = memoryInformation.flashSize - memoryInformation.flashAppStart;

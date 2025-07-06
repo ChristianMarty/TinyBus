@@ -1,5 +1,6 @@
 #include "tinyBus.h"
 #include "device/decode.h"
+#include "../QuCLib/source/crc.h"
 
 TinyBus::TinyBus(Connection *connection, QObject *parent)
     : QObject{parent}
