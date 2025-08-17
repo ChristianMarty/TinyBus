@@ -1,4 +1,5 @@
 #include "connectionSerial.h"
+#include "../QuCLib/source/crc.h"
 
 ConnectionSerial::ConnectionSerial(QObject *parent)
     : Connection{parent}

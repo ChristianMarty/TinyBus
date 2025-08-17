@@ -23,6 +23,7 @@ extern "C" {
 		.baudRate = BAUD_4800
 	};
 #endif
+
 #ifdef ATTINYx41
 	#include "bootloader_x41.h"
 	settings_t eeSettings  __attribute__((section(".eeprom"))) = {
@@ -32,6 +33,7 @@ extern "C" {
 		.baudRate = BAUD_4800
 	};
 #endif
+
 #ifdef TEST_RUN
     #include "bootloader_test.h"
     uint8_t eeDeviceAddress = 0;
@@ -146,7 +148,7 @@ void device_reboot(void)
 #endif
 
 #ifdef ATTINYx41
-	// NOTO: this is not resetting the peripherals
+	// NOTE: this is not resetting the peripherals
 	asm("LDI R30, 0x00");
 	asm("LDI R31, 0x00");
 	asm("IJMP");

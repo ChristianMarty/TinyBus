@@ -103,7 +103,6 @@ void MainWindow::on_hexFileChanged()
     ui->label_firmwareVersion->setText(QString::number(applicationHeader.firmwareVersion.major)+"."+QString::number(applicationHeader.firmwareVersion.minor));
     ui->label_hardwareVersion->setText(QString::number(applicationHeader.hardwareVersion.major)+"."+QString::number(applicationHeader.hardwareVersion.minor));
     ui->label_applicationName->setText(applicationHeader.applicationName);
-
 }
 
 void MainWindow::on_message(QString message)
@@ -240,6 +239,7 @@ void MainWindow::on_pushButton_upload_clicked()
 
 void MainWindow::on_lineEdit_firmwarePath_textChanged(const QString &arg1)
 {
+    Q_UNUSED(arg1);
     _tinyBus.setHexFilePath(ui->lineEdit_firmwarePath->text());
 }
 

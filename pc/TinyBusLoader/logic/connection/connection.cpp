@@ -4,12 +4,6 @@
 Connection::Connection(QObject *parent)
     : QObject{parent}
 {
-
-}
-
-Connection::~Connection()
-{
-
 }
 
 Connection::Type Connection::typeFromUrl(QString url)

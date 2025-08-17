@@ -2,15 +2,13 @@
 #define CONNECTION_H
 
 #include <QObject>
-#include "../QuCLib/source/CANbeSerial.h"
-#include "../QuCLib/source/crc.h"
+#include "../QuCLib/source/cobs.h"
 
 class Connection : public QObject
 {
     Q_OBJECT
 public:
     explicit Connection(QObject *parent = nullptr);
-    ~Connection(void);
 
     enum Type {
         Undefined,

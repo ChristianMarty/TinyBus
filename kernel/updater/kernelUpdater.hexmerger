@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<hex-merger version="1.0">
+	<input>
+		<name>Updater</name>
+		<path>C:/Users/Christian/Raumsteuerung/TinyBus/kernel/updater/Debug/kernelUpdater.hex</path>
+		<range>
+			<minimum>0x0C00</minimum>
+			<maximum>0x0D70</maximum>
+		</range>
+	</input>
+	<input>
+		<name>New Kernel</name>
+		<path>C:/Users/Christian/Raumsteuerung/TinyBus/kernel/attiny841_4-channelDimmer/Debug/tinyloader.hex</path>
+		<range>
+			<minimum>0x0000</minimum>
+			<maximum>0x0BFF</maximum>
+		</range>
+		<offset>0x0D70</offset>
+	</input>
+	<output>
+		<path>C:/Users/Christian/Raumsteuerung/TinyBus/kernel/updater/Debug/kernelUpdate.hex</path>
+	</output>
+</hex-merger>
