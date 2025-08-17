@@ -27,6 +27,7 @@ void ConnectionSerial::open(QString url)
     _serialPort.setBaudRate(baud) ;
     _serialPort.setParity(QSerialPort::Parity::NoParity);
     _serialPort.open(QIODeviceBase::ReadWrite);
+    _serialPort.setRequestToSend(true);
 
     emit connectionStateChanged();
 }
