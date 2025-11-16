@@ -74,12 +74,12 @@
     
         <tr>
             <th>Master</th>
-            <td>Dominant / authoritative entity on the bus.</td>
+            <td>Dominant / authoritative entity on the bus. Initiates communication to slaves.</td>
         </tr>
 
         <tr>
             <th>Slave</th>
-            <td>Submissive entity on the bus.</td>
+            <td>Submissive entity on the bus. Responses to the masters requests.</td>
         </tr>
 
         <tr>
@@ -118,7 +118,7 @@
     <p>Additionally, all nodes can be commanded simultaneously via a broadcast address.</p>
     
     <h3>Baud Rates</h3>
-    <p>Each TinyBus node must support all eight specified baud rates.</p>
+    <p>Each TinyBus node must support all eight specified baud rates. See <a href="#command0x20">Command 0x20 - Set Baud Rate</a> for reference.</p>
 
     <h4>Limitations</h4>
     <p>Empirical testing has shown that the highest realistically achievable standard baud rate is 14'400 baud. This was tested over multiple meters of cabling in a tree topology.</p>
@@ -132,7 +132,7 @@
 
     <h3>Electrical Characteristics and the Bus Power Supply</h3>
     <p>TinyBus is based on a current loop.</p>
-    <p>The loop current must be limited to approximately 80 mA. The open loop voltage must be limited to approximately 12V DC.</p>
+    <p>The loop current must be limited to approximately 120mA. The open loop voltage must be limited to approximately 12V DC.</p>
 
     
     
@@ -159,14 +159,38 @@
 <document-page>
     <h3>Connectors and Pinout</h3>
     <p>TinyBus devices should use a 4P4C or 4P2C modular connector (commonly, but incorrectly, often referred to as RJ-10 connector).</p>
-    <p>For a bus-powered device the 4P4C modular connector must be used. For a not bus-powered device the 4P2C modular connector should be used.</p>
-    <p>This allows for easy identification of bus-powered and not bus-power devices by examining the connector.</p>
+    <p>For a not bus-powered devices the 4P2C modular connector should be used. This allows for easy identification of bus-powered and not bus-power devices by examining the connector.</p>
+    
+    <p>In application where a the use of a modular connector is inappropriate, other connecter types can be used.</p>
+
     <h4>Bus Power</h4>
-    <p>Voltage: TBD</p>
-    <p>Max Current: TBD</p>
+    <p>The bus power voltage and maximum current depends on the connector. See the table below for the respective values.</p>
+
     <h4>Pinout</h4>
-    <p>In case the 4P4C or 4P2C modular connector is used, the follwing pinout must be followed:</p>
-    <img src="connector.png" width="20%">
+    
+    <table style="table-layout: fixed; border-collapse: collapse; border: none;">
+        <tr>
+            <td style="border: none;"><b>4P4C Modular Connector</b></td>
+            <td style="border: none;"><b>4-Pin XLR</b></td>
+        </tr>
+        <tr>
+            <td style="border: none;"><img src="4p4c-connector.png"></td>
+            <td style="border: none;"><img src="xlr-connector.png"></td>
+        </tr>
+        <tr>
+            <td style="border: none;">Front View</td>
+            <td style="border: none;">Front View (Male)</td>
+        </tr>
+        <tr>
+            <td style="border: none;">12V, 500mA</td>
+            <td style="border: none;">48V, 1A</td>
+        </tr>
+        <tr>
+            <td style="border: none;">Bus power optional</td>
+            <td style="border: none;">Bus power mandatory</td>
+        </tr>
+    </table>
+    <p></p>
     <table>
         <tr>
             <th>Pin</th>
@@ -176,29 +200,28 @@
         <tr>
             <td>1</td>
             <td>V- / GND</td>
-            <td>Optional, for bus powerd devices</td>
+            <td>Bus power negative / GND</td>
         </tr>
         <tr>
             <td>2</td>
             <td>Bus -</td>
-            <td></td>
+            <td rowspan="2">Bus data</td>
         </tr>
         <tr>
             <td>3</td>
             <td>Bus +</td>
-            <td></td>
         </tr>
         <tr>
             <td>4</td>
             <td>V+</td>
-            <td>Optional, for bus powered devices</td>
+            <td>Bus power positive</td>
         </tr>
     </table>
+
     <h3>Cabling Requirements</h3>
-    <h4>Maximum Cable Length</h4>
-    <p>TinyBus does not directly specifie a maximum cable length. The maximum cable length primarily depends on the cable's loop resistance.</p>
+    <p>TinyBus does not directly specifie a cable type or maximum cable length. The maximum cable length primarily depends on the cable's loop resistance.</p>
     <p>Due to the current-loop-like operation of TinyBus, the resistance of the cable must not exceed a value causing a voltage drop of approximately 7V.</p>
-    <p>Considering the typical 100mA bus current and the 10 Ohms input resistance of a node, a loop resistance of approximately 60 Ohms must not be exceeded.</p>
+    <p>Considering the typical 120 mA bus current and the 10 Ohms input resistance of a node, a loop resistance of approximately 50 Ohms must not be exceeded.</p>
 
 </document-page>
 
@@ -742,7 +765,9 @@
             <td></td>
         </tr>
     </table>
+</document-page>
 
+<document-page>
     <h3>Command 0x02 - <span>Get Memory Information</h3>
         <table class='protocol'>
             <tr class='protocol'>
@@ -809,6 +834,37 @@
                 <td>EEPROM application start</td>
                 <td>2</td>
                 <td>EEPROM application sector start address</td>
+            </tr>
+            <tr>
+                <td>13</td>
+                <td>Remote Access</td>
+                <td>1</td>
+                <td>Remote access status byte</td>
+            </tr>
+        </table>
+
+        <h5>Remote Access Byte</h5>
+        <p>If RAM or EEPROM access is available, the corresponding bit is set to 1.</p>
+        <table>
+            <tr>
+                <th>Bit</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>0</td>
+                <td>RAM read access</td>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>EEPROM read access</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>EEPROM write access</td>
+            </tr>
+            <tr>
+                <td>3-7</td>
+                <td>Reserved</td>
             </tr>
         </table>
 </document-page>
@@ -1215,6 +1271,7 @@
 </document-page>
 
 <document-page>
+    <span id="command0x20"></span>
     <h3>Command 0x20 - Set Baud Rate</h3>
     <table class='protocol'>
         <tr class='protocol'>
@@ -1231,8 +1288,7 @@
         </tr>
     </table>
     <p>This command changes the current baud rate to the new baud rate.</p>
-    <p><strong>Note:</strong> The baud rate change is not saved to non-volatile memory.</p>
-    <p>To save the baud rate change use the "Save Baud Rate" command.</p>
+    <p><strong>Note:</strong> The baud rate change is not saved to non-volatile memory directly. To save the baud rate change use the "Save Baud Rate" command.</p>
 
     <table>
         <tr>
