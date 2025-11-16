@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<hex-merger version="1.0">
+	<input>
+		<name>Updater</name>
+		<path>../updater_attiny841/Debug/kernelUpdater.hex</path>
+		<range>
+			<minimum>0x0C00</minimum>
+			<maximum>0x0D70</maximum>
+		</range>
+	</input>
+	<input>
+		<name>New Kernel</name>
+		<path>Debug/tinyloader.hex</path>
+		<range>
+			<minimum>0x0000</minimum>
+			<maximum>0x0BFF</maximum>
+		</range>
+		<offset>0x0D70</offset>
+	</input>
+	<output>
+		<path>Debug/kernelUpdate_teelicht.hex</path>
+	</output>
+</hex-merger>
