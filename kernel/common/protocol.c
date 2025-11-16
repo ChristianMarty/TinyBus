@@ -151,9 +151,20 @@ void com_receiveData(uint8_t instruction_byte, uint8_t *data, uint8_t size)
 				
 				acknowledgmentData[12] = (AppEepromStart>>8);
 				acknowledgmentData[13] = (AppEepromStart&0xff);
+			
+				uint8_t accessByte = 0;
+				#ifdef RAM_READ     
+					accessByte |= 0x01; 
+				#endif
+				#ifdef EEPROM_READ  
+					accessByte |= 0x02; 
+				#endif
+				#ifdef EEPROM_WRITE 
+					accessByte |= 0x04; 
+				#endif
+				acknowledgmentData[14] = accessByte;
 				
-				acknowledgmentSize += 13;
-				
+				acknowledgmentSize += 14;
 				break;
 			}
 			case CMD_GET_APP_CRC:{
