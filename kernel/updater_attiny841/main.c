@@ -1,13 +1,32 @@
-/*
- * SharedFunctions.h
- *
- * Created: 01.08.2017 00:33:17
- *  Author: Christian
- */ 
-#ifndef SHAREDFUNCTIONS_H_
-#define SHAREDFUNCTIONS_H_
-
+//**********************************************************************************************************************
+// FileName : main.c
+// FilePath : /
+// Author   : Christian Marty
+// Date		: 15.11.2025
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
+#include <avr/io.h>
 #include <stdbool.h>
+#include "typedef.h"
+#include "kernelUpdater_x41.h"
+
+#define MAJOR_SW_REV 1
+#define MINOR_SW_REV 0
+
+#define HARDWARE_ID 0x0000
+
+#define APPLICATION_NAME "Kernel Updater" // Max 18 characters
+
+volatile shared_t shared __attribute__((section (".shared")));
+volatile const application_header_t header __attribute__((section (".header"))) = {
+	.autostart = false,
+	.header_version = 0,
+	.firmwareVersion_major = MAJOR_SW_REV,
+	.firmwareVersion_minor = MINOR_SW_REV,
+	.hardwareId_h = (uint8_t)(HARDWARE_ID>>8),
+	.hardwareId_l = (uint8_t)(HARDWARE_ID),
+	.name = APPLICATION_NAME
+};
 
 void InterruptVectorTable(void)  __attribute__ ((naked))  __attribute__ ((section (".vectors")));
 void InterruptVectorTable(void)
@@ -53,33 +72,27 @@ void dummy_interruptHandler (void)
 	while(1); // trip watchdog
 }
 
-void app_5ms_tick (void);
-void app_com_receive_data(uint8_t instruction, uint8_t *data, uint8_t size, bool broadcast);
-
-/*
-
-#define MAIN_ADDR 0x00
-
-typedef void (*PF_MAIN)(bool,bool);
-
-__inline__ void app_main (bool init, bool shutdown)
+void app_main(void)
 {
-	((PF_MAIN) (MAIN_ADDR ))(init,shutdown);
-}
-*/
-
-#define COM_TRANSMIT_DATA_ADDR 0x20
-
-typedef void (*PF_UINT82PB)(uint8_t,uint8_t*,uint8_t,bool);
-
- void com_transmit_data(uint8_t instruction_byte, uint8_t *data, uint8_t size, bool is_nAck)
-{
-	((PF_UINT82PB) (COM_TRANSMIT_DATA_ADDR))(instruction_byte, data, size, is_nAck);
+	if(shared.deviceState == APP_START)
+	{	
+		cli();
+		kernelUpdater_eraseKernelSection();
+		kernelUpdater_copy();
+		kernelUpdater_eraseApplicationHeader(); // destroy the app header so that the updater can only run once
+		
+		// Reboot
+		// NOTO: this is not resetting the peripherals
+		asm("LDI R30, 0x00");
+		asm("LDI R31, 0x00");
+		asm("IJMP");
+	}
 }
 
-/*
-void app_main(bool init);
-void app_5ms_tick(void);
-void app_com_receive_data(uint8_t instruction, uint8_t *data, uint8_t size, bool broadcast);
-*/
-#endif /* SHAREDFUNCTIONS_H_ */
+void app_com_receive_data(uint8_t instruction, uint8_t *data, uint8_t size, bool broadcast)
+{
+}
+
+void app_5ms_tick(void)
+{
+}
