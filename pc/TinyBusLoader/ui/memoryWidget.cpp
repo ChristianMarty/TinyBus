@@ -18,7 +18,7 @@ MemoryWidget::~MemoryWidget()
 void MemoryWidget::setDevice(Device *device)
 {
     if(_device != nullptr){
-        //disconnect(_device, &Device::ramDataChanged, this, &MemoryWidget::on_ramDataChanged);
+        disconnect(_device, &Device::ramDataChanged, this, &MemoryWidget::on_ramDataChanged);
     }
 
     _device = device;
@@ -52,6 +52,8 @@ void MemoryWidget::on_ramDataChanged(QByteArray data)
 
 void MemoryWidget::_update()
 {
+    setWindowTitle("RAM - Device Address "+QString::number(_device->address()));
+
     uint16_t ramSize = _device->bootSystemInformation().memoryInformation.ramSize;
 
     ui->label_startAddress->setText("0");

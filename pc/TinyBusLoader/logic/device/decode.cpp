@@ -79,29 +79,36 @@ HardwareInformation Decode::hardwareInformation(const QByteArray &data)
 
 MemoryInformation Decode::memoryInformation(const QByteArray &data)
 {
-    if(data.size() != 13) return MemoryInformation();
-
     MemoryInformation memoryInformation;
 
-    memoryInformation.flashSize  = static_cast<uint8_t>(data.at(0))<<8;
-    memoryInformation.flashSize |= static_cast<uint8_t>(data.at(1));
+    if(data.size() >= 13){
+        memoryInformation.flashSize  = static_cast<uint8_t>(data.at(0))<<8;
+        memoryInformation.flashSize |= static_cast<uint8_t>(data.at(1));
 
-    memoryInformation.flashAppStart  = static_cast<uint8_t>(data.at(2))<<8;
-    memoryInformation.flashAppStart |= static_cast<uint8_t>(data.at(3));
+        memoryInformation.flashAppStart  = static_cast<uint8_t>(data.at(2))<<8;
+        memoryInformation.flashAppStart |= static_cast<uint8_t>(data.at(3));
 
-    memoryInformation.flashPageSize  = static_cast<uint8_t>(data.at(4));
+        memoryInformation.flashPageSize  = static_cast<uint8_t>(data.at(4));
 
-    memoryInformation.ramSize  = static_cast<uint8_t>(data.at(5))<<8;
-    memoryInformation.ramSize |= static_cast<uint8_t>(data.at(6));
+        memoryInformation.ramSize  = static_cast<uint8_t>(data.at(5))<<8;
+        memoryInformation.ramSize |= static_cast<uint8_t>(data.at(6));
 
-    memoryInformation.ramAppStart  = static_cast<uint8_t>(data.at(7))<<8;
-    memoryInformation.ramAppStart |= static_cast<uint8_t>(data.at(8));
+        memoryInformation.ramAppStart  = static_cast<uint8_t>(data.at(7))<<8;
+        memoryInformation.ramAppStart |= static_cast<uint8_t>(data.at(8));
 
-    memoryInformation.eepromSize  = static_cast<uint8_t>(data.at(9))<<8;
-    memoryInformation.eepromSize |= static_cast<uint8_t>(data.at(10));
+        memoryInformation.eepromSize  = static_cast<uint8_t>(data.at(9))<<8;
+        memoryInformation.eepromSize |= static_cast<uint8_t>(data.at(10));
 
-    memoryInformation.eepromAppStart  = static_cast<uint8_t>(data.at(11))<<8;
-    memoryInformation.eepromAppStart |= static_cast<uint8_t>(data.at(12));
+        memoryInformation.eepromAppStart  = static_cast<uint8_t>(data.at(11))<<8;
+        memoryInformation.eepromAppStart |= static_cast<uint8_t>(data.at(12));
+    }
+
+    if(data.size() == 14){
+        uint8_t accessByte = data.at(13);
+        memoryInformation.ramReadAccess = static_cast<bool>(accessByte & 0x01);
+        memoryInformation.eepromReadAccess = static_cast<bool>(accessByte & 0x02);
+        memoryInformation.eepromWriteAccess = static_cast<bool>(accessByte & 0x04);
+    }
 
     return memoryInformation;
 }

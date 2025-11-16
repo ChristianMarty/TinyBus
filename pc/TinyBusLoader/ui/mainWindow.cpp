@@ -108,6 +108,9 @@ void MainWindow::on_hexFileChanged()
 void MainWindow::on_message(QString message)
 {
     ui->textEdit_output->append(message);
+
+    ui->pushButton_startScan->setEnabled(!_tinyBus.activeScan());
+    ui->pushButton_abortScan->setEnabled(_tinyBus.activeScan());
 }
 
 void MainWindow::on_pushButton_connect_clicked()
@@ -129,8 +132,15 @@ void MainWindow::on_pushButton_connect_clicked()
     _updateConnectionState();
 }
 
+void MainWindow::on_lineEdit_url_returnPressed()
+{
+    on_pushButton_connect_clicked();
+}
+
 void MainWindow::on_pushButton_disconnect_clicked()
 {
+    _tinyBus.abortScan();
+
     disconnect(_connection, &Connection::connectionStateChanged, this, &MainWindow::on_connectionStateChanged);
     disconnect(_connection, &Connection::rx, this, &MainWindow::on_dataRx);
     disconnect(_connection, &Connection::tx, this, &MainWindow::on_dataTx);
@@ -159,6 +169,9 @@ void MainWindow::_update()
           ui->listWidget_devices->scrollToBottom();
         }
     }
+
+    ui->pushButton_startScan->setEnabled(!_tinyBus.activeScan());
+    ui->pushButton_abortScan->setEnabled(_tinyBus.activeScan());
 }
 
 void MainWindow::_updateConnectionState()
@@ -178,6 +191,9 @@ void MainWindow::_updateConnectionState()
         ui->pushButton_connect->setEnabled(false);
         ui->pushButton_disconnect->setEnabled(true);
         ui->lineEdit_url->setEnabled(false);
+
+        ui->pushButton_startScan->setEnabled(!_tinyBus.activeScan());
+        ui->pushButton_abortScan->setEnabled(_tinyBus.activeScan());
     }else{
         ui->label_connected->setText("Not Connected");
         ui->label_connected->setPalette(ColorPalette::error());
@@ -185,6 +201,9 @@ void MainWindow::_updateConnectionState()
         ui->pushButton_connect->setEnabled(true);
         ui->pushButton_disconnect->setEnabled(false);
         ui->lineEdit_url->setEnabled(true);
+
+        ui->pushButton_startScan->setEnabled(false);
+        ui->pushButton_abortScan->setEnabled(false);
     }
 }
 
@@ -213,11 +232,17 @@ void MainWindow::on_pushButton_startScan_clicked()
     ui->listWidget_devices->clear();
     selectDevice(nullptr);
     _tinyBus.startScan();
+
+    ui->pushButton_startScan->setEnabled(!_tinyBus.activeScan());
+    ui->pushButton_abortScan->setEnabled(_tinyBus.activeScan());
 }
 
 void MainWindow::on_pushButton_abortScan_clicked()
 {
     _tinyBus.abortScan();
+
+    ui->pushButton_startScan->setEnabled(!_tinyBus.activeScan());
+    ui->pushButton_abortScan->setEnabled(_tinyBus.activeScan());
 }
 
 void MainWindow::on_listWidget_devices_currentRowChanged(int currentRow)

@@ -38,7 +38,6 @@ public:
     void setUpdatePending(void);
 
 
-
     struct KernelInformation {
         DeviceState deviceState;
         HardwareInformation hardwareInformation;

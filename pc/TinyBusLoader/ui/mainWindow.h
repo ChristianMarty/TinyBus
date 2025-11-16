@@ -53,6 +53,8 @@ private slots:
     void on_pushButton_passthroughClose_clicked();
     void on_passthroughStateChanged(void);
 
+    void on_lineEdit_url_returnPressed();
+
 private:
     Ui::MainWindow *ui;
     Connection* _connection = nullptr;

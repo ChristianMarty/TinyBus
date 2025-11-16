@@ -19,7 +19,7 @@ EepromMemoryWidget::~EepromMemoryWidget()
 void EepromMemoryWidget::setDevice(Device *device)
 {
     if(_device != nullptr){
-        //disconnect(_device, &Device::eepromDataChanged, this, &EepromMemoryWidget::on_eepromDataChanged);
+        disconnect(_device, &Device::eepromDataChanged, this, &EepromMemoryWidget::on_eepromDataChanged);
     }
 
     _device = device;
@@ -34,6 +34,8 @@ void EepromMemoryWidget::setDevice(Device *device)
 
 void EepromMemoryWidget::_update()
 {
+    setWindowTitle("EEPROM - Device Address "+QString::number(_device->address()));
+
     uint16_t eepromSize = _device->bootSystemInformation().memoryInformation.eepromSize;
 
     ui->label_startAddress->setText("0");

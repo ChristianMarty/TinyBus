@@ -89,8 +89,15 @@ void TinyBus::startScan()
 
 void TinyBus::abortScan()
 {
-    emit newMessage("---- Abort scan ----");
+    if(!activeScan()) return;
+
     _busScanTimer.stop();
+    emit newMessage("---- Abort scan ----");
+}
+
+bool TinyBus::activeScan() const
+{
+    return _busScanTimer.isActive();
 }
 
 QList<Device *> TinyBus::updateQueue()
@@ -155,8 +162,8 @@ void TinyBus::on_busScanTimer()
 {
     if(_busScanDevcieAddress >= 15)
     {
-        emit newMessage("---- Scan completed ----");
         _busScanTimer.stop();
+        emit newMessage("---- Scan completed ----");
         return;
     }
 

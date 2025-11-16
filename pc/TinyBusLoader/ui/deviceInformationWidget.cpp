@@ -71,6 +71,18 @@ void DeviceInformationWidget::setEnabled(bool enabled)
     ui->pushButton_setBaudRate->setEnabled(enabled);
     ui->pushButton_saveBaudRate->setEnabled(enabled);
     ui->comboBox_baudRate->setEnabled(enabled);
+
+    if(!enabled){
+        ui->pushButton_readRam->setEnabled(false);
+        ui->pushButton_readEeprom->setEnabled(false);
+    }else if(_device != nullptr){
+        MemoryInformation memoryInformation = _device->bootSystemInformation().memoryInformation;
+        ui->pushButton_readRam->setEnabled(memoryInformation.ramReadAccess);
+        ui->pushButton_readEeprom->setEnabled(memoryInformation.eepromReadAccess || memoryInformation.eepromWriteAccess);
+    }else{
+        ui->pushButton_readRam->setEnabled(false);
+        ui->pushButton_readEeprom->setEnabled(false);
+    }
 }
 
 void DeviceInformationWidget::clear()
@@ -167,6 +179,12 @@ void DeviceInformationWidget::_update()
 
     ui->label_eepromSize->setText(QString::number(bootSystemInformation.memoryInformation.eepromSize,16).toUpper().rightJustified(4,'0').prepend("0x"));
     ui->label_eepromAppStart->setText(QString::number(bootSystemInformation.memoryInformation.eepromAppStart,16).toUpper().rightJustified(4,'0').prepend("0x"));
+
+    ui->pushButton_readRam->setEnabled(bootSystemInformation.memoryInformation.ramReadAccess);
+    ui->pushButton_readEeprom->setEnabled(bootSystemInformation.memoryInformation.eepromReadAccess || bootSystemInformation.memoryInformation.eepromWriteAccess);
+
+    if(_eepromMemoryWidget != nullptr) _eepromMemoryWidget->setDevice(_device);
+    if(_memoryWidget != nullptr) _memoryWidget->setDevice(_device);
 }
 
 void DeviceInformationWidget::on_pushButton_getDeviceState_clicked()

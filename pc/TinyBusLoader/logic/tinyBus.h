@@ -22,6 +22,7 @@ public:
 
     void startScan(void);
     void abortScan(void);
+    bool activeScan(void) const;
 
     QList<Device*> updateQueue(void);
     QList<Device*> devices(void);
