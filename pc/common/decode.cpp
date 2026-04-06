@@ -1,4 +1,5 @@
 #include "decode.h"
+using namespace TinyBus;
 
 ApplicationHeader Decode::extractApplicationHeader(const QByteArray &data)
 {
@@ -138,4 +139,128 @@ Version Decode::applicationVerion(const QByteArray &data)
     version.minor = static_cast<uint8_t>(data.at(1));
 
     return version;
+}
+
+QByteArray Encode::requestDeviceState(Address address)
+{
+    return _encodeCommand(address, TinyBus::KernelCommand::GetDeviceState);
+}
+
+QByteArray Encode::requestHardwareInformation(Address address)
+{
+    return _encodeCommand(address, TinyBus::KernelCommand::GetHardwareInformation);
+}
+
+QByteArray Encode::requestMemoryInformation(Address address)
+{
+    return _encodeCommand(address, TinyBus::KernelCommand::GetMemoryInformation);
+}
+
+QByteArray Encode::requestApplicationCrc(Address address)
+{
+    return _encodeCommand(address, TinyBus::KernelCommand::GetApplicationCrc);
+}
+
+QByteArray Encode::requestApplicationName(Address address)
+{
+    return _encodeCommand(address, TinyBus::KernelCommand::GetAppName);
+}
+
+QByteArray Encode::requestApplicationVerion(Address address)
+{
+    return _encodeCommand(address, TinyBus::KernelCommand::GetAppVersion);
+}
+
+QByteArray Encode::requestReboot(Address address)
+{
+    return _encodeCommand(address, TinyBus::KernelCommand::Reboot);
+}
+
+QByteArray Encode::requestApplicationStart(Address address)
+{
+    return _encodeCommand(address, TinyBus::KernelCommand::AppStart);
+}
+
+QByteArray Encode::requestApplicationStop(Address address)
+{
+    return _encodeCommand(address, TinyBus::KernelCommand::AppStop);
+}
+
+QByteArray Encode::setDeviceAddress(Address address, Address newAddress)
+{
+    if(newAddress > 0x0E) return QByteArray();
+
+    QByteArray data;
+    data.append(newAddress);
+    return _encodeCommand(address, TinyBus::KernelCommand::Reboot, data);
+}
+
+QByteArray Encode::setBaudRate(Address address, BaudRate baudRate)
+{
+    QByteArray data;
+    data.append((uint8_t)baudRate);
+    return _encodeCommand(address, TinyBus::KernelCommand::Reboot, data);
+}
+
+QByteArray Encode::saveBaudRate(Address address)
+{
+    return _encodeCommand(address, TinyBus::KernelCommand::SaveBaudRate);
+}
+
+QByteArray Encode::requestRamData(Address address, uint16_t offset, uint8_t size)
+{
+    QByteArray data;
+    data.append((uint8_t)(offset>>8));
+    data.append((uint8_t)offset);
+    data.append((uint8_t)size);
+    return _encodeCommand(address, TinyBus::KernelCommand::ReadRamData, data);
+}
+
+QByteArray Encode::requestEepromData(Address address, uint16_t offset, uint8_t size)
+{
+    QByteArray data;
+    data.append((uint8_t)(offset>>8));
+    data.append((uint8_t)offset);
+    data.append((uint8_t)size);
+    return _encodeCommand(address, TinyBus::KernelCommand::ReadEepromData, data);
+}
+
+QByteArray Encode::writeEepromData(Address address, uint16_t offset, const QByteArray &eepromData)
+{
+    QByteArray data;
+    data.append((uint8_t)(offset>>8));
+    data.append((uint8_t)offset);
+    data.append(eepromData);
+    return _encodeCommand(address, TinyBus::KernelCommand::WriteEepromData, data);
+}
+
+QByteArray Encode::requestEraseApp(Address address)
+{
+    return _encodeCommand(address, TinyBus::KernelCommand::EraseApp);
+}
+
+QByteArray Encode::writeAppPage(Address address, uint16_t dataAddress, const QByteArray &appData)
+{
+    QByteArray data;
+    data.append((uint8_t)(dataAddress>>8));
+    data.append((uint8_t)dataAddress);
+
+    data.append(appData);
+    if(appData.size() < 16){
+        for(int i = appData.size(); i < 16; i++ ){
+            data.append((uint8_t)0xFF);
+        }
+    }
+
+    return _encodeCommand(address, TinyBus::KernelCommand::WriteAppPage, data);
+}
+
+QByteArray Encode::_encodeCommand(Address address, KernelCommand kernelCommand, const QByteArray &data)
+{
+    QByteArray tx;
+    uint8_t cmdByte = (address << 4) | (uint8_t)DeviceCommand::KernelCommand;
+    tx.append(cmdByte);
+    tx.append((uint8_t)kernelCommand);
+    tx.append(data);
+    return tx;
 }

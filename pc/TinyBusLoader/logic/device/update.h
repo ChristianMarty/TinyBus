@@ -40,7 +40,6 @@ public:
 private:
     Device &_device;
 
-
     uint16_t _imageAddress;
     uint16_t _appCrc16_write;
 
@@ -48,7 +47,7 @@ private:
     Update::State _updateState = {.progress = 0, .state = Update::State::Unknown};
 
     void _eraseAppSection(void);
-    void _writePage(uint16_t dataAddress, QByteArray data);
+    void _writePage(uint16_t dataAddress, const QByteArray &data);
     void _writeNextPage(void);
 
     void _emitChange(void);

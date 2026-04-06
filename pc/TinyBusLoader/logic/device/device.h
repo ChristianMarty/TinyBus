@@ -5,12 +5,12 @@
 #include "datatype.h"
 #include "update.h"
 
-class TinyBus;
+class TinyBusInterface;
 class Device : public QObject
 {
     Q_OBJECT
 public:
-    explicit Device(Address address, TinyBus *parent);
+    explicit Device(TinyBus::Address address, TinyBusInterface *parent);
 
     /* Command  0 */ void requestDeviceState(void);
     /* Command  1 */ void requestHardwareInformation(void);
@@ -27,26 +27,25 @@ public:
     /* Command 13 */ void requestApplicationName(void);
     /* Command 14 */ void requestApplicationVerion(void);
     /* Command 15 */ void setDeviceAddress(uint8_t devcieAddress);
-    /* Command 32 */ void setBaudRate(BaudRate baudRate);
+    /* Command 32 */ void setBaudRate(TinyBus::BaudRate baudRate);
     /* Command 33 */ void saveBaudRate(void);
 
-    static QByteArray ping(Address address);
+    static QByteArray ping(TinyBus::Address address);
 
     void setSelectedForUpdate(bool selected);
     void startUpload(void);
-    void abortUpload(void);
     void setUpdatePending(void);
 
 
     struct KernelInformation {
-        DeviceState deviceState;
-        HardwareInformation hardwareInformation;
-        MemoryInformation memoryInformation;
+        TinyBus::DeviceState deviceState;
+        TinyBus::HardwareInformation hardwareInformation;
+        TinyBus::MemoryInformation memoryInformation;
     };
 
     void newData(QByteArray data);
 
-    Address address() const;
+    TinyBus::Address address() const;
     const KernelInformation &bootSystemInformation() const;
     uint16_t crc() const;
 
@@ -54,7 +53,7 @@ public:
 
     Update::State updateState() const;
 
-    const Version &firmwareVersion() const;
+    const TinyBus::Version &firmwareVersion() const;
     const QString &firmwareName() const;
 
 
@@ -68,43 +67,15 @@ signals:
     void eepromDataChanged(QByteArray data);
 
 private:
-    enum class KernelCommand:uint8_t {
-        CMD_GET_DEVICE_STATE = 0,
-        CMD_GET_HARDWARE_INFO,
-        CMD_GET_MEMORY_INFO,
-        CMD_GET_APP_CRC,
-        CMD_ERASE_APP,
-        CMD_WRITE_FLASH_PAGE,
-
-        CMD_WRITE_EEPROM,
-        CMD_READ_EEPROM,
-        CMD_READ_RAM,
-
-        CMD_REBOOT = 10,
-        CMD_APP_START,
-        CMD_APP_STOP,
-        CMD_GET_APP_NAME,
-        CMD_GET_APP_VERSION,
-        CMD_SET_ADDRESS,
-
-        CMD_SET_BAUD_RATE = 32,
-        CMD_SAVE_BAUD_RATE
-    };
-
-    TinyBus *_tinyBus;
-    Address _address = 0;
+    TinyBusInterface *_tinyBus;
+    TinyBus::Address _address = 0;
     uint16_t _crc = 0xFFFF;
     KernelInformation _bootSystemInformation;
 
     Update _update{*this};
 
-    Version _firmwareVersion;
+    TinyBus::Version _firmwareVersion;
     QString _firmwareName;
-
-    void _sendFrame(uint8_t command, QByteArray data);
-    void _sendKernelCommand(KernelCommand command, QByteArray data);
-
-
 };
 
 #endif // DEVICE_H

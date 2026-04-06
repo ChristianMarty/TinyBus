@@ -1,15 +1,15 @@
 #include "tinyBus.h"
-#include "device/decode.h"
+#include "decode.h"
 #include "../QuCLib/source/crc.h"
 
-TinyBus::TinyBus(Connection *connection, QObject *parent)
+TinyBusInterface::TinyBusInterface(Connection *connection, QObject *parent)
     : QObject{parent}
 {
     _connection = connection;
-    connect(&_busScanTimer, &QTimer::timeout, this, &TinyBus::on_busScanTimer);
+    connect(&_busScanTimer, &QTimer::timeout, this, &TinyBusInterface::on_busScanTimer);
 }
 
-void TinyBus::write(QByteArray data)
+void TinyBusInterface::write(QByteArray data)
 {
     if(_connection == nullptr) return;
 
@@ -17,7 +17,7 @@ void TinyBus::write(QByteArray data)
     _connection->sendData(data);
 }
 
-void TinyBus::startUpdate()
+void TinyBusInterface::startUpdate()
 {
     _updateQueue.clear();
 
@@ -32,14 +32,14 @@ void TinyBus::startUpdate()
     emit updateQueueChanged();
 }
 
-void TinyBus::abortUpdate()
+void TinyBusInterface::abortUpdate()
 {
     _currentUpdate = nullptr;
     _updateQueue.clear();
     emit updateQueueChanged();
 }
 
-void TinyBus::_updateNextDevice()
+void TinyBusInterface::_updateNextDevice()
 {
     for(Device *device: _updateQueue){
         if(device->updateState().state == Update::State::Pending){
@@ -52,26 +52,26 @@ void TinyBus::_updateNextDevice()
     _currentUpdate = nullptr;
 }
 
-void TinyBus::on_newData(QByteArray data)
+void TinyBusInterface::on_newData(QByteArray data)
 {
     emit newMessage("RX: "+data.toHex().toUpper().prepend("0x"));
 
     if(data.size() < 2) return; // TODO: add error
 
-    Address address = Decode::extractAddress(data.at(0));
+    TinyBus::Address address = TinyBus::Decode::extractAddress(data.at(0));
 
     if(!(data.at(1)&0x80)) return; // ignore non-responces e.g. interface loopback
 
     if(!_devices.contains(address)){
         Device *device = new Device(address, this);
         _devices.insert(address, device);
-        connect(device, &Device::changed, this, &TinyBus::on_deviceChanged);
+        connect(device, &Device::changed, this, &TinyBusInterface::on_deviceChanged);
         emit deviceListChanged();
     }
     _devices[address]->newData(data);
 }
 
-void TinyBus::startScan()
+void TinyBusInterface::startScan()
 {
     emit newMessage("---- Start scan ----");
 
@@ -87,7 +87,7 @@ void TinyBus::startScan()
     _busScanTimer.start(500);
 }
 
-void TinyBus::abortScan()
+void TinyBusInterface::abortScan()
 {
     if(!activeScan()) return;
 
@@ -95,28 +95,28 @@ void TinyBus::abortScan()
     emit newMessage("---- Abort scan ----");
 }
 
-bool TinyBus::activeScan() const
+bool TinyBusInterface::activeScan() const
 {
     return _busScanTimer.isActive();
 }
 
-QList<Device *> TinyBus::updateQueue()
+QList<Device *> TinyBusInterface::updateQueue()
 {
     return _updateQueue;
 }
 
-QList<Device *> TinyBus::devices()
+QList<Device *> TinyBusInterface::devices()
 {
     return _devices.values();
 }
 
-void TinyBus::setHexFilePath(QString path)
+void TinyBusInterface::setHexFilePath(QString path)
 {
     _hexFile.load(path);
     emit hexFileChanged();
 }
 
-uint32_t TinyBus::appOffset()
+uint32_t TinyBusInterface::appOffset()
 {
     if(_hexFile.binary().isEmpty()){
         return 0;
@@ -124,7 +124,7 @@ uint32_t TinyBus::appOffset()
     return _hexFile.binary().at(0).offset;
 }
 
-uint32_t TinyBus::appSize()
+uint32_t TinyBusInterface::appSize()
 {
     if(_hexFile.binary().isEmpty()){
         return 0;
@@ -132,7 +132,7 @@ uint32_t TinyBus::appSize()
     return _hexFile.binary().at(0).data.size();
 }
 
-uint32_t TinyBus::appCrc()
+uint32_t TinyBusInterface::appCrc()
 {
     if(_hexFile.binary().isEmpty()){
         return 0;
@@ -140,12 +140,12 @@ uint32_t TinyBus::appCrc()
     return QuCLib::Crc::crc16(_hexFile.binary().at(0).data);
 }
 
-ApplicationHeader TinyBus::appliactionHeader()
+TinyBus::ApplicationHeader TinyBusInterface::appliactionHeader()
 {
-    return Decode::extractApplicationHeader(_hexFile.binary().at(0).data);
+    return TinyBus::Decode::extractApplicationHeader(_hexFile.binary().at(0).data);
 }
 
-void TinyBus::on_deviceChanged(Device *device)
+void TinyBusInterface::on_deviceChanged(Device *device)
 {
     if(device == _currentUpdate && (device->updateState().state == Update::State::Done || device->updateState().state == Update::State::Faild)){
         _updateNextDevice();
@@ -153,12 +153,12 @@ void TinyBus::on_deviceChanged(Device *device)
     emit deviceChanged(device);
 }
 
-void TinyBus::on_newMessage(QString message)
+void TinyBusInterface::on_newMessage(QString message)
 {
     emit newMessage("Connection: "+message);
 }
 
-void TinyBus::on_busScanTimer()
+void TinyBusInterface::on_busScanTimer()
 {
     if(_busScanDevcieAddress >= 15)
     {
@@ -172,7 +172,7 @@ void TinyBus::on_busScanTimer()
     _busScanDevcieAddress++;
 }
 
-void TinyBus::setConnection(Connection *newConnection)
+void TinyBusInterface::setConnection(Connection *newConnection)
 {
     if(_connection != nullptr){
         //disconnect(_connection, &Connection::newData, this, &TinyBus::on_newData);
@@ -182,12 +182,12 @@ void TinyBus::setConnection(Connection *newConnection)
     _connection = newConnection;
 
     if(_connection != nullptr){
-        connect(_connection, &Connection::newData, this, &TinyBus::on_newData);
-        connect(_connection, &Connection::newMessage, this, &TinyBus::on_newMessage);
+        connect(_connection, &Connection::newData, this, &TinyBusInterface::on_newData);
+        connect(_connection, &Connection::newMessage, this, &TinyBusInterface::on_newMessage);
     }
 }
 
-QuCLib::HexFileParser TinyBus::hexFile() const
+QuCLib::HexFileParser TinyBusInterface::hexFile() const
 {
     return _hexFile;
 }

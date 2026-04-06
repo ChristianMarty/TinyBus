@@ -8,6 +8,9 @@ CONFIG += c++17
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+INCLUDEPATH += $$PWD/../QuCLib
+INCLUDEPATH += $$PWD/../common
+
 SOURCES += \
     ../QuCLib/source/cobs.cpp \
     ../QuCLib/source/crc.cpp \
@@ -16,7 +19,7 @@ SOURCES += \
     logic/connection/connection.cpp \
     logic/connection/connectionSerial.cpp \
     logic/connection/connectionTcp.cpp \
-    logic/device/decode.cpp \
+    ../common/decode.cpp \
     logic/device/update.cpp \
     logic/tinyBus.cpp \
     logic/device/device.cpp \
@@ -36,8 +39,8 @@ HEADERS += \
     logic/connection/connection.h \
     logic/connection/connectionSerial.h \
     logic/connection/connectionTcp.h \
-    logic/device/datatype.h \
-    logic/device/decode.h \
+    ../common/datatype.h \
+    ../common/decode.h \
     logic/device/update.h \
     logic/tinyBus.h \
     logic/device/device.h \

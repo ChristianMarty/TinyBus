@@ -59,7 +59,7 @@ private:
     Ui::MainWindow *ui;
     Connection* _connection = nullptr;
     BusPassThrough _busPassThrough;
-    TinyBus _tinyBus = TinyBus();
+    TinyBusInterface _tinyBus = TinyBusInterface();
     Device *_selectedDevice = nullptr;
 
     void _update(void);

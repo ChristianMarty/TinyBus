@@ -1,18 +1,17 @@
 #include "device.h"
 #include "../tinyBus.h"
 #include "decode.h"
-#include "../QuCLib/source/crc.h"
 
-QByteArray Device::ping(Address address)
+QByteArray Device::ping(TinyBus::Address address)
 {
     QByteArray data;
     uint8_t cmdByte = (address << 4) | 15 ;
     data.append(cmdByte);
-    data.append((uint8_t)KernelCommand::CMD_GET_DEVICE_STATE);
+    data.append((uint8_t)TinyBus::KernelCommand::GetDeviceState);
     return data;
 }
 
-Device::Device(Address address, TinyBus *parent)
+Device::Device(TinyBus::Address address, TinyBusInterface *parent)
     : QObject{parent}
 {
     _address = address;
@@ -28,110 +27,91 @@ void Device::setSelectedForUpdate(bool selected)
 void Device::requestDeviceState(void)
 {
     emit newMessage("---- Request System Information ----");
-    _sendKernelCommand(KernelCommand::CMD_GET_DEVICE_STATE, QByteArray());
+    _tinyBus->write(TinyBus::Encode::requestDeviceState(_address));
 }
 
 void Device::requestHardwareInformation(void)
 {
     emit newMessage("---- Request Hardware Information ----");
-    _sendKernelCommand(KernelCommand::CMD_GET_HARDWARE_INFO, QByteArray());
+    _tinyBus->write(TinyBus::Encode::requestHardwareInformation(_address));
 }
 
 void Device::requestMemoryInformation()
 {
     emit newMessage("---- Request Memory Information ----");
-    _sendKernelCommand(KernelCommand::CMD_GET_MEMORY_INFO, QByteArray());
+    _tinyBus->write(TinyBus::Encode::requestMemoryInformation(_address));
 }
 
 void Device::requestApplicationCrc(void)
 {
     emit newMessage("---- Request Application CRC ----");
-    _sendKernelCommand(KernelCommand::CMD_GET_APP_CRC, QByteArray());
+    _tinyBus->write(TinyBus::Encode::requestApplicationCrc(_address));
 }
 
-void Device::requestApplicationName()
+void Device::requestApplicationName(void)
 {
     emit newMessage("---- Request Application Name ----");
-    _sendKernelCommand(KernelCommand::CMD_GET_APP_NAME, QByteArray());
+    _tinyBus->write(TinyBus::Encode::requestApplicationName(_address));
 }
 
-void Device::requestApplicationVerion()
+void Device::requestApplicationVerion(void)
 {
     emit newMessage("---- Request Application Version ----");
-    _sendKernelCommand(KernelCommand::CMD_GET_APP_VERSION, QByteArray());
+    _tinyBus->write(TinyBus::Encode::requestApplicationVerion(_address));
 }
 
 void Device::setDeviceAddress(uint8_t devcieAddress)
 {
-    if(devcieAddress > 0x0E) return;
-
     emit newMessage("---- Write Device Address ----");
-
-    QByteArray data;
-    data.append(devcieAddress);
-    _sendKernelCommand(KernelCommand::CMD_SET_ADDRESS, data);
+    _tinyBus->write(TinyBus::Encode::setDeviceAddress(_address, devcieAddress));
 }
 
 void Device::requestReboot(void)
 {
-    emit newMessage("---- Request Device Reset ----");
-    _sendKernelCommand(KernelCommand::CMD_REBOOT, QByteArray());
+    emit newMessage("---- Request Device Reboot ----");
+    _tinyBus->write(TinyBus::Encode::requestReboot(_address));
 }
 
 void Device::requestApplicationStart(void)
 {
     emit newMessage("---- Request Application Start ----");
-    _sendKernelCommand(KernelCommand::CMD_APP_START, QByteArray());
+    _tinyBus->write(TinyBus::Encode::requestApplicationStart(_address));
 }
 
 void Device::requestApplicationStop(void)
 {
     emit newMessage("---- Request Application Stop ----");
-    _sendKernelCommand(KernelCommand::CMD_APP_STOP, QByteArray());
+    _tinyBus->write(TinyBus::Encode::requestApplicationStop(_address));
 }
 
 void Device::requestRamData(uint16_t offset, uint8_t size)
 {
     emit newMessage("---- Request RAM Data ----");
-    QByteArray data;
-    data.append((uint8_t)(offset>>8));
-    data.append((uint8_t)offset);
-    data.append((uint8_t)size);
-    _sendKernelCommand(KernelCommand::CMD_READ_RAM, data);
+    _tinyBus->write(TinyBus::Encode::requestRamData(_address, offset, size));
 }
 
 void Device::requestEepromData(uint16_t offset, uint8_t size)
 {
     emit newMessage("---- Request EEPROM Data ----");
-    QByteArray data;
-    data.append((uint8_t)(offset>>8));
-    data.append((uint8_t)offset);
-    data.append((uint8_t)size);
-    _sendKernelCommand(KernelCommand::CMD_READ_EEPROM, data);
+    _tinyBus->write(TinyBus::Encode::requestEepromData(_address, offset, size));
 }
 
 void Device::writeEepromData(uint16_t offset, QByteArray data)
 {
     emit newMessage("---- Write EEPROM Data ----");
-    QByteArray txData;
-    txData.append((uint8_t)(offset>>8));
-    txData.append((uint8_t)offset);
-    txData.append(data);
-    _sendKernelCommand(KernelCommand::CMD_WRITE_EEPROM, txData);
+    _tinyBus->write(TinyBus::Encode::writeEepromData(_address, offset, data));
 }
 
-void Device::setBaudRate(BaudRate baudRate)
+void Device::setBaudRate(TinyBus::BaudRate baudRate)
 {
     emit newMessage("---- Set Baud Rate ----");
-    QByteArray txData;
-    txData.append((uint8_t)baudRate);
-    _sendKernelCommand(KernelCommand::CMD_SET_BAUD_RATE, txData);
+    _tinyBus->write(TinyBus::Encode::setBaudRate(_address, baudRate));
 }
 
 void Device::saveBaudRate()
 {
     emit newMessage("---- Save Baud Rate ----");
-    _sendKernelCommand(KernelCommand::CMD_SAVE_BAUD_RATE, QByteArray());
+    _tinyBus->write(TinyBus::Encode::saveBaudRate(_address));
 }
 
 void Device::startUpload(void)
@@ -139,17 +119,13 @@ void Device::startUpload(void)
     _update.start();
 }
 
-void Device::abortUpload(void)
-{
-
-}
 
 void Device::newData(QByteArray data)
 {
     if(data.size() < 1) return; // TODO: error
 
-    Address address = Decode::extractAddress(data.at(0));
-    Command command = Decode::extractCommand(data.at(0));
+    TinyBus::Address address = TinyBus::Decode::extractAddress(data.at(0));
+    TinyBus::Command command = TinyBus::Decode::extractCommand(data.at(0));
 
     if(address != _address) return; // TODO: error
 
@@ -160,26 +136,26 @@ void Device::newData(QByteArray data)
         bool response = (bool)(data.at(1) & 0x80);
         if(!response) return;
 
-        KernelCommand subcommand = (KernelCommand)(data.at(1) & 0x7F);
+        TinyBus::KernelCommand subcommand = (TinyBus::KernelCommand)(data.at(1) & 0x7F);
         switch(subcommand)
         {
-            case KernelCommand::CMD_GET_DEVICE_STATE : {
-                _bootSystemInformation.deviceState = Decode::deviceState(data.remove(0,2));
+            case TinyBus::KernelCommand::GetDeviceState : {
+                _bootSystemInformation.deviceState = TinyBus::Decode::deviceState(data.remove(0,2));
                 emit changed(this);
                 break;
             }
-            case KernelCommand::CMD_GET_HARDWARE_INFO :{
-                _bootSystemInformation.hardwareInformation = Decode::hardwareInformation(data.remove(0,2));
+            case TinyBus::KernelCommand::GetHardwareInformation :{
+                _bootSystemInformation.hardwareInformation = TinyBus::Decode::hardwareInformation(data.remove(0,2));
                 emit changed(this);
                 break;
             }
-            case KernelCommand::CMD_GET_MEMORY_INFO : {
-                _bootSystemInformation.memoryInformation = Decode::memoryInformation(data.remove(0,2));
+            case TinyBus::KernelCommand::GetMemoryInformation : {
+                _bootSystemInformation.memoryInformation = TinyBus::Decode::memoryInformation(data.remove(0,2));
                 emit changed(this);
                 break;
             }
-            case KernelCommand::CMD_GET_APP_CRC  : {
-                _crc = Decode::applicationCrc(data.remove(0,2));
+            case TinyBus::KernelCommand::GetApplicationCrc  : {
+                _crc = TinyBus::Decode::applicationCrc(data.remove(0,2));
                 emit changed(this);
                 break;
             }
@@ -187,23 +163,23 @@ void Device::newData(QByteArray data)
             //case KernelCommand::CMD_ERASE_APP: _writeNextPage(true); break;
             //case KernelCommand::CMD_WRITE_PAGE: _writeNextPage(false); break;
 
-            case KernelCommand::CMD_GET_APP_NAME:{
-                _firmwareName = Decode::applicationName(data.remove(0,2));
+            case TinyBus::KernelCommand::GetAppName:{
+                _firmwareName = TinyBus::Decode::applicationName(data.remove(0,2));
                 emit changed(this);
                 break;
             }
-            case KernelCommand::CMD_GET_APP_VERSION:{
-                _firmwareVersion = Decode::applicationVerion(data.remove(0,2));
+            case TinyBus::KernelCommand::GetAppVersion:{
+                _firmwareVersion = TinyBus::Decode::applicationVerion(data.remove(0,2));
                 emit changed(this);
                 break;
             }
 
-            case KernelCommand::CMD_READ_RAM: {
+            case TinyBus::KernelCommand::ReadRamData: {
                 emit ramDataChanged(data.remove(0,2));
                 break;
             }
 
-            case KernelCommand::CMD_READ_EEPROM: {
+            case TinyBus::KernelCommand::ReadEepromData: {
                 emit eepromDataChanged(data.remove(0,2));
                 break;
             }
@@ -213,7 +189,7 @@ void Device::newData(QByteArray data)
     }
 }
 
-Address Device::address() const
+TinyBus::Address Device::address() const
 {
     return _address;
 }
@@ -242,7 +218,7 @@ Update::State Device::updateState() const
 {
     return _update.updateState();
 }
-const Version &Device::firmwareVersion() const
+const TinyBus::Version &Device::firmwareVersion() const
 {
     return _firmwareVersion;
 }
@@ -250,23 +226,5 @@ const Version &Device::firmwareVersion() const
 const QString &Device::firmwareName() const
 {
     return _firmwareName;
-}
-
-void Device::_sendFrame(uint8_t command, QByteArray data)
-{
-    QByteArray txData;
-    uint8_t cmdByte = (_address << 4) | (command & 0x0F);
-    txData.append(cmdByte);
-    txData.append(data);
-
-    _tinyBus->write(txData);
-}
-
-void Device::_sendKernelCommand(KernelCommand command, QByteArray data)
-{
-    QByteArray tx;
-    tx.append((uint8_t)command);
-    tx.append(data);
-    _sendFrame(15, tx);
 }
 

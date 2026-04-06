@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+namespace TinyBus{
+
 struct Version {
     uint8_t major = 0;
     uint8_t minor = 0;
@@ -33,7 +35,32 @@ enum class BaudRate:uint8_t {
     BAUD_LENGTH
 };
 
+enum class KernelCommand:uint8_t {
+    GetDeviceState = 0,
+    GetHardwareInformation = 1,
+    GetMemoryInformation = 2,
+    GetApplicationCrc = 3,
+    EraseApp = 4,
+    WriteAppPage = 5,
 
+    WriteEepromData = 6,
+    ReadEepromData = 7,
+    ReadRamData = 8,
+
+    Reboot = 10,
+    AppStart = 11,
+    AppStop = 12,
+    GetAppName = 13,
+    GetAppVersion = 14,
+    SetAddress = 15,
+
+    SetBaudRate = 32,
+    SaveBaudRate = 33
+};
+
+enum class DeviceCommand:uint8_t {
+    KernelCommand = 15
+};
 
 enum ApplicationState:uint8_t {
     Unknown,
@@ -86,4 +113,5 @@ struct MemoryInformation {
     bool eepromWriteAccess = false;
 };
 
+};
 #endif // DATATYPE_H

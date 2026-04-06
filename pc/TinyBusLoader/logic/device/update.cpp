@@ -2,6 +2,7 @@
 #include "device.h"
 #include "../tinyBus.h"
 #include "../QuCLib/source/crc.h"
+#include "decode.h"
 
 Update::Update(Device &device)
     : _device{device}
@@ -37,7 +38,7 @@ void Update::handle()
         QuCLib::HexFileParser::BinaryChunk binary = _device._tinyBus->hexFile().binary().at(0);
         _appCrc16_write = QuCLib::Crc::crc16(binary.data);
 
-        MemoryInformation memoryInformation = _device._bootSystemInformation.memoryInformation;
+        TinyBus::MemoryInformation memoryInformation = _device._bootSystemInformation.memoryInformation;
 
         uint16_t appSize = memoryInformation.flashSize - memoryInformation.flashAppStart;
         for(uint16_t i = 0; i < (appSize-binary.data.size())-2; i++)
@@ -107,13 +108,13 @@ bool Update::selectedForUpdate() const
 
 void Update::_eraseAppSection()
 {
-    _device._sendKernelCommand(Device::KernelCommand::CMD_ERASE_APP, QByteArray());
+    _device._tinyBus->write(TinyBus::Encode::requestEraseApp(_device._address));
 }
 
 void Update::_writeNextPage(void)
 {
     QuCLib::HexFileParser::BinaryChunk binary = _device._tinyBus->hexFile().binary().at(0);
-    MemoryInformation memoryInformation = _device._bootSystemInformation.memoryInformation;
+    TinyBus::MemoryInformation memoryInformation = _device._bootSystemInformation.memoryInformation;
 
     uint16_t appSize = memoryInformation.flashSize - memoryInformation.flashAppStart;
     uint32_t flashSize = memoryInformation.flashSize;
@@ -189,20 +190,10 @@ void Update::_emitChange()
     emit _device.changed(&_device);
 }
 
-void Update::_writePage(uint16_t dataAddress, QByteArray data)
+void Update::_writePage(uint16_t dataAddress, const QByteArray &data)
 {
     QString msg = "---- Write Page "+QString::number(dataAddress / _device._bootSystemInformation.memoryInformation.flashPageSize)+"----";
     emit _device.newMessage(msg);
 
-    if(data.size() < 16){
-        for(int i = data.size(); i < 16; i++ ){
-            data.append((uint8_t)0xFF);
-        }
-    }
-
-    QByteArray txData;
-    txData.append((uint8_t)(dataAddress>>8));
-    txData.append((uint8_t)dataAddress);
-    txData.append(data);
-    _device._sendKernelCommand(Device::KernelCommand::CMD_WRITE_FLASH_PAGE, txData);
+    _device._tinyBus->write(TinyBus::Encode::writeAppPage(_device._address, dataAddress, data));
 }

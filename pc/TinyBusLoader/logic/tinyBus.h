@@ -9,11 +9,11 @@
 #include "connection/connection.h"
 #include "../QuCLib/source/hexFileParser.h"
 
-class TinyBus : public QObject
+class TinyBusInterface : public QObject
 {
     Q_OBJECT
 public:
-    explicit TinyBus(Connection *connection = nullptr, QObject *parent = nullptr);
+    explicit TinyBusInterface(Connection *connection = nullptr, QObject *parent = nullptr);
 
     void write(QByteArray data);
 
@@ -31,7 +31,7 @@ public:
     uint32_t appOffset(void);
     uint32_t appSize(void);
     uint32_t appCrc(void);
-    ApplicationHeader appliactionHeader(void);
+    TinyBus::ApplicationHeader appliactionHeader(void);
 
     void setHexFile(const QuCLib::HexFileParser &newHexFile);
 
@@ -55,9 +55,9 @@ private slots:
 private:
     Connection *_connection = nullptr;
     QTimer _busScanTimer;
-    Address _busScanDevcieAddress;
+    TinyBus::Address _busScanDevcieAddress;
     QuCLib::HexFileParser _hexFile;
-    QMap<Address, Device*> _devices;
+    QMap<TinyBus::Address, Device*> _devices;
     QList<Device*> _updateQueue;
 
     Device* _currentUpdate = nullptr;

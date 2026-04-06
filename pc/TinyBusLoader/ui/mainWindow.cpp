@@ -14,11 +14,11 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    connect(&_tinyBus, &TinyBus::deviceListChanged, this, &MainWindow::on_deviceListChanged);
-    connect(&_tinyBus, &TinyBus::updateQueueChanged, this, &MainWindow::on_updateQueueChanged);
-    connect(&_tinyBus, &TinyBus::deviceChanged, this, &MainWindow::on_deviceChanged);
-    connect(&_tinyBus, &TinyBus::hexFileChanged, this, &MainWindow::on_hexFileChanged);
-    connect(&_tinyBus, &TinyBus::newMessage, this, &MainWindow::on_message);
+    connect(&_tinyBus, &TinyBusInterface::deviceListChanged, this, &MainWindow::on_deviceListChanged);
+    connect(&_tinyBus, &TinyBusInterface::updateQueueChanged, this, &MainWindow::on_updateQueueChanged);
+    connect(&_tinyBus, &TinyBusInterface::deviceChanged, this, &MainWindow::on_deviceChanged);
+    connect(&_tinyBus, &TinyBusInterface::hexFileChanged, this, &MainWindow::on_hexFileChanged);
+    connect(&_tinyBus, &TinyBusInterface::newMessage, this, &MainWindow::on_message);
 
     connect(&_busPassThrough, &BusPassThrough::stateChanged, this, &MainWindow::on_passthroughStateChanged);
 
@@ -95,7 +95,7 @@ void MainWindow::on_hexFileChanged()
     ui->label_appSize->setText(QString::number(_tinyBus.appSize(),16).toUpper().rightJustified(2,'0').prepend("0x"));
     ui->label_appCrc->setText(QString::number(_tinyBus.appCrc(),16).toUpper().rightJustified(2,'0').prepend("0x"));
 
-    ApplicationHeader applicationHeader = _tinyBus.appliactionHeader();
+    TinyBus::ApplicationHeader applicationHeader = _tinyBus.appliactionHeader();
 
     ui->label_autostart->setText(applicationHeader.autostart?"true":"false");
     ui->label_headerVersion->setText(QString::number(applicationHeader.headerVersion));

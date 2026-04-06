@@ -76,7 +76,7 @@ void DeviceInformationWidget::setEnabled(bool enabled)
         ui->pushButton_readRam->setEnabled(false);
         ui->pushButton_readEeprom->setEnabled(false);
     }else if(_device != nullptr){
-        MemoryInformation memoryInformation = _device->bootSystemInformation().memoryInformation;
+        TinyBus::MemoryInformation memoryInformation = _device->bootSystemInformation().memoryInformation;
         ui->pushButton_readRam->setEnabled(memoryInformation.ramReadAccess);
         ui->pushButton_readEeprom->setEnabled(memoryInformation.eepromReadAccess || memoryInformation.eepromWriteAccess);
     }else{
@@ -248,8 +248,8 @@ void DeviceInformationWidget::on_pushButton_readHardwareInformation_clicked()
 void DeviceInformationWidget::on_pushButton_setBaudRate_clicked()
 {
     if(_device == nullptr) return;
-    BaudRate baudRate;
-    baudRate = (BaudRate)ui->comboBox_baudRate->currentIndex();
+    TinyBus::BaudRate baudRate;
+    baudRate = (TinyBus::BaudRate)ui->comboBox_baudRate->currentIndex();
     _device->setBaudRate(baudRate);
 }
 
