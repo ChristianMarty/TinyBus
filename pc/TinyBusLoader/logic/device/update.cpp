@@ -2,7 +2,7 @@
 #include "device.h"
 #include "../tinyBus.h"
 #include "../QuCLib/source/crc.h"
-#include "decode.h"
+#include "protocol.h"
 
 Update::Update(Device &device)
     : _device{device}
@@ -138,7 +138,7 @@ void Update::_writeNextPage(void)
         _writePage(_imageAddress + binary.offset, data);
         _imageAddress += 16;
     }
-    // scipt emty pages
+    // skipt empty pages
     else if(_imageAddress < appSize - memoryInformation.flashPageSize)
     {
         _imageAddress = (appSize - memoryInformation.flashPageSize);

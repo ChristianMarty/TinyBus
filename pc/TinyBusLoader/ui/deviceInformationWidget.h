@@ -44,6 +44,8 @@ private slots:
     void on_pushButton_setBaudRate_clicked();
     void on_pushButton_saveBaudRate_clicked();
 
+    void on_pushButton_getSupportedBaudRates_clicked();
+
 private:
     Ui::DeviceInformationWidget *ui;
     Device *_device = nullptr;
@@ -52,6 +54,8 @@ private:
     EepromMemoryWidget *_eepromMemoryWidget = nullptr;
 
     void _update(void);
+    void _updateBaudRates(TinyBus::BaudRates baudRates);
+    TinyBus::BaudRate _selectedBaudRate(void);
 };
 
 #endif // DEVICEINFORMATIONWIDGET_H

@@ -15,11 +15,11 @@ SOURCES += \
     ../QuCLib/source/cobs.cpp \
     ../QuCLib/source/crc.cpp \
     ../QuCLib/source/hexFileParser.cpp \
+    ../common/protocol.cpp \
     logic/busPassThrough.cpp \
     logic/connection/connection.cpp \
     logic/connection/connectionSerial.cpp \
     logic/connection/connectionTcp.cpp \
-    ../common/decode.cpp \
     logic/device/update.cpp \
     logic/tinyBus.cpp \
     logic/device/device.cpp \
@@ -27,6 +27,7 @@ SOURCES += \
     ui/deviceInformationWidget.cpp \
     ui/deviceItemWidget.cpp \
     ui/eepromMemoryWidget.cpp \
+    ui/flashMemoryWidget.cpp \
     ui/mainWindow.cpp \
     ui/memoryWidget.cpp \
     ui/queueItemWidget.cpp
@@ -35,12 +36,12 @@ HEADERS += \
     ../QuCLib/source/cobs.h \
     ../QuCLib/source/crc.h \
     ../QuCLib/source/hexFileParser.h \
+    ../common/protocol.h \
     logic/busPassThrough.h \
     logic/connection/connection.h \
     logic/connection/connectionSerial.h \
     logic/connection/connectionTcp.h \
     ../common/datatype.h \
-    ../common/decode.h \
     logic/device/update.h \
     logic/tinyBus.h \
     logic/device/device.h \
@@ -48,6 +49,7 @@ HEADERS += \
     ui/deviceInformationWidget.h \
     ui/deviceItemWidget.h \
     ui/eepromMemoryWidget.h \
+    ui/flashMemoryWidget.h \
     ui/mainWindow.h \
     ui/memoryWidget.h \
     ui/queueItemWidget.h
@@ -56,6 +58,7 @@ FORMS += \
     ui/deviceInformationWidget.ui \
     ui/deviceItemWidget.ui \
     ui/eepromMemoryWidget.ui \
+    ui/flashMemoryWidget.ui \
     ui/mainWindow.ui \
     ui/memoryWidget.ui \
     ui/queueItemWidget.ui

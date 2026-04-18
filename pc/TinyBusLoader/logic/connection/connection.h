@@ -24,6 +24,8 @@ public:
 
     virtual void sendData(QByteArray data) {Q_UNUSED(data);};
 
+    virtual uint16_t suggestedTimeOut(void) const {return 500;};
+
 signals:
     void newData(QByteArray data);
     void newMessage(QString message);

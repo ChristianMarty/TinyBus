@@ -131,7 +131,6 @@ void EepromMemoryWidget::_printMemory()
             }
             if(j == 7)line +=" ";
         }
-
         ui->textEdit_memory->append(line);
     }
 }

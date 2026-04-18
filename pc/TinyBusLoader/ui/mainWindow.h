@@ -8,6 +8,7 @@
 #include "logic/device/device.h"
 #include "logic/tinyBus.h"
 #include "logic/busPassThrough.h"
+#include "ui/flashMemoryWidget.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -55,12 +56,16 @@ private slots:
 
     void on_lineEdit_url_returnPressed();
 
+    void on_pushButton_view_clicked();
+
 private:
     Ui::MainWindow *ui;
     Connection* _connection = nullptr;
     BusPassThrough _busPassThrough;
     TinyBusInterface _tinyBus = TinyBusInterface();
     Device *_selectedDevice = nullptr;
+
+    FlashMemoryWidget _flashMemoryWidget;
 
     void _update(void);
     void _updateConnectionState(void);

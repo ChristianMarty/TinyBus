@@ -103,6 +103,9 @@ void MainWindow::on_hexFileChanged()
     ui->label_firmwareVersion->setText(QString::number(applicationHeader.firmwareVersion.major)+"."+QString::number(applicationHeader.firmwareVersion.minor));
     ui->label_hardwareVersion->setText(QString::number(applicationHeader.hardwareVersion.major)+"."+QString::number(applicationHeader.hardwareVersion.minor));
     ui->label_applicationName->setText(applicationHeader.applicationName);
+
+    _flashMemoryWidget.update(_tinyBus.hexFile());
+    ui->pushButton_view->setEnabled(true);
 }
 
 void MainWindow::on_message(QString message)
@@ -177,7 +180,6 @@ void MainWindow::_update()
 void MainWindow::_updateConnectionState()
 {
     bool isConnected;
-
     if(_connection == nullptr){
         isConnected = false;
     }else{
@@ -231,7 +233,7 @@ void MainWindow::on_pushButton_startScan_clicked()
 {
     ui->listWidget_devices->clear();
     selectDevice(nullptr);
-    _tinyBus.startScan();
+    _tinyBus.startScan(_connection->suggestedTimeOut());
 
     ui->pushButton_startScan->setEnabled(!_tinyBus.activeScan());
     ui->pushButton_abortScan->setEnabled(_tinyBus.activeScan());
@@ -314,3 +316,10 @@ void MainWindow::on_passthroughStateChanged()
 {
     _updatePassthroughState();
 }
+
+void MainWindow::on_pushButton_view_clicked()
+{
+    _flashMemoryWidget.show();
+    _flashMemoryWidget.raise();
+}
+

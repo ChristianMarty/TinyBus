@@ -1,5 +1,5 @@
-#ifndef DECODE_H
-#define DECODE_H
+#ifndef PROTOCOL_H
+#define PROTOCOL_H
 
 #include <QObject>
 #include "datatype.h"
@@ -19,7 +19,11 @@ public:
     static MemoryInformation memoryInformation(const QByteArray &data);
     static uint16_t applicationCrc(const QByteArray &data);
     static QString applicationName(const QByteArray &data);
-    static Version applicationVerion(const QByteArray &data);
+    static ApplicationHeaderBase applicationHeader(const QByteArray &data);
+    static BaudRates supportedBaudRates(const QByteArray &data);
+
+private:
+    static ApplicationHeaderBase _extractApplicationHeaderBase(const QByteArray &data);
 };
 
 
@@ -31,7 +35,7 @@ public:
     static QByteArray requestMemoryInformation(Address address);
     static QByteArray requestApplicationCrc(Address address);
     static QByteArray requestApplicationName(Address address);
-    static QByteArray requestApplicationVerion(Address address);
+    static QByteArray requestApplicationHeader(Address address);
     static QByteArray requestReboot(Address address);
     static QByteArray requestApplicationStart(Address address);
     static QByteArray requestApplicationStop(Address address);
@@ -39,6 +43,7 @@ public:
     static QByteArray setDeviceAddress(Address address, Address newAddress);
     static QByteArray setBaudRate(Address address, TinyBus::BaudRate baudRate);
     static QByteArray saveBaudRate(Address address);
+    static QByteArray requestSupportedBaudRate(Address address);
 
     static QByteArray requestRamData(Address address, uint16_t offset, uint8_t size);
     static QByteArray requestEepromData(Address address, uint16_t offset, uint8_t size);
@@ -53,4 +58,4 @@ private:
 
 
 };
-#endif // DECODE_H
+#endif // PROTOCOL_H

@@ -56,3 +56,20 @@ Enable and configure Rx and TX LED
 #define RxLedOff() (PORTA &= 0xBF)
 
 
+/******************************************************************************
+Supported baud rates -> Uncomment to Enable
+******************************************************************************/
+
+//#define Baudrate300
+//#define Baudrate600
+//#define Baudrate1200
+//#define Baudrate2400
+#define Baudrate4800
+#define Baudrate9600
+#define Baudrate14400
+#define Baudrate19200
+//#define Baudrate28800
+//#define Baudrate38400
+//#define Baudrate57600
+//#define Baudrate76800
+//#define Baudrate115200

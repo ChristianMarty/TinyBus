@@ -20,7 +20,7 @@ public:
     void startUpdate(void);
     void abortUpdate(void);
 
-    void startScan(void);
+    void startScan(uint16_t timeOut = 500);
     void abortScan(void);
     bool activeScan(void) const;
 

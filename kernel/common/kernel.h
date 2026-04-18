@@ -13,7 +13,7 @@ extern "C" {
 #endif
 	
 #define KERNEL_VERSION_MAJOR 0x02
-#define KERNEL_VERSION_MINOR 0x02
+#define KERNEL_VERSION_MINOR 0x03
 
 #ifdef __cplusplus
 }

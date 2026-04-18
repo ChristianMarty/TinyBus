@@ -71,6 +71,7 @@ void DeviceInformationWidget::setEnabled(bool enabled)
     ui->pushButton_setBaudRate->setEnabled(enabled);
     ui->pushButton_saveBaudRate->setEnabled(enabled);
     ui->comboBox_baudRate->setEnabled(enabled);
+    ui->pushButton_getSupportedBaudRates->setEnabled(enabled);
 
     if(!enabled){
         ui->pushButton_readRam->setEnabled(false);
@@ -151,10 +152,16 @@ void DeviceInformationWidget::_update()
     ui->label_state->setText(applicationStateString(bootSystemInformation.deviceState.deviceState));
 
     ui->label_applicationName->setText(_device->firmwareName());
+    TinyBus::ApplicationHeaderBase applicationHeaderBase = _device->applicationHeader();
 
-    QString applicationVersion = QString::number(_device->firmwareVersion().major);
-    applicationVersion +="."+QString::number(_device->firmwareVersion().minor).rightJustified(3,'0');
+    QString applicationVersion = QString::number(applicationHeaderBase.firmwareVersion.major);
+    applicationVersion +="."+QString::number(applicationHeaderBase.firmwareVersion.minor).rightJustified(3,'0');
     ui->label_applicationVersion->setText(applicationVersion);
+    ui->label_autostart->setText(applicationHeaderBase.autostart?"true":"false");
+    ui->label_applicationHardwareId->setText(QString::number(applicationHeaderBase.hardwareId,16).toUpper().rightJustified(4,'0').prepend("0x"));
+    QString applicationHardwareRevision = QString::number(applicationHeaderBase.hardwareVersion.major);
+    applicationHardwareRevision +="."+QString::number(applicationHeaderBase.hardwareVersion.minor).rightJustified(3,'0');
+    ui->label_applicationHardwareRevision->setText(applicationHardwareRevision);
 
     // Kernel
     QString kernelRevision = QString::number(bootSystemInformation.hardwareInformation.kernelRevision.major);
@@ -185,6 +192,93 @@ void DeviceInformationWidget::_update()
 
     if(_eepromMemoryWidget != nullptr) _eepromMemoryWidget->setDevice(_device);
     if(_memoryWidget != nullptr) _memoryWidget->setDevice(_device);
+
+    // Baud Rate
+    _updateBaudRates(bootSystemInformation.supportedBaudRates);
+}
+
+
+#define BaudText_300 QStringLiteral("300")
+#define BaudText_600 QStringLiteral("600")
+#define BaudText_1200 QStringLiteral("1200")
+#define BaudText_2400 QStringLiteral("2400")
+#define BaudText_4800 QStringLiteral("4800")
+#define BaudText_9600 QStringLiteral("9600")
+#define BaudText_14400 QStringLiteral("14400")
+#define BaudText_19200 QStringLiteral("19200")
+
+#define BaudText_28800 QStringLiteral("28800")
+#define BaudText_38400 QStringLiteral("38400")
+#define BaudText_57600 QStringLiteral("57600")
+#define BaudText_76800 QStringLiteral("76800")
+#define BaudText_115200 QStringLiteral("115200")
+
+void DeviceInformationWidget::_updateBaudRates(TinyBus::BaudRates baudRates)
+{
+    ui->comboBox_baudRate->clear();
+
+    if(baudRates & (uint16_t)TinyBus::SupportedBaudRate::Baud_300){
+        ui->comboBox_baudRate->addItem(BaudText_300);
+    }
+    if(baudRates & (uint16_t)TinyBus::SupportedBaudRate::Baud_600){
+        ui->comboBox_baudRate->addItem(BaudText_600);
+    }
+    if(baudRates & (uint16_t)TinyBus::SupportedBaudRate::Baud_1200){
+        ui->comboBox_baudRate->addItem(BaudText_1200);
+    }
+    if(baudRates & (uint16_t)TinyBus::SupportedBaudRate::Baud_2400){
+        ui->comboBox_baudRate->addItem(BaudText_2400);
+    }
+    if(baudRates & (uint16_t)TinyBus::SupportedBaudRate::Baud_4800){
+        ui->comboBox_baudRate->addItem(BaudText_4800);
+    }
+    if(baudRates & (uint16_t)TinyBus::SupportedBaudRate::Baud_9600){
+        ui->comboBox_baudRate->addItem(BaudText_9600);
+    }
+    if(baudRates & (uint16_t)TinyBus::SupportedBaudRate::Baud_14400){
+        ui->comboBox_baudRate->addItem(BaudText_14400);
+    }
+    if(baudRates & (uint16_t)TinyBus::SupportedBaudRate::Baud_19200){
+        ui->comboBox_baudRate->addItem(BaudText_19200);
+    }
+
+    if(baudRates & (uint16_t)TinyBus::SupportedBaudRate::Baud_28800){
+        ui->comboBox_baudRate->addItem(BaudText_28800);
+    }
+    if(baudRates & (uint16_t)TinyBus::SupportedBaudRate::Baud_38400){
+        ui->comboBox_baudRate->addItem(BaudText_38400);
+    }
+    if(baudRates & (uint16_t)TinyBus::SupportedBaudRate::Baud_57600){
+        ui->comboBox_baudRate->addItem(BaudText_57600);
+    }
+    if(baudRates & (uint16_t)TinyBus::SupportedBaudRate::Baud_76800){
+        ui->comboBox_baudRate->addItem(BaudText_76800);
+    }
+    if(baudRates & (uint16_t)TinyBus::SupportedBaudRate::Baud_115200){
+        ui->comboBox_baudRate->addItem(BaudText_115200);
+    }
+}
+
+TinyBus::BaudRate DeviceInformationWidget::_selectedBaudRate()
+{
+    QString baudRate = ui->comboBox_baudRate->currentText();
+
+    if(baudRate==BaudText_300) return TinyBus::BaudRate::BAUD_300;
+    if(baudRate==BaudText_600) return TinyBus::BaudRate::BAUD_600;
+    if(baudRate==BaudText_1200) return TinyBus::BaudRate::BAUD_1200;
+    if(baudRate==BaudText_2400) return TinyBus::BaudRate::BAUD_2400;
+    if(baudRate==BaudText_4800) return TinyBus::BaudRate::BAUD_4800;
+    if(baudRate==BaudText_9600) return TinyBus::BaudRate::BAUD_9600;
+    if(baudRate==BaudText_14400) return TinyBus::BaudRate::BAUD_14400;
+    if(baudRate==BaudText_19200) return TinyBus::BaudRate::BAUD_19200;
+
+    if(baudRate==BaudText_28800) return TinyBus::BaudRate::BAUD_28800;
+    if(baudRate==BaudText_38400) return TinyBus::BaudRate::BAUD_38400;
+    if(baudRate==BaudText_57600) return TinyBus::BaudRate::BAUD_57600;
+    if(baudRate==BaudText_76800) return TinyBus::BaudRate::BAUD_76800;
+    if(baudRate==BaudText_115200) return TinyBus::BaudRate::BAUD_115200;
+
+    return TinyBus::BaudRate::BAUD_4800;
 }
 
 void DeviceInformationWidget::on_pushButton_getDeviceState_clicked()
@@ -214,7 +308,7 @@ void DeviceInformationWidget::on_pushButton_getName_clicked()
 void DeviceInformationWidget::on_pushButton_getVersion_clicked()
 {
     if(_device == nullptr) return;
-    _device->requestApplicationVerion();
+    _device->requestApplicationHeader();
 }
 
 void DeviceInformationWidget::on_pushButton_readRam_clicked()
@@ -257,5 +351,11 @@ void DeviceInformationWidget::on_pushButton_saveBaudRate_clicked()
 {
     if(_device == nullptr) return;
     _device->saveBaudRate();
+}
+
+void DeviceInformationWidget::on_pushButton_getSupportedBaudRates_clicked()
+{
+    if(_device == nullptr) return;
+    _device->requestSupportedBaudRate();
 }
 

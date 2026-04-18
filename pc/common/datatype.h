@@ -10,18 +10,23 @@ struct Version {
     uint8_t minor = 0;
 };
 
-struct ApplicationHeader {
-    bool autostart;
-    uint8_t headerVersion;
+struct ApplicationHeaderBase {
+    bool autostart = false;
+    uint8_t headerVersion = 0;
     Version firmwareVersion;
-    uint16_t hardwareId;
+    uint16_t hardwareId = 0;
     Version hardwareVersion;
+};
+
+struct ApplicationHeader : public ApplicationHeaderBase {
+    ApplicationHeader(const ApplicationHeaderBase& base = ApplicationHeaderBase()): ApplicationHeaderBase(base) {};
     QString applicationName;
 };
 
 typedef uint8_t Address;
 typedef uint8_t Command;
 typedef uint8_t InstructionByte;
+typedef uint16_t BaudRates;
 
 enum class BaudRate:uint8_t {
     BAUD_300,
@@ -32,7 +37,28 @@ enum class BaudRate:uint8_t {
     BAUD_9600,
     BAUD_14400,
     BAUD_19200,
+    BAUD_28800,
+    BAUD_38400,
+    BAUD_57600,
+    BAUD_76800,
+    BAUD_115200,
     BAUD_LENGTH
+};
+
+enum class SupportedBaudRate:uint16_t {
+    Baud_300    = 0x0001,
+    Baud_600    = 0x0002,
+    Baud_1200   = 0x0004,
+    Baud_2400   = 0x0008,
+    Baud_4800   = 0x0010,
+    Baud_9600   = 0x0020,
+    Baud_14400  = 0x0040,
+    Baud_19200  = 0x0080,
+    Baud_28800  = 0x0100,
+    Baud_38400  = 0x0200,
+    Baud_57600  = 0x0400,
+    Baud_76800  = 0x0800,
+    Baud_115200 = 0x1000
 };
 
 enum class KernelCommand:uint8_t {
@@ -40,8 +66,8 @@ enum class KernelCommand:uint8_t {
     GetHardwareInformation = 1,
     GetMemoryInformation = 2,
     GetApplicationCrc = 3,
-    EraseApp = 4,
-    WriteAppPage = 5,
+    EraseApplication = 4,
+    WriteApplicationPage = 5,
 
     WriteEepromData = 6,
     ReadEepromData = 7,
@@ -50,12 +76,13 @@ enum class KernelCommand:uint8_t {
     Reboot = 10,
     AppStart = 11,
     AppStop = 12,
-    GetAppName = 13,
-    GetAppVersion = 14,
+    GetApplicationName = 13,
+    GetApplicationHeader = 14,
     SetAddress = 15,
 
     SetBaudRate = 32,
-    SaveBaudRate = 33
+    SaveBaudRate = 33,
+    GetSupportedBaudRates = 34
 };
 
 enum class DeviceCommand:uint8_t {

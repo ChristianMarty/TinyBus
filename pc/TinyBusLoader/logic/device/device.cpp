@@ -1,14 +1,10 @@
 #include "device.h"
 #include "../tinyBus.h"
-#include "decode.h"
+#include "protocol.h"
 
 QByteArray Device::ping(TinyBus::Address address)
 {
-    QByteArray data;
-    uint8_t cmdByte = (address << 4) | 15 ;
-    data.append(cmdByte);
-    data.append((uint8_t)TinyBus::KernelCommand::GetDeviceState);
-    return data;
+    return TinyBus::Encode::requestDeviceState(address);
 }
 
 Device::Device(TinyBus::Address address, TinyBusInterface *parent)
@@ -54,10 +50,10 @@ void Device::requestApplicationName(void)
     _tinyBus->write(TinyBus::Encode::requestApplicationName(_address));
 }
 
-void Device::requestApplicationVerion(void)
+void Device::requestApplicationHeader(void)
 {
-    emit newMessage("---- Request Application Version ----");
-    _tinyBus->write(TinyBus::Encode::requestApplicationVerion(_address));
+    emit newMessage("---- Request Application Header ----");
+    _tinyBus->write(TinyBus::Encode::requestApplicationHeader(_address));
 }
 
 void Device::setDeviceAddress(uint8_t devcieAddress)
@@ -114,13 +110,18 @@ void Device::saveBaudRate()
     _tinyBus->write(TinyBus::Encode::saveBaudRate(_address));
 }
 
+void Device::requestSupportedBaudRate()
+{
+    emit newMessage("---- Get Supported Baud Rate ----");
+    _tinyBus->write(TinyBus::Encode::requestSupportedBaudRate(_address));
+}
+
 void Device::startUpload(void)
 {
     _update.start();
 }
 
-
-void Device::newData(QByteArray data)
+void Device::newData(const QByteArray &data)
 {
     if(data.size() < 1) return; // TODO: error
 
@@ -137,25 +138,27 @@ void Device::newData(QByteArray data)
         if(!response) return;
 
         TinyBus::KernelCommand subcommand = (TinyBus::KernelCommand)(data.at(1) & 0x7F);
+        QByteArray payload = data.mid(2);
+
         switch(subcommand)
         {
             case TinyBus::KernelCommand::GetDeviceState : {
-                _bootSystemInformation.deviceState = TinyBus::Decode::deviceState(data.remove(0,2));
+                _bootSystemInformation.deviceState = TinyBus::Decode::deviceState(payload);
                 emit changed(this);
                 break;
             }
             case TinyBus::KernelCommand::GetHardwareInformation :{
-                _bootSystemInformation.hardwareInformation = TinyBus::Decode::hardwareInformation(data.remove(0,2));
+                _bootSystemInformation.hardwareInformation = TinyBus::Decode::hardwareInformation(payload);
                 emit changed(this);
                 break;
             }
             case TinyBus::KernelCommand::GetMemoryInformation : {
-                _bootSystemInformation.memoryInformation = TinyBus::Decode::memoryInformation(data.remove(0,2));
+                _bootSystemInformation.memoryInformation = TinyBus::Decode::memoryInformation(payload);
                 emit changed(this);
                 break;
             }
             case TinyBus::KernelCommand::GetApplicationCrc  : {
-                _crc = TinyBus::Decode::applicationCrc(data.remove(0,2));
+                _crc = TinyBus::Decode::applicationCrc(payload);
                 emit changed(this);
                 break;
             }
@@ -163,24 +166,30 @@ void Device::newData(QByteArray data)
             //case KernelCommand::CMD_ERASE_APP: _writeNextPage(true); break;
             //case KernelCommand::CMD_WRITE_PAGE: _writeNextPage(false); break;
 
-            case TinyBus::KernelCommand::GetAppName:{
-                _firmwareName = TinyBus::Decode::applicationName(data.remove(0,2));
+            case TinyBus::KernelCommand::GetApplicationName:{
+                _applicationName = TinyBus::Decode::applicationName(payload);
                 emit changed(this);
                 break;
             }
-            case TinyBus::KernelCommand::GetAppVersion:{
-                _firmwareVersion = TinyBus::Decode::applicationVerion(data.remove(0,2));
+            case TinyBus::KernelCommand::GetApplicationHeader:{
+                _applicationHeader = TinyBus::Decode::applicationHeader(payload);
                 emit changed(this);
                 break;
             }
 
             case TinyBus::KernelCommand::ReadRamData: {
-                emit ramDataChanged(data.remove(0,2));
+                emit ramDataChanged(payload);
                 break;
             }
 
             case TinyBus::KernelCommand::ReadEepromData: {
-                emit eepromDataChanged(data.remove(0,2));
+                emit eepromDataChanged(payload);
+                break;
+            }
+
+            case TinyBus::KernelCommand::GetSupportedBaudRates: {
+                _bootSystemInformation.supportedBaudRates = TinyBus::Decode::supportedBaudRates(payload);
+                emit changed(this);
                 break;
             }
         }
@@ -218,13 +227,13 @@ Update::State Device::updateState() const
 {
     return _update.updateState();
 }
-const TinyBus::Version &Device::firmwareVersion() const
+const TinyBus::ApplicationHeaderBase &Device::applicationHeader() const
 {
-    return _firmwareVersion;
+    return _applicationHeader;
 }
 
 const QString &Device::firmwareName() const
 {
-    return _firmwareName;
+    return _applicationName;
 }
 

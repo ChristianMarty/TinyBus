@@ -18,13 +18,13 @@ void ConnectionSerial::open(QString url)
     QStringList parts = url.remove("serial://", Qt::CaseInsensitive).split(":");
 
     QString port = parts[0];
-    int baud = 14400;
+    _baudRate = 4800;
     if(parts.length()>1){
-        baud = parts[1].toInt();
+        _baudRate = parts[1].toULong();
     }
 
     _serialPort.setPortName(url.remove("serial://", Qt::CaseInsensitive));
-    _serialPort.setBaudRate(baud) ;
+    _serialPort.setBaudRate(_baudRate) ;
     _serialPort.setParity(QSerialPort::Parity::NoParity);
     _serialPort.open(QIODeviceBase::ReadWrite);
     _serialPort.setRequestToSend(true);
@@ -65,6 +65,13 @@ void ConnectionSerial::sendData(QByteArray data)
     if(_serialPort.bytesToWrite()) return;
 
     _serialPort.write(encodedData);
+}
+
+uint16_t ConnectionSerial::suggestedTimeOut() const
+{
+    float timePerBit = (float)1/(float)_baudRate;
+    float maximumFrameTime = timePerBit*10*26; // 10 Bit/Byte, 26 Byte/Frame
+    return (uint16_t)(maximumFrameTime*2*1000); // 2 Frames, 1000 ms/s
 }
 
 void ConnectionSerial::on_readyRead()

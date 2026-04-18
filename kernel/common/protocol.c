@@ -50,11 +50,12 @@ typedef enum  {
 	CMD_APP_START,
 	CMD_APP_STOP,
 	CMD_GET_APP_NAME,
-	CMD_GET_APP_VERSION,
+	CMD_GET_APP_HEADER,
 	CMD_SET_ADDRESS,
 	
 	CMD_SET_BAUD_RATE = 32,
 	CMD_SAVE_BAUD_RATE,
+	CMD_GET_SUPPORTED_BAUD_RATE,
 	
 	CMD_UNDEFINED = 0xFF
 }kernel_command_t;
@@ -269,14 +270,15 @@ void com_receiveData(uint8_t instruction_byte, uint8_t *data, uint8_t size)
 				}
 				break;
 			}
-			case CMD_GET_APP_VERSION:{
+			case CMD_GET_APP_HEADER:{
 				if(shared.deviceState == APP_CRC_ERROR){
 					error++;
 					break;
 				}
-				acknowledgmentData[1] = bootloader_readByte(AppBaseByteAddress+2);
-				acknowledgmentData[2] = bootloader_readByte(AppBaseByteAddress+3);
-				acknowledgmentSize += 2;
+				for(uint8_t i = 0; i<8; i++){
+					acknowledgmentData[i+1] = bootloader_readByte(AppBaseByteAddress+i);
+				}
+				acknowledgmentSize += 8;
 				break;
 			}
 			case CMD_SET_ADDRESS:{
@@ -290,6 +292,53 @@ void com_receiveData(uint8_t instruction_byte, uint8_t *data, uint8_t size)
 			}
 			case CMD_SAVE_BAUD_RATE:{
 				device_saveBaudRate();
+				break;
+			}
+			case CMD_GET_SUPPORTED_BAUD_RATE:{
+				uint8_t byteLow = 0;
+				uint8_t byteHigh = 0;
+				#ifdef Baudrate300
+					byteLow |= 0x01;
+				#endif
+				#ifdef Baudrate600
+					byteLow |= 0x02;
+				#endif
+				#ifdef Baudrate1200
+					byteLow |= 0x04;
+				#endif
+				#ifdef Baudrate2400
+					byteLow |= 0x08;
+				#endif
+				#ifdef Baudrate4800
+					byteLow |= 0x10;
+				#endif
+				#ifdef Baudrate9600
+					byteLow |= 0x20;
+				#endif
+				#ifdef Baudrate14400
+					byteLow |= 0x40;
+				#endif
+				#ifdef Baudrate19200
+					byteLow |= 0x80;
+				#endif
+				#ifdef Baudrate28800
+					byteHigh |= 0x01;
+				#endif
+				#ifdef Baudrate38400
+					byteHigh |= 0x02;
+				#endif
+				#ifdef Baudrate57600
+					byteHigh |= 0x04;
+				#endif
+				#ifdef Baudrate76800
+					byteHigh |= 0x08;
+				#endif
+				#ifdef Baudrate115200
+					byteHigh |= 0x10;
+				#endif
+				acknowledgmentData[1] = byteLow;
+				acknowledgmentData[2] = byteHigh;
+				acknowledgmentSize += 2;
 				break;
 			}
 			

@@ -1,5 +1,5 @@
 #include "tinyBus.h"
-#include "decode.h"
+#include "protocol.h"
 #include "../QuCLib/source/crc.h"
 
 TinyBusInterface::TinyBusInterface(Connection *connection, QObject *parent)
@@ -71,7 +71,7 @@ void TinyBusInterface::on_newData(QByteArray data)
     _devices[address]->newData(data);
 }
 
-void TinyBusInterface::startScan()
+void TinyBusInterface::startScan(uint16_t timeOut)
 {
     emit newMessage("---- Start scan ----");
 
@@ -84,7 +84,7 @@ void TinyBusInterface::startScan()
     emit deviceListChanged();
 
     _busScanDevcieAddress = 0;
-    _busScanTimer.start(500);
+    _busScanTimer.start(timeOut);
 }
 
 void TinyBusInterface::abortScan()
@@ -142,7 +142,9 @@ uint32_t TinyBusInterface::appCrc()
 
 TinyBus::ApplicationHeader TinyBusInterface::appliactionHeader()
 {
-    return TinyBus::Decode::extractApplicationHeader(_hexFile.binary().at(0).data);
+    if(_hexFile.binary().empty()) return TinyBus::ApplicationHeader();
+
+    return TinyBus::Decode::extractApplicationHeader(_hexFile.binary().first().data);
 }
 
 void TinyBusInterface::on_deviceChanged(Device *device)

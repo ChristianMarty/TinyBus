@@ -8,7 +8,13 @@ BusPassThrough::BusPassThrough(QObject *parent)
 
 BusPassThrough::~BusPassThrough()
 {
-    close();
+    qDeleteAll(_tcpConnections);
+    _tcpConnections.clear();
+
+    if(!_tcpServer.isNull()){
+        _tcpServer->close();
+        _tcpServer.reset();
+    }
 }
 
 void BusPassThrough::open(uint32_t port)
@@ -71,7 +77,6 @@ void BusPassThrough::on_newData(QByteArray data)
 {
     if(_connection == nullptr) return;
     if(_tcpServer.isNull()) return;
-
 }
 
 void BusPassThrough::on_pendingConnectionAvailable()

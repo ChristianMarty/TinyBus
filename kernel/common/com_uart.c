@@ -66,59 +66,141 @@ void com_setBaudrate(com_baudRate baudRate)
 {	
 #ifdef TINYAVR_1SERIES
 	switch(baudRate){
+#ifdef Baudrate300
 		case BAUD_300:
 		USART0.BAUD = 44444;
 		break;
+#endif
+#ifdef Baudrate600
 		case BAUD_600:
 		USART0.BAUD = 22222;
 		break;
+#endif
+#ifdef Baudrate1200
 		case BAUD_1200:
 		USART0.BAUD = 11111;
 		break;
+#endif
+#ifdef Baudrate2400
 		case BAUD_2400:
 		USART0.BAUD = 5555;
 		break;
+#endif
+#ifdef Baudrate4800
 		case BAUD_4800:
 		USART0.BAUD = 2778;
 		break;
+#endif
+#ifdef Baudrate9600
 		case BAUD_9600:
 		USART0.BAUD = 1389;
 		break;
+#endif
+#ifdef Baudrate14400
 		case BAUD_14400:
 		USART0.BAUD = 925;
 		break;
+#endif
+#ifdef Baudrate19200
 		case BAUD_19200:
 		USART0.BAUD = 694;
 		break;
+#endif
+#ifdef Baudrate28800
+		case BAUD_28800:
+		USART0.BAUD = 462;
+		break;
+#endif
+#ifdef Baudrate38400
+		case BAUD_38400:
+		USART0.BAUD = 347;
+		break;
+#endif
+#ifdef Baudrate57600
+		case BAUD_57600:
+		USART0.BAUD = 231;
+		break;
+#endif
+#ifdef Baudrate76800
+		case BAUD_76800:
+		USART0.BAUD = 173;
+		break;
+#endif
+#ifdef Baudrate115200
+		case BAUD_115200:
+		USART0.BAUD = 115;
+		break;
+#endif
 	}
 #endif
 
 #ifdef ATTINYx41
 	switch(baudRate){
+#ifdef Baudrate300
 		case BAUD_300:
-		UBRR0 = 0x1A00;
+		UBRR0 = 3328;
 		break;
+#endif
+#ifdef Baudrate600
 		case BAUD_600:
-		UBRR0 = 0x0D00;
+		UBRR0 = 1664;
 		break;
+#endif
+#ifdef Baudrate1200
 		case BAUD_1200:
-		UBRR0 = 0x0680;
+		UBRR0 = 832;
 		break;
+#endif
+#ifdef Baudrate2400
 		case BAUD_2400:
-		UBRR0 = 0x0340;
+		UBRR0 = 416;
 		break;
+#endif
+#ifdef Baudrate4800
 		case BAUD_4800:
-		UBRR0 = 0x01A0;
+		UBRR0 = 207;
 		break;
+#endif
+#ifdef Baudrate9600
 		case BAUD_9600:
-		UBRR0 = 0x00CF;
+		UBRR0 = 103;
 		break;
+#endif
+#ifdef Baudrate14400
 		case BAUD_14400:
-		UBRR0 = 0x008A;
+		UBRR0 = 68;
 		break;
+#endif
+#ifdef Baudrate19200
 		case BAUD_19200:
-		UBRR0 = 0x0067;
+		UBRR0 = 51;
 		break;
+#endif
+#ifdef Baudrate28800
+		case BAUD_28800:
+		UBRR0 = 34;
+		break;
+#endif
+#ifdef Baudrate38400
+		case BAUD_38400:
+		UBRR0 = 25;
+		break;
+#endif
+#ifdef Baudrate57600
+		case BAUD_57600:
+		UBRR0 = 16;
+		break;
+#endif
+#ifdef Baudrate76800
+		case BAUD_76800:
+		UBRR0 = 12;
+		break;
+#endif
+#ifdef Baudrate115200
+		case BAUD_115200:
+		UBRR0 = 8;
+		break;
+#endif
 	}
 #endif
 }
@@ -155,7 +237,7 @@ void com_init(void)
 
 #ifdef ATTINYx41
 	uint8_t rx_byte = UDR0;
-	UCSR0A = 0b00000010 ; // Double the USART Transmission Speed
+	UCSR0A = 0b00000000;
 	UCSR0C = 0b00000110;
 	UCSR0B = 0b11011000; // normal
 	rx_byte = UDR0;

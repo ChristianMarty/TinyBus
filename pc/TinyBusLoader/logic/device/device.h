@@ -25,10 +25,11 @@ public:
     /* Command 11 */ void requestApplicationStart(void);
     /* Command 12 */ void requestApplicationStop(void);
     /* Command 13 */ void requestApplicationName(void);
-    /* Command 14 */ void requestApplicationVerion(void);
+    /* Command 14 */ void requestApplicationHeader(void);
     /* Command 15 */ void setDeviceAddress(uint8_t devcieAddress);
     /* Command 32 */ void setBaudRate(TinyBus::BaudRate baudRate);
     /* Command 33 */ void saveBaudRate(void);
+    /* Command 34 */ void requestSupportedBaudRate(void);
 
     static QByteArray ping(TinyBus::Address address);
 
@@ -36,14 +37,14 @@ public:
     void startUpload(void);
     void setUpdatePending(void);
 
-
     struct KernelInformation {
         TinyBus::DeviceState deviceState;
         TinyBus::HardwareInformation hardwareInformation;
         TinyBus::MemoryInformation memoryInformation;
+        TinyBus::BaudRates supportedBaudRates = 0;
     };
 
-    void newData(QByteArray data);
+    void newData(const QByteArray &data);
 
     TinyBus::Address address() const;
     const KernelInformation &bootSystemInformation() const;
@@ -53,9 +54,8 @@ public:
 
     Update::State updateState() const;
 
-    const TinyBus::Version &firmwareVersion() const;
+    const TinyBus::ApplicationHeaderBase &applicationHeader() const;
     const QString &firmwareName() const;
-
 
     friend Update;
 
@@ -74,8 +74,8 @@ private:
 
     Update _update{*this};
 
-    TinyBus::Version _firmwareVersion;
-    QString _firmwareName;
+    TinyBus::ApplicationHeaderBase _applicationHeader;
+    QString _applicationName;
 };
 
 #endif // DEVICE_H

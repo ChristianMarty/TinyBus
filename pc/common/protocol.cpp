@@ -1,26 +1,11 @@
-#include "decode.h"
+#include "protocol.h"
 using namespace TinyBus;
 
 ApplicationHeader Decode::extractApplicationHeader(const QByteArray &data)
 {
     if(data.size() < 32) return ApplicationHeader();
 
-    ApplicationHeader applicationHeader;
-    applicationHeader.headerVersion = (bool)(data.at(0) & 0x03);
-    if(applicationHeader.headerVersion != 0) return ApplicationHeader();
-
-    applicationHeader.autostart = (bool)(data.at(0) & 0x80);
-
-    applicationHeader.firmwareVersion.major = data.at(2);
-    applicationHeader.firmwareVersion.minor = data.at(3);
-
-    uint16_t hardwareId = data.at(4);
-    hardwareId = (hardwareId<<8) & 0xFF00;
-    hardwareId |= data.at(5);
-    applicationHeader.hardwareId = hardwareId;
-
-    applicationHeader.hardwareVersion.major = data.at(6);
-    applicationHeader.hardwareVersion.minor = data.at(7);
+    ApplicationHeader applicationHeader = _extractApplicationHeaderBase(data);
 
     QString applicationName;
     for(uint8_t i = 0; i<18; i++){
@@ -28,7 +13,7 @@ ApplicationHeader Decode::extractApplicationHeader(const QByteArray &data)
         if(byte == 0)break;
         applicationName.append(byte);
     }
-    applicationHeader.applicationName =    applicationName;
+    applicationHeader.applicationName = applicationName;
 
     return applicationHeader;
 }
@@ -130,15 +115,58 @@ QString Decode::applicationName(const QByteArray &data)
     return QString(data);
 }
 
-Version Decode::applicationVerion(const QByteArray &data)
+ApplicationHeaderBase Decode::applicationHeader(const QByteArray &data)
 {
-    if(data.size() != 2) return Version();
+    if(data.size() == 2){ // for kernel version <= 2.2
+        Version version;
+        version.major = static_cast<uint8_t>(data.at(0));
+        version.minor = static_cast<uint8_t>(data.at(1));
 
-    Version version;
-    version.major = static_cast<uint8_t>(data.at(0));
-    version.minor = static_cast<uint8_t>(data.at(1));
+        ApplicationHeaderBase applicationHeaderBase;
+        applicationHeaderBase.firmwareVersion = version;
 
-    return version;
+        return applicationHeaderBase;
+
+    }else if(data.size() == 8){ // for kernel version >= 2.3
+
+        return _extractApplicationHeaderBase(data);
+
+    }else{
+        return ApplicationHeaderBase();
+    }
+}
+
+BaudRates Decode::supportedBaudRates(const QByteArray &data)
+{
+    if(data.size() != 2) return 0;
+
+    uint16_t output;
+    output = data.at(0);
+    output |= (uint16_t)data.at(1) << 8;
+    return output;
+}
+
+ApplicationHeaderBase Decode::_extractApplicationHeaderBase(const QByteArray &data)
+{
+    ApplicationHeaderBase applicationHeaderBase;
+
+    applicationHeaderBase.headerVersion = (bool)(data.at(0) & 0x03);
+    if(applicationHeaderBase.headerVersion != 0) return ApplicationHeader();
+
+    applicationHeaderBase.autostart = (bool)(data.at(0) & 0x80);
+
+    applicationHeaderBase.firmwareVersion.major = data.at(2);
+    applicationHeaderBase.firmwareVersion.minor = data.at(3);
+
+    uint16_t hardwareId = data.at(4);
+    hardwareId = (hardwareId<<8) & 0xFF00;
+    hardwareId |= data.at(5);
+    applicationHeaderBase.hardwareId = hardwareId;
+
+    applicationHeaderBase.hardwareVersion.major = data.at(6);
+    applicationHeaderBase.hardwareVersion.minor = data.at(7);
+
+    return applicationHeaderBase;
 }
 
 QByteArray Encode::requestDeviceState(Address address)
@@ -163,12 +191,12 @@ QByteArray Encode::requestApplicationCrc(Address address)
 
 QByteArray Encode::requestApplicationName(Address address)
 {
-    return _encodeCommand(address, TinyBus::KernelCommand::GetAppName);
+    return _encodeCommand(address, TinyBus::KernelCommand::GetApplicationName);
 }
 
-QByteArray Encode::requestApplicationVerion(Address address)
+QByteArray Encode::requestApplicationHeader(Address address)
 {
-    return _encodeCommand(address, TinyBus::KernelCommand::GetAppVersion);
+    return _encodeCommand(address, TinyBus::KernelCommand::GetApplicationHeader);
 }
 
 QByteArray Encode::requestReboot(Address address)
@@ -199,12 +227,17 @@ QByteArray Encode::setBaudRate(Address address, BaudRate baudRate)
 {
     QByteArray data;
     data.append((uint8_t)baudRate);
-    return _encodeCommand(address, TinyBus::KernelCommand::Reboot, data);
+    return _encodeCommand(address, TinyBus::KernelCommand::SetBaudRate, data);
 }
 
 QByteArray Encode::saveBaudRate(Address address)
 {
     return _encodeCommand(address, TinyBus::KernelCommand::SaveBaudRate);
+}
+
+QByteArray Encode::requestSupportedBaudRate(Address address)
+{
+    return _encodeCommand(address, TinyBus::KernelCommand::GetSupportedBaudRates);
 }
 
 QByteArray Encode::requestRamData(Address address, uint16_t offset, uint8_t size)
@@ -236,7 +269,7 @@ QByteArray Encode::writeEepromData(Address address, uint16_t offset, const QByte
 
 QByteArray Encode::requestEraseApp(Address address)
 {
-    return _encodeCommand(address, TinyBus::KernelCommand::EraseApp);
+    return _encodeCommand(address, TinyBus::KernelCommand::EraseApplication);
 }
 
 QByteArray Encode::writeAppPage(Address address, uint16_t dataAddress, const QByteArray &appData)
@@ -252,7 +285,7 @@ QByteArray Encode::writeAppPage(Address address, uint16_t dataAddress, const QBy
         }
     }
 
-    return _encodeCommand(address, TinyBus::KernelCommand::WriteAppPage, data);
+    return _encodeCommand(address, TinyBus::KernelCommand::WriteApplicationPage, data);
 }
 
 QByteArray Encode::_encodeCommand(Address address, KernelCommand kernelCommand, const QByteArray &data)
@@ -264,3 +297,4 @@ QByteArray Encode::_encodeCommand(Address address, KernelCommand kernelCommand, 
     tx.append(data);
     return tx;
 }
+

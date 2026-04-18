@@ -435,12 +435,12 @@
         <tr>
             <th>6</th>
             <td style="border: none;"></td>
-            <td colspan="8">Major Hardware Version</td>
+            <td colspan="8">Major Hardware Revision</td>
         </tr>
         <tr>
             <th>7</th>
             <td style="border: none;"></td>
-            <td colspan="8">Minor Hardware Version</td>
+            <td colspan="8">Minor Hardware Revision</td>
         </tr>
         <tr>
             <th>8-13</th>
@@ -457,15 +457,6 @@
     <p></p>
     <h4>Autostart</h4>
     <p>If this bit is set, the application starts automatically on power-up</p>
-
-    <h4>Minor Version</h4>
-    <p></p>
-
-    <h4>Major Version</h4>
-    <p></p>
-
-    <h4>Application Name</h4>
-    <p></p>
 
 </document-page>
 
@@ -580,9 +571,9 @@
         </tr>
         <tr>
             <td>14</td>
-            <td>Get Application Version</td>
+            <td>Get Application Header</td>
             <td>Empty</td>
-            <td>Application Version</td>
+            <td>Application Header without Name</td>
         </tr>
         <tr>
             <td>15</td>
@@ -604,6 +595,12 @@
             <td>Save Baud Rate</td>
             <td>Empty</td>
             <td>Acknowledgment</td>
+        </tr>
+		<tr>
+            <td>34</td>
+            <td>Get Supported Baud Rates</td>
+            <td>Empty</td>
+            <td>Supported Baud Rates</td>
         </tr>
     </table>
 </document-page>
@@ -1217,7 +1214,7 @@
         </tr>
     </table>
 
-    <h3>Command 0x0E - Get Application Version</h3>
+    <h3>Command 0x0E - Get Application Header</h3>
     <table class='protocol'>
         <tr class='protocol'>
             <th class='protocol'>Payload</th>
@@ -1232,21 +1229,10 @@
             <td class='protocol'>If the command exicution fails, a non-acknowledgment will be replied.</td>
         </tr>
     </table>
-    <p>In case of a valid CRC, this command will return the application version. Otherwise, a non-acknowledgment is returned.</p>
+    <p>In case of a valid CRC, this command will return bytes 0-7 of the application header. Otherwise, a non-acknowledgment is returned.</p>
 
     <p><b>Reply</b></p>
-    <table>
-        <tr>
-            <th class='command_header'>Byte</th>
-            <th>0</th>
-            <th>1</th>
-        </tr>
-        <tr>
-            <th>Data</th>
-            <td>Major Firmware Revision</td>
-            <td>Minor Firmware Revision</td>
-        </tr>
-    </table>
+	<p>See "Application Header"</p>
 
     <h3>Command 0x0F - Set Address</h3>
     <table class='protocol'>
@@ -1288,7 +1274,7 @@
         </tr>
     </table>
     <p>This command changes the current baud rate to the new baud rate.</p>
-    <p><strong>Note:</strong> The baud rate change is not saved to non-volatile memory directly. To save the baud rate change use the "Save Baud Rate" command.</p>
+    <p><strong>Note:</strong> The baud rate change is not saved to non-volatile memory directly. To save the baud rate change, use the "Save Baud Rate" command.</p>
 
     <table>
         <tr>
@@ -1314,29 +1300,57 @@
             <td>0</td>
             <td>300</td>
             <td style="border: none;"></td>
-            <td>4</td>
-            <td>4800</td>
+            <td>8</td>
+            <td>28800</td>
         </tr>
         <tr>
             <td>1</td>
             <td>600</td>
             <td style="border: none;"></td>
-            <td>5</td>
-            <td>9600</td>
+            <td>9</td>
+            <td>38400</td>
         </tr>
         <tr>
             <td>2</td>
             <td>1200</td>
             <td style="border: none;"></td>
-            <td>6</td>
-            <td>14400</td>
+            <td>10</td>
+            <td>57600</td>
         </tr>
         <tr>
             <td>3</td>
             <td>2400</td>
             <td style="border: none;"></td>
+            <td>11</td>
+            <td>76800</td>
+        </tr>
+		<tr>
+            <td>4</td>
+            <td>4800</td>
+            <td style="border: none;"></td>
+            <td>12</td>
+            <td>115200</td>
+        </tr>
+		<tr>
+            <td>5</td>
+            <td>9600</td>
+			<td style="border: none;"></td>
+            <td>13</td>
+            <td>-</td>
+        </tr>
+		<tr>
+            <td>6</td>
+            <td>14400</td>
+			<td style="border: none;"></td>
+            <td>14</td>
+            <td>-</td>
+        </tr>
+		<tr>
             <td>7</td>
             <td>19200</td>
+			<td style="border: none;"></td>
+            <td>15</td>
+            <td>-</td>
         </tr>
     </table>
 
@@ -1358,6 +1372,52 @@
         </tr>
     </table>
    <p>This command will save the current baud rate to non-volatile memory.</p>
+   
+   <h3>Command 0x22 - Get Supported Baud Rates</h3>
+    <table class='protocol'>
+        <tr class='protocol'>
+            <th class='protocol'>Payload</th>
+            <td class='protocol'>Empty</td>
+        </tr>
+        <tr class='protocol'>
+            <th class='protocol'>Reply</th>
+            <td class='protocol'>Supported Baud Rates</td>
+        </tr>
+        <tr class='protocol'>
+            <th class='protocol'>Error Handling</th>
+            <td class='protocol'>If the command exicution fails, a non-acknowledgment will be replied.</td>
+        </tr>
+    </table>
+   <p>This command returns a list of supported baud rates as bit-field. For each supported baud-rate the corresponding bit is set to 1.</p>
+   
+   <table>
+        <tr>
+            <th class='command_header'>Byte</th>
+            <th colspan="8">0</th>
+			<th colspan="8">1</th>
+        </tr>
+        <tr>
+            <th>Data</th>
+            <td style="writing-mode: sideways-lr;">300</td>
+			<td style="writing-mode: sideways-lr;">600</td>
+			<td style="writing-mode: sideways-lr;">1200</td>
+			<td style="writing-mode: sideways-lr;">2400</td>
+			<td style="writing-mode: sideways-lr;">4800</td>
+			<td style="writing-mode: sideways-lr;">9600</td>
+			<td style="writing-mode: sideways-lr;">14400</td>
+			<td style="writing-mode: sideways-lr;">19200</td>
+			<td style="writing-mode: sideways-lr;">28800</td>
+			<td style="writing-mode: sideways-lr;">38400</td>
+			<td style="writing-mode: sideways-lr;">57600</td>
+			<td style="writing-mode: sideways-lr;">76800</td>
+			<td style="writing-mode: sideways-lr;">115200</td>
+			<td style="writing-mode: sideways-lr;">-</td>
+			<td style="writing-mode: sideways-lr;">-</td>
+			<td style="writing-mode: sideways-lr;">-</td>
+        </tr>
+    </table>
+	
+   
 </document-page>
 
 <document-page>
