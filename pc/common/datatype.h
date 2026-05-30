@@ -27,6 +27,7 @@ typedef uint8_t Address;
 typedef uint8_t Command;
 typedef uint8_t InstructionByte;
 typedef uint16_t BaudRates;
+typedef QByteArray Message;
 
 enum class BaudRate:uint8_t {
     BAUD_300,
@@ -82,7 +83,9 @@ enum class KernelCommand:uint8_t {
 
     SetBaudRate = 32,
     SaveBaudRate = 33,
-    GetSupportedBaudRates = 34
+    GetSupportedBaudRates = 34,
+
+    Error = 255
 };
 
 enum class DeviceCommand:uint8_t {

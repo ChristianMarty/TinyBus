@@ -1,6 +1,7 @@
 #include "protocol.h"
 using namespace TinyBus;
 
+
 ApplicationHeader Decode::extractApplicationHeader(const QByteArray &data)
 {
     if(data.size() < 32) return ApplicationHeader();
@@ -16,6 +17,20 @@ ApplicationHeader Decode::extractApplicationHeader(const QByteArray &data)
     applicationHeader.applicationName = applicationName;
 
     return applicationHeader;
+}
+
+KernelCommand Decode::extractKernelCommand(const QByteArray &data)
+{
+    if(data.size()<2) return KernelCommand::Error;
+
+    return (KernelCommand)((uint8_t)data[1] & 0x7F);
+}
+
+InstructionByte Decode::extractInstructionByte(const QByteArray &data)
+{
+    if(data.isEmpty()) return 0;
+
+    return data[0];
 }
 
 Address Decode::extractAddress(InstructionByte instructionByte)

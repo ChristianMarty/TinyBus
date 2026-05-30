@@ -11,8 +11,10 @@ class Decode
 public:
     static ApplicationHeader extractApplicationHeader(const QByteArray &data);
 
+    static InstructionByte extractInstructionByte(const QByteArray &data);
     static Address extractAddress(InstructionByte instructionByte);
     static Command extractCommand(InstructionByte instructionByte);
+    static KernelCommand extractKernelCommand(const QByteArray &data);
 
     static DeviceState deviceState(const QByteArray &data);
     static HardwareInformation hardwareInformation(const QByteArray &data);
@@ -25,7 +27,6 @@ public:
 private:
     static ApplicationHeaderBase _extractApplicationHeaderBase(const QByteArray &data);
 };
-
 
 class Encode
 {
@@ -55,7 +56,6 @@ public:
 private:
     static QByteArray _encodeCommand(Address address, KernelCommand kernelCommand, const QByteArray &data = QByteArray());
 };
-
 
 };
 #endif // PROTOCOL_H
