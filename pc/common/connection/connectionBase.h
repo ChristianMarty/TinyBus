@@ -1,5 +1,5 @@
-#ifndef CONNECTIONBASE_H
-#define CONNECTIONBASE_H
+#ifndef CONNECTION_BASE_H
+#define CONNECTION_BASE_H
 
 #include <QObject>
 #include "../QuCLib/source/cobs.h"
@@ -10,11 +10,21 @@ class ConnectionBase : public QObject
 public:
     explicit ConnectionBase(QObject *parent = nullptr);
 
+    enum Type {
+        Undefined,
+        SerialPort,
+        TCP
+    };
+
+    static Type typeFromUrl(QString url);
+
     virtual void open(QString url) {Q_UNUSED(url);};
     virtual void close(void) {};
     virtual bool connected(void) {return false;};
 
     virtual void sendData(QByteArray data) {Q_UNUSED(data);};
+
+    virtual uint16_t suggestedTimeOut(void) const {return 500;};
 
 signals:
     void newData(QByteArray data);
@@ -29,4 +39,4 @@ protected:
     QuCLib::Cobs _cobs{0x55};
 };
 
-#endif // CONNECTIONBASE_H
+#endif // CONNECTION_BASE_H

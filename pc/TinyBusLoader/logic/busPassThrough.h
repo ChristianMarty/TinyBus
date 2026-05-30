@@ -6,7 +6,7 @@
 #include <QTcpSocket>
 #include <QScopedPointer>
 
-#include "logic/connection/connection.h"
+#include "connection/connection.h"
 #include "../QuCLib/source/cobs.h"
 
 class TcpConnection;

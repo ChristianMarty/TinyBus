@@ -19,7 +19,7 @@ EepromMemoryWidget::~EepromMemoryWidget()
 void EepromMemoryWidget::setDevice(Device *device)
 {
     if(_device != nullptr){
-        disconnect(_device, &Device::eepromDataChanged, this, &EepromMemoryWidget::on_eepromDataChanged);
+        //disconnect(_device, &Device::eepromDataChanged, this, &EepromMemoryWidget::on_eepromDataChanged);
     }
 
     _device = device;

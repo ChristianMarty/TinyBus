@@ -6,9 +6,6 @@
 
 #include "colorPalette.h"
 
-#include "logic/connection/connectionTcp.h"
-#include "logic/connection/connectionSerial.h"
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -21,6 +18,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&_tinyBus, &TinyBusInterface::newMessage, this, &MainWindow::on_message);
 
     connect(&_busPassThrough, &BusPassThrough::stateChanged, this, &MainWindow::on_passthroughStateChanged);
+
+    connect(&_connection, &Connection::rxIndicator, this, &MainWindow::on_rxIndicator);
+    connect(&_connection, &Connection::txIndicator, this, &MainWindow::on_txIndicator);
+    connect(&_connection, &Connection::connectionStateChanged, this, &MainWindow::on_connectionStateChanged);
 
     ui->label_rx->setPalette(ColorPalette::status());
     ui->label_tx->setPalette(ColorPalette::status());
@@ -118,19 +119,14 @@ void MainWindow::on_message(QString message)
 
 void MainWindow::on_pushButton_connect_clicked()
 {
-    if(_connection == nullptr){
-        Connection::Type type =  Connection::typeFromUrl(ui->lineEdit_url->text());
-        if(type == Connection::Type::TCP) _connection = new ConnectionTcp();
-        else if(type == Connection::Type::SerialPort) _connection = new ConnectionSerial();
+    _connection.open(ui->lineEdit_url->text());
+    _updateConnectionState();
+}
 
-        connect(_connection, &Connection::connectionStateChanged, this, &MainWindow::on_connectionStateChanged);
-        connect(_connection, &Connection::rx, this, &MainWindow::on_dataRx);
-        connect(_connection, &Connection::tx, this, &MainWindow::on_dataTx);
-
-        _tinyBus.setConnection(_connection);
-        _busPassThrough.setConnection(_connection);
-    }
-    _connection->open(ui->lineEdit_url->text());
+void MainWindow::on_pushButton_disconnect_clicked()
+{
+    _tinyBus.abortScan();
+    _connection.close();
 
     _updateConnectionState();
 }
@@ -138,21 +134,6 @@ void MainWindow::on_pushButton_connect_clicked()
 void MainWindow::on_lineEdit_url_returnPressed()
 {
     on_pushButton_connect_clicked();
-}
-
-void MainWindow::on_pushButton_disconnect_clicked()
-{
-    _tinyBus.abortScan();
-
-    disconnect(_connection, &Connection::connectionStateChanged, this, &MainWindow::on_connectionStateChanged);
-    disconnect(_connection, &Connection::rx, this, &MainWindow::on_dataRx);
-    disconnect(_connection, &Connection::tx, this, &MainWindow::on_dataTx);
-    delete _connection;
-    _connection = nullptr;
-    _tinyBus.setConnection(_connection);
-    _busPassThrough.setConnection(_connection);
-
-    _updateConnectionState();
 }
 
 void MainWindow::_update()
@@ -179,14 +160,7 @@ void MainWindow::_update()
 
 void MainWindow::_updateConnectionState()
 {
-    bool isConnected;
-    if(_connection == nullptr){
-        isConnected = false;
-    }else{
-        isConnected = _connection->connected();
-    }
-
-    if(isConnected){
+    if(_connection.connected()){
         ui->label_connected->setText("Connected");
         ui->label_connected->setPalette(ColorPalette::ok());
 
@@ -233,7 +207,7 @@ void MainWindow::on_pushButton_startScan_clicked()
 {
     ui->listWidget_devices->clear();
     selectDevice(nullptr);
-    _tinyBus.startScan(_connection->suggestedTimeOut());
+    _tinyBus.startScan(_connection.suggestedTimeOut());
 
     ui->pushButton_startScan->setEnabled(!_tinyBus.activeScan());
     ui->pushButton_abortScan->setEnabled(_tinyBus.activeScan());
@@ -280,28 +254,6 @@ void MainWindow::on_connectionStateChanged()
     _updateConnectionState();
 }
 
-void MainWindow::on_dataRx()
-{
-    ui->label_rx->setEnabled(true);
-    QTimer::singleShot(100, this, &MainWindow::on_dataRxTimer);
-}
-
-void MainWindow::on_dataTx()
-{
-    ui->label_tx->setEnabled(true);
-    QTimer::singleShot(100, this, &MainWindow::on_dataTxTimer);
-}
-
-void MainWindow::on_dataRxTimer()
-{
-    ui->label_rx->setEnabled(false);
-}
-
-void MainWindow::on_dataTxTimer()
-{
-    ui->label_tx->setEnabled(false);
-}
-
 void MainWindow::on_pushButton_passthroughOpen_clicked()
 {
     _busPassThrough.open(ui->spinBox_passthroughPort->value());
@@ -323,3 +275,12 @@ void MainWindow::on_pushButton_view_clicked()
     _flashMemoryWidget.raise();
 }
 
+void MainWindow::on_txIndicator(bool state)
+{
+    ui->label_tx->setEnabled(state);
+}
+
+void MainWindow::on_rxIndicator(bool state)
+{
+    ui->label_rx->setEnabled(state);
+}

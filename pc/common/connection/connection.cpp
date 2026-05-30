@@ -58,13 +58,20 @@ void Connection::sendData(const QByteArray &data)
     _pendingLoopback = data;
 }
 
+uint16_t Connection::suggestedTimeOut() const
+{
+    if(_connection == nullptr) return 0;
+    return _connection->suggestedTimeOut();
+}
+
 void Connection::on_rxData(QByteArray data)
 {
     if(!_pendingLoopback.isEmpty()){
-        if(data == _pendingLoopback){
-            _pendingLoopback.clear();
-            return;
+        if(data != _pendingLoopback){
+            emit newMessage("Loopback Error");
         }
+        _pendingLoopback.clear();
+        return;
     }
     emit newData(data);
 }

@@ -18,6 +18,8 @@ public:
 
     void sendData(QByteArray data) override;
 
+    uint16_t suggestedTimeOut(void) const override;
+
 private slots:
     void on_readyRead(void);
     void on_errorOccurred(QSerialPort::SerialPortError error);
@@ -25,6 +27,7 @@ private slots:
 private:
     QSerialPort _serialPort;
     bool _isConnected = false;
+    uint32_t _baudRate;
 };
 
 #endif // CONNECTIONSERIAL_H

@@ -16,10 +16,11 @@ SOURCES += \
     ../QuCLib/source/crc.cpp \
     ../QuCLib/source/hexFileParser.cpp \
     ../common/protocol.cpp \
+    ../common/connection/connection.cpp \
+    ../common/connection/connectionBase.cpp \
+    ../common/connection/connectionSerial.cpp \
+    ../common/connection/connectionTcp.cpp \
     logic/busPassThrough.cpp \
-    logic/connection/connection.cpp \
-    logic/connection/connectionSerial.cpp \
-    logic/connection/connectionTcp.cpp \
     logic/device/update.cpp \
     logic/tinyBus.cpp \
     logic/device/device.cpp \
@@ -36,12 +37,13 @@ HEADERS += \
     ../QuCLib/source/cobs.h \
     ../QuCLib/source/crc.h \
     ../QuCLib/source/hexFileParser.h \
-    ../common/protocol.h \
-    logic/busPassThrough.h \
-    logic/connection/connection.h \
-    logic/connection/connectionSerial.h \
-    logic/connection/connectionTcp.h \
     ../common/datatype.h \
+    ../common/protocol.h \
+    ../common/connection/connection.h \
+    ../common/connection/connectionBase.h \
+    ../common/connection/connectionSerial.h \
+    ../common/connection/connectionTcp.h \
+    logic/busPassThrough.h \
     logic/device/update.h \
     logic/tinyBus.h \
     logic/device/device.h \

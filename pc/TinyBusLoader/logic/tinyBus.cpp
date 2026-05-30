@@ -2,19 +2,19 @@
 #include "protocol.h"
 #include "../QuCLib/source/crc.h"
 
-TinyBusInterface::TinyBusInterface(Connection *connection, QObject *parent)
+TinyBusInterface::TinyBusInterface(Connection &connection, QObject *parent)
     : QObject{parent}
+    ,_connection{connection}
 {
-    _connection = connection;
     connect(&_busScanTimer, &QTimer::timeout, this, &TinyBusInterface::on_busScanTimer);
+    connect(&_connection, &Connection::newData, this, &TinyBusInterface::on_newData);
+    connect(&_connection, &Connection::newMessage, this, &TinyBusInterface::on_newMessage);
 }
 
 void TinyBusInterface::write(QByteArray data)
 {
-    if(_connection == nullptr) return;
-
     emit newMessage("TX: "+data.toHex().toUpper().prepend("0x"));
-    _connection->sendData(data);
+    _connection.sendData(data);
 }
 
 void TinyBusInterface::startUpdate()
@@ -172,21 +172,6 @@ void TinyBusInterface::on_busScanTimer()
     emit newMessage("---- Pinging address "+QString::number(_busScanDevcieAddress)+" ----");
     write(Device::ping(_busScanDevcieAddress));
     _busScanDevcieAddress++;
-}
-
-void TinyBusInterface::setConnection(Connection *newConnection)
-{
-    if(_connection != nullptr){
-        //disconnect(_connection, &Connection::newData, this, &TinyBus::on_newData);
-        //disconnect(_connection, &Connection::newMessage, this, &TinyBus::on_newMessage);
-    }
-
-    _connection = newConnection;
-
-    if(_connection != nullptr){
-        connect(_connection, &Connection::newData, this, &TinyBusInterface::on_newData);
-        connect(_connection, &Connection::newMessage, this, &TinyBusInterface::on_newMessage);
-    }
 }
 
 QuCLib::HexFileParser TinyBusInterface::hexFile() const

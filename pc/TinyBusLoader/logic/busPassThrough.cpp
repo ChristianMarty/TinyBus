@@ -54,9 +54,9 @@ void BusPassThrough::setConnection(Connection *newConnection)
         tcpSocket->setConnection(_connection);
     }
 
-   /* if(_connection != nullptr){
+    if(_connection != nullptr){
         connect(_connection, &Connection::newData, this, &BusPassThrough::on_newData);
-    }*/
+    }
 }
 
 bool BusPassThrough::isOpen() const
@@ -77,6 +77,10 @@ void BusPassThrough::on_newData(QByteArray data)
 {
     if(_connection == nullptr) return;
     if(_tcpServer.isNull()) return;
+
+    for(TcpConnection *connection: _tcpConnections){
+        connection->write(data);
+    }
 }
 
 void BusPassThrough::on_pendingConnectionAvailable()
@@ -113,18 +117,17 @@ void TcpConnection::setConnection(Connection *newConnection)
 
 void TcpConnection::write(QByteArray data)
 {
+    if(_connection == nullptr) return;
 
+    _socket->write(_cobs.encode(data));
 }
 
 void TcpConnection::on_readyRead()
 {
-
     if(_connection == nullptr) return;
 
     QByteArrayList data = _cobs.streamDecode(_socket->readAll());
-
-    for(const QByteArray &message : data){
+    for(const QByteArray &message: data){
         _connection->sendData(message);
     }
-
 }

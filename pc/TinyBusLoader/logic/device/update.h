@@ -9,7 +9,6 @@ class Update
 public:
     explicit Update(Device &device);
 
-
     struct State {
         uint8_t progress;
         enum {

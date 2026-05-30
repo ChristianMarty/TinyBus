@@ -23,6 +23,7 @@ public:
     ConnectionBase* connection(void);
 
     void sendData(const QByteArray &data);
+    uint16_t suggestedTimeOut(void) const;
 
     static Type typeFromUrl(QString url);
 

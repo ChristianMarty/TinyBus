@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QMap>
 
-#include "logic/connection/connection.h"
+#include "connection/connection.h"
 #include "logic/device/device.h"
 #include "logic/tinyBus.h"
 #include "logic/busPassThrough.h"
@@ -45,10 +45,8 @@ private slots:
     void on_pushButton_reload_clicked();
 
     void on_connectionStateChanged(void);
-    void on_dataRx(void);
-    void on_dataTx(void);
-    void on_dataRxTimer(void);
-    void on_dataTxTimer(void);
+    void on_txIndicator(bool state);
+    void on_rxIndicator(bool state);
 
     void on_pushButton_passthroughOpen_clicked();
     void on_pushButton_passthroughClose_clicked();
@@ -60,9 +58,9 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    Connection* _connection = nullptr;
+    Connection _connection{this};
+    TinyBusInterface _tinyBus{_connection, this};
     BusPassThrough _busPassThrough;
-    TinyBusInterface _tinyBus = TinyBusInterface();
     Device *_selectedDevice = nullptr;
 
     FlashMemoryWidget _flashMemoryWidget;
