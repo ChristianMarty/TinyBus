@@ -66,6 +66,7 @@ void TinyBusInterface::on_newData(QByteArray data)
         Device *device = new Device(address, this);
         _devices.insert(address, device);
         connect(device, &Device::changed, this, &TinyBusInterface::on_deviceChanged);
+        connect(device, &Device::newMessage, this, &TinyBusInterface::on_newDeviceMessage);
         emit deviceListChanged();
     }
     _devices[address]->newData(data);
@@ -158,6 +159,11 @@ void TinyBusInterface::on_deviceChanged(Device *device)
 void TinyBusInterface::on_newMessage(QString message)
 {
     emit newMessage("Connection: "+message);
+}
+
+void TinyBusInterface::on_newDeviceMessage(QString message)
+{
+    emit newMessage(message);
 }
 
 void TinyBusInterface::on_busScanTimer()

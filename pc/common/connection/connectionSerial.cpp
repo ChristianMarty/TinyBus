@@ -5,7 +5,7 @@ ConnectionSerial::ConnectionSerial(QObject *parent)
     : ConnectionBase{parent}
 {
     connect(&_serialPort, &QSerialPort::readyRead, this, &ConnectionSerial::on_readyRead);
-    connect(&_serialPort, &QSerialPort::errorOccurred, this, &ConnectionSerial::on_errorOccurred);
+    connect(&_serialPort, &QSerialPort::errorOccurred, this, &ConnectionSerial::on_stateChangeOccurred);
 }
 
 ConnectionSerial::~ConnectionSerial()
@@ -60,8 +60,6 @@ void ConnectionSerial::sendData(QByteArray data)
     QByteArray encodedData = _cobs.encode(data);
     encodedData.prepend((uint8_t)_cobs.delimiter());
 
-    emit tx();
-
     if(_serialPort.bytesToWrite()) return;
 
     _serialPort.write(encodedData);
@@ -89,12 +87,11 @@ void ConnectionSerial::on_readyRead()
             newMessage("CRC Error");
             return;
         }
-        emit rx();
         emit newData(message.mid(0,message.length()-2));
     }
 }
 
-void ConnectionSerial::on_errorOccurred(QSerialPort::SerialPortError error)
+void ConnectionSerial::on_stateChangeOccurred(QSerialPort::SerialPortError error)
 {
     switch(error){
         case QSerialPort::NoError: emit newMessage("No error occurred."); break;

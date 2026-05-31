@@ -16,8 +16,6 @@ public:
         TCP
     };
 
-    static Type typeFromUrl(QString url);
-
     virtual void open(QString url) {Q_UNUSED(url);};
     virtual void close(void) {};
     virtual bool connected(void) {return false;};
@@ -31,9 +29,6 @@ signals:
     void newMessage(QString message);
 
     void connectionStateChanged(void);
-
-    void rx(void);
-    void tx(void);
 
 protected:
     QuCLib::Cobs _cobs{0x55};

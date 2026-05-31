@@ -26,6 +26,12 @@ KernelCommand Decode::extractKernelCommand(const QByteArray &data)
     return (KernelCommand)((uint8_t)data[1] & 0x7F);
 }
 
+bool Decode::extractKernelResponse(const QByteArray &data)
+{
+    if(data.size()<2) return false;
+    return (bool)((uint8_t)data[1] & 0x81);
+}
+
 InstructionByte Decode::extractInstructionByte(const QByteArray &data)
 {
     if(data.isEmpty()) return 0;

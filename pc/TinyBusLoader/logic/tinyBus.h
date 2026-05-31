@@ -47,6 +47,7 @@ signals:
 private slots:
     void on_deviceChanged(Device* device);
     void on_newMessage(QString message);
+    void on_newDeviceMessage(QString message);
     void on_newData(QByteArray data);
     void on_busScanTimer(void);
 

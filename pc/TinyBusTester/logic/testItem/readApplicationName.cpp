@@ -22,6 +22,10 @@ void ReadApplicationName::dataReceived(TinyBus::KernelCommand kernelCommand, con
     }
 
     QString name = TinyBus::Decode::applicationName(data);
+    if(_test->referenceData().applicationName != name){
+        _completed(Result::Fail);
+        return;
+    }
 
     _completed(Result::Pass);
 }

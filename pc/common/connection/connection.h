@@ -28,22 +28,17 @@ public:
     static Type typeFromUrl(QString url);
 
 signals:
-
-    void txIndicator(bool state);
-    void rxIndicator(bool state);
-
     void newData(QByteArray data);
     void newMessage(QString message);
     void connectionStateChanged(void);
 
-private slots:
+    void txIndicator(bool state);
+    void rxIndicator(bool state);
 
+private slots:
     void on_rxData(QByteArray data);
     void on_newMessage(QString message);
     void on_connectionStateChanged(void);
-
-    void on_tx(void);
-    void on_rx(void);
 
     void on_txIndicatorTimer(void);
     void on_rxIndicatorTimer(void);

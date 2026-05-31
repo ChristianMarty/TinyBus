@@ -24,13 +24,13 @@ void Connection::open(QString url)
     connect(_connection, &ConnectionBase::newData, this, &Connection::on_rxData);
     connect(_connection, &ConnectionBase::newMessage, this, &Connection::on_newMessage);
     connect(_connection, &ConnectionBase::connectionStateChanged, this, &Connection::on_connectionStateChanged);
-    connect(_connection, &ConnectionBase::rx, this, &Connection::on_rx);
-    connect(_connection, &ConnectionBase::tx, this, &Connection::on_tx);
 }
 
 void Connection::close()
 {
-    if(_connection == nullptr) return;
+    if(_connection == nullptr){
+        return;
+    }
 
     _connection->close();
     _connection->deleteLater();
@@ -52,10 +52,16 @@ ConnectionBase *Connection::connection()
 
 void Connection::sendData(const QByteArray &data)
 {
-    if(_connection == nullptr) return;
+    if(_connection == nullptr){
+        emit newMessage("Connection is closed");
+        return;
+    }
 
     _connection->sendData(data);
     _pendingLoopback = data;
+
+    emit txIndicator(true);
+    QTimer::singleShot(100, this, &Connection::on_txIndicatorTimer);
 }
 
 uint16_t Connection::suggestedTimeOut() const
@@ -73,6 +79,10 @@ void Connection::on_rxData(QByteArray data)
         _pendingLoopback.clear();
         return;
     }
+
+    emit rxIndicator(true);
+    QTimer::singleShot(100, this, &Connection::on_rxIndicatorTimer);
+
     emit newData(data);
 }
 
@@ -96,18 +106,6 @@ Connection::Type Connection::typeFromUrl(QString url)
 void Connection::on_connectionStateChanged(void)
 {
     emit connectionStateChanged();
-}
-
-void Connection::on_tx()
-{
-    emit txIndicator(false);
-    QTimer::singleShot(100, this, &Connection::on_txIndicatorTimer);
-}
-
-void Connection::on_rx()
-{
-    emit rxIndicator(false);
-    QTimer::singleShot(100, this, &Connection::on_rxIndicatorTimer);
 }
 
 void Connection::on_txIndicatorTimer()

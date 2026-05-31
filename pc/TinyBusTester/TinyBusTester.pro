@@ -23,6 +23,7 @@ SOURCES += \
     logic/test.cpp \
     logic/testItem/readApplicationName.cpp \
     logic/testItem/readApplicationVersion.cpp \
+    logic/testItem/readState.cpp \
     logic/testItem/testItemBase.cpp \
     main.cpp \
     ui/mainWindow.cpp \
@@ -39,9 +40,11 @@ HEADERS += \
     ../common/connection/connectionSerial.h \
     ../common/connection/connectionTcp.h \
     logic/device/datatype.h \
+    logic/referenceData.h \
     logic/test.h \
     logic/testItem/readApplicationName.h \
     logic/testItem/readApplicationVersion.h \
+    logic/testItem/readState.h \
     logic/testItem/testItemBase.h \
     ui/colorPalette.h \
     ui/mainWindow.h \

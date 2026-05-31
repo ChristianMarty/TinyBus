@@ -15,6 +15,7 @@ public:
     static Address extractAddress(InstructionByte instructionByte);
     static Command extractCommand(InstructionByte instructionByte);
     static KernelCommand extractKernelCommand(const QByteArray &data);
+    static bool extractKernelResponse(const QByteArray &data);
 
     static DeviceState deviceState(const QByteArray &data);
     static HardwareInformation hardwareInformation(const QByteArray &data);

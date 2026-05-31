@@ -2,15 +2,18 @@
 
 #include "testItem/readApplicationName.h"
 #include "testItem/readApplicationVersion.h"
+#include "testItem/readState.h"
 #include "connection/connection.h"
 #include "protocol.h"
 
-Test::Test(Connection &connection, QObject *parent)
+Test::Test(Connection &connection, const ReferenceData &referenceData, QObject *parent)
     : QObject{parent}
     ,_connection{connection}
+    ,_referenceData{referenceData}
 {
     _tests.append(new ReadApplicationName(this));
     _tests.append(new ReadApplicationVersion(this));
+    _tests.append(new ReadState(this));
 }
 
 QList<TestItemBase *> Test::tests() const
@@ -75,4 +78,9 @@ uint8_t Test::address() const
 void Test::on_completed()
 {
     runNext();
+}
+
+const ReferenceData &Test::referenceData() const
+{
+    return _referenceData;
 }

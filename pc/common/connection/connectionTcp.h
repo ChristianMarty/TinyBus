@@ -1,5 +1,5 @@
-#ifndef CONNECTIONTCP_H
-#define CONNECTIONTCP_H
+#ifndef CONNECTION_TCP_H
+#define CONNECTION_TCP_H
 
 #include "connectionBase.h"
 #include <QTcpSocket>
@@ -26,4 +26,4 @@ private:
     QTcpSocket _tcpClient;
 };
 
-#endif // CONNECTIONTCP_H
+#endif // CONNECTION_TCP_H

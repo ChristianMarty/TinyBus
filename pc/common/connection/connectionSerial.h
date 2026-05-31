@@ -1,5 +1,5 @@
-#ifndef CONNECTIONSERIAL_H
-#define CONNECTIONSERIAL_H
+#ifndef CONNECTION_SERIAL_H
+#define CONNECTION_SERIAL_H
 
 #include "connectionBase.h"
 #include <QtSerialPort>
@@ -22,7 +22,7 @@ public:
 
 private slots:
     void on_readyRead(void);
-    void on_errorOccurred(QSerialPort::SerialPortError error);
+    void on_stateChangeOccurred(QSerialPort::SerialPortError error);
 
 private:
     QSerialPort _serialPort;
@@ -30,4 +30,4 @@ private:
     uint32_t _baudRate;
 };
 
-#endif // CONNECTIONSERIAL_H
+#endif // CONNECTION_SERIAL_H

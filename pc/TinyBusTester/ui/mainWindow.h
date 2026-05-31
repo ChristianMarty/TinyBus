@@ -7,6 +7,8 @@
 #include "connection/connection.h"
 #include "logic/test.h"
 #include "connection/connection.h"
+#include "logic/referenceData.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -43,7 +45,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     Connection _connection{this};
-    Test _test{_connection, this};
+    Test _test{_connection, avr16eb32, this};
 
     void _updateTestList(void);
     void _updateTestState(void);

@@ -8,6 +8,14 @@ namespace TinyBus{
 struct Version {
     uint8_t major = 0;
     uint8_t minor = 0;
+
+    bool operator==(const Version& other) const {
+        return major == other.major &&
+               minor == other.minor;
+    }
+    bool operator!=(const Version& other) const {
+        return !(*this == other);
+    }
 };
 
 struct ApplicationHeaderBase {
@@ -16,6 +24,17 @@ struct ApplicationHeaderBase {
     Version firmwareVersion;
     uint16_t hardwareId = 0;
     Version hardwareVersion;
+
+    bool operator==(const ApplicationHeaderBase& other) const {
+        return autostart == other.autostart &&
+               headerVersion == other.headerVersion &&
+               firmwareVersion == other.firmwareVersion &&
+               hardwareId == other.hardwareId &&
+               hardwareVersion == other.hardwareVersion;
+    }
+    bool operator!=(const ApplicationHeaderBase& other) const {
+        return !(*this == other);
+    }
 };
 
 struct ApplicationHeader : public ApplicationHeaderBase {
@@ -28,6 +47,10 @@ typedef uint8_t Command;
 typedef uint8_t InstructionByte;
 typedef uint16_t BaudRates;
 typedef QByteArray Message;
+
+enum class DeviceCommand:Command {
+    KernelCommand = 15
+};
 
 enum class BaudRate:uint8_t {
     BAUD_300,
@@ -88,10 +111,6 @@ enum class KernelCommand:uint8_t {
     Error = 255
 };
 
-enum class DeviceCommand:uint8_t {
-    KernelCommand = 15
-};
-
 enum ApplicationState:uint8_t {
     Unknown,
     CheckingCrc,
@@ -118,6 +137,14 @@ static inline QString applicationStateString(ApplicationState state)
 struct DeviceState{
     uint8_t deviceAddress;
     ApplicationState deviceState;
+
+    bool operator==(const DeviceState& other) const {
+        return deviceAddress == other.deviceAddress &&
+               deviceState == other.deviceState;
+    }
+    bool operator!=(const DeviceState& other) const {
+        return !(*this == other);
+    }
 };
 
 struct HardwareInformation {
@@ -125,6 +152,16 @@ struct HardwareInformation {
     uint16_t hardwareId = 0;
     Version hardwareRevision;
     Version kernelRevision;
+
+    bool operator==(const HardwareInformation& other) const {
+        return controllerId == other.controllerId &&
+               hardwareId == other.hardwareId &&
+               hardwareRevision == other.hardwareRevision &&
+               kernelRevision == other.kernelRevision;
+    }
+    bool operator!=(const HardwareInformation& other) const {
+        return !(*this == other);
+    }
 };
 
 struct MemoryInformation {
@@ -141,6 +178,22 @@ struct MemoryInformation {
     bool ramReadAccess = false;
     bool eepromReadAccess = false;
     bool eepromWriteAccess = false;
+
+    bool operator==(const MemoryInformation& other) const {
+        return flashSize == other.flashSize &&
+               flashAppStart == other.flashAppStart &&
+               flashPageSize == other.flashPageSize &&
+               ramSize == other.ramSize &&
+               ramAppStart == other.ramAppStart &&
+               eepromSize == other.eepromSize &&
+               eepromAppStart == other.eepromAppStart &&
+               ramReadAccess == other.ramReadAccess &&
+               eepromReadAccess == other.eepromReadAccess &&
+               eepromWriteAccess == other.eepromWriteAccess;
+    }
+    bool operator!=(const MemoryInformation& other) const {
+        return !(*this == other);
+    }
 };
 
 };

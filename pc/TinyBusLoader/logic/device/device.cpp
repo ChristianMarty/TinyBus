@@ -129,73 +129,70 @@ void Device::newData(const QByteArray &data)
     TinyBus::Command command = TinyBus::Decode::extractCommand(data.at(0));
 
     if(address != _address) return; // TODO: error
+    if(command != (TinyBus::Command)TinyBus::DeviceCommand::KernelCommand) return;
+    if(data.size()<2) return;
 
-    if(command == 15) // Bootloader
+    bool response = TinyBus::Decode::extractKernelResponse(data);
+    if(!response) return;
+
+    TinyBus::KernelCommand kernelCommand = TinyBus::Decode::extractKernelCommand(data);
+    QByteArray payload = data.mid(2);
+
+    switch(kernelCommand)
     {
-        if(data.size()<2) return;
-
-        bool response = (bool)(data.at(1) & 0x80);
-        if(!response) return;
-
-        TinyBus::KernelCommand subcommand = (TinyBus::KernelCommand)(data.at(1) & 0x7F);
-        QByteArray payload = data.mid(2);
-
-        switch(subcommand)
-        {
-            case TinyBus::KernelCommand::GetDeviceState : {
-                _bootSystemInformation.deviceState = TinyBus::Decode::deviceState(payload);
-                emit changed(this);
-                break;
-            }
-            case TinyBus::KernelCommand::GetHardwareInformation :{
-                _bootSystemInformation.hardwareInformation = TinyBus::Decode::hardwareInformation(payload);
-                emit changed(this);
-                break;
-            }
-            case TinyBus::KernelCommand::GetMemoryInformation : {
-                _bootSystemInformation.memoryInformation = TinyBus::Decode::memoryInformation(payload);
-                emit changed(this);
-                break;
-            }
-            case TinyBus::KernelCommand::GetApplicationCrc  : {
-                _crc = TinyBus::Decode::applicationCrc(payload);
-                emit changed(this);
-                break;
-            }
-
-            //case KernelCommand::CMD_ERASE_APP: _writeNextPage(true); break;
-            //case KernelCommand::CMD_WRITE_PAGE: _writeNextPage(false); break;
-
-            case TinyBus::KernelCommand::GetApplicationName:{
-                _applicationName = TinyBus::Decode::applicationName(payload);
-                emit changed(this);
-                break;
-            }
-            case TinyBus::KernelCommand::GetApplicationHeader:{
-                _applicationHeader = TinyBus::Decode::applicationHeader(payload);
-                emit changed(this);
-                break;
-            }
-
-            case TinyBus::KernelCommand::ReadRamData: {
-                emit ramDataChanged(payload);
-                break;
-            }
-
-            case TinyBus::KernelCommand::ReadEepromData: {
-                emit eepromDataChanged(payload);
-                break;
-            }
-
-            case TinyBus::KernelCommand::GetSupportedBaudRates: {
-                _bootSystemInformation.supportedBaudRates = TinyBus::Decode::supportedBaudRates(payload);
-                emit changed(this);
-                break;
-            }
+        case TinyBus::KernelCommand::GetDeviceState : {
+            _bootSystemInformation.deviceState = TinyBus::Decode::deviceState(payload);
+            emit changed(this);
+            break;
+        }
+        case TinyBus::KernelCommand::GetHardwareInformation :{
+            _bootSystemInformation.hardwareInformation = TinyBus::Decode::hardwareInformation(payload);
+            emit changed(this);
+            break;
+        }
+        case TinyBus::KernelCommand::GetMemoryInformation : {
+            _bootSystemInformation.memoryInformation = TinyBus::Decode::memoryInformation(payload);
+            emit changed(this);
+            break;
+        }
+        case TinyBus::KernelCommand::GetApplicationCrc  : {
+            _crc = TinyBus::Decode::applicationCrc(payload);
+            emit changed(this);
+            break;
         }
 
-        _update.handle();
+        //case KernelCommand::CMD_ERASE_APP: _writeNextPage(true); break;
+        //case KernelCommand::CMD_WRITE_PAGE: _writeNextPage(false); break;
+
+        case TinyBus::KernelCommand::GetApplicationName:{
+            _applicationName = TinyBus::Decode::applicationName(payload);
+            emit changed(this);
+            break;
+        }
+        case TinyBus::KernelCommand::GetApplicationHeader:{
+            _applicationHeader = TinyBus::Decode::applicationHeader(payload);
+            emit changed(this);
+            break;
+        }
+
+        case TinyBus::KernelCommand::ReadRamData: {
+            emit ramDataChanged(payload);
+            break;
+        }
+
+        case TinyBus::KernelCommand::ReadEepromData: {
+            emit eepromDataChanged(payload);
+            break;
+        }
+
+        case TinyBus::KernelCommand::GetSupportedBaudRates: {
+            _bootSystemInformation.supportedBaudRates = TinyBus::Decode::supportedBaudRates(payload);
+            emit changed(this);
+            break;
+        }
     }
+
+    _update.handle();
 }
 
 TinyBus::Address Device::address() const

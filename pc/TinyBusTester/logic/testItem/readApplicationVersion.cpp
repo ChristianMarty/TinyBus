@@ -23,5 +23,10 @@ void ReadApplicationVersion::dataReceived(TinyBus::KernelCommand kernelCommand, 
 
    TinyBus::ApplicationHeaderBase applicationHeaderBase = TinyBus::Decode::applicationHeader(data);
 
+    if(_test->referenceData().applicationHeader != applicationHeaderBase){
+        _completed(Result::Fail);
+        return;
+    }
+
     _completed(Result::Pass);
 }

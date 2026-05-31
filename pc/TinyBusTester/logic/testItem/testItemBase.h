@@ -22,7 +22,7 @@ public:
     Result result() const;
 
     virtual void run(void){};
-    virtual void dataReceived(TinyBus::KernelCommand kernelCommand, const TinyBus::Message &data){};
+    virtual void dataReceived(TinyBus::KernelCommand kernelCommand, const TinyBus::Message &data){Q_UNUSED(kernelCommand); Q_UNUSED(data);};
 
 signals:
     void changed(void);
