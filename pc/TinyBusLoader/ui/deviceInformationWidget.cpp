@@ -30,6 +30,14 @@ DeviceInformationWidget::~DeviceInformationWidget()
 
 void DeviceInformationWidget::setDevice(Device *device)
 {
+    if(_memoryWidget != nullptr){
+        _memoryWidget->setDevice(device);
+    }
+
+    if(_eepromMemoryWidget != nullptr){
+        _eepromMemoryWidget->setDevice(device);
+    }
+
     if(device == nullptr){
         if(_device != nullptr){
             disconnect(device, &Device::changed, this, &DeviceInformationWidget::on_selectedDeviceChanged);
@@ -43,14 +51,6 @@ void DeviceInformationWidget::setDevice(Device *device)
     connect(_device, &Device::changed, this, &DeviceInformationWidget::on_selectedDeviceChanged);
     _update();
     setEnabled(true);
-
-    if(_memoryWidget != nullptr){
-        _memoryWidget->setDevice(device);
-    }
-
-    if(_eepromMemoryWidget != nullptr){
-        _eepromMemoryWidget->setDevice(device);
-    }
 }
 
 void DeviceInformationWidget::setEnabled(bool enabled)

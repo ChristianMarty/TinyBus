@@ -152,6 +152,7 @@ void Device::newData(const QByteArray &data)
         }
         case TinyBus::KernelCommand::GetMemoryInformation : {
             _bootSystemInformation.memoryInformation = TinyBus::Decode::memoryInformation(payload);
+            _initReadMemory();
             emit changed(this);
             break;
         }
@@ -176,12 +177,12 @@ void Device::newData(const QByteArray &data)
         }
 
         case TinyBus::KernelCommand::ReadRamData: {
-            emit ramDataChanged(payload);
+            _handleRamRead(payload);
             break;
         }
 
         case TinyBus::KernelCommand::ReadEepromData: {
-            emit eepromDataChanged(payload);
+            _handleEepromRead(payload);
             break;
         }
 
@@ -232,5 +233,123 @@ const TinyBus::ApplicationHeaderBase &Device::applicationHeader() const
 const QString &Device::firmwareName() const
 {
     return _applicationName;
+}
+
+const QList<MemoryTextWidget::MemoryByte> &Device::eepromData() const
+{
+    return _eepromData;
+}
+
+const QList<MemoryTextWidget::MemoryByte> &Device::ramData() const
+{
+    return _ramData;
+}
+
+void Device::readRam(uint16_t start, uint16_t stop)
+{
+    _ramMemoryRead.startOffset = start;
+    _ramMemoryRead.stopOffset = stop;
+    _ramMemoryRead.readPosition = 0;
+    _ramMemoryRead.readOffset = start;
+
+    _handleRamRead(QByteArray());
+}
+
+void Device::readEeprom(uint16_t start, uint16_t stop)
+{
+    _eepromMemoryRead.startOffset = start;
+    _eepromMemoryRead.stopOffset = stop;
+    _eepromMemoryRead.readPosition = 0;
+    _eepromMemoryRead.readOffset = start;
+
+    _handleEepromRead(QByteArray());
+}
+
+void Device::clearRamData()
+{
+    _ramData.clear();
+    for(uint16_t i = 0; i<_bootSystemInformation.memoryInformation.ramSize; i++){
+        _ramData.append(MemoryTextWidget::MemoryByte{.read=false,.byte=0});
+    }
+
+    emit ramDataChanged();
+}
+
+void Device::clearEepromData()
+{
+    _eepromData.clear();
+    for(uint16_t i = 0; i<_bootSystemInformation.memoryInformation.eepromSize; i++){
+        _eepromData.append(MemoryTextWidget::MemoryByte{.read=false,.byte=0});
+    }
+
+    emit eepromDataChanged();
+}
+
+void Device::_initReadMemory()
+{
+    clearRamData();
+    clearEepromData();
+}
+
+void Device::_handleRamRead(const QByteArray &data)
+{
+    uint8_t rxSize = data.length();
+    if(rxSize){
+        for(uint16_t i = 0; i<rxSize; i++){
+            uint16_t byteAddress = _ramMemoryRead.readOffset+_ramMemoryRead.readPosition - rxSize+i;
+
+            if(byteAddress < _ramData.length()){
+                MemoryTextWidget::MemoryByte byte {
+                    .read = true,
+                    .byte = (uint8_t) data.at(i)
+                };
+                _ramData[byteAddress] = byte;
+            }else{
+                // todo: add some error?
+            }
+        }
+        emit ramDataChanged();
+    }
+
+    uint16_t readSize = _ramMemoryRead.stopOffset - _ramMemoryRead.startOffset;
+    uint16_t toRead = readSize -_ramMemoryRead.readPosition;
+    if(toRead > 16){
+        requestRamData(_ramMemoryRead.readOffset+_ramMemoryRead.readPosition, 16);
+        _ramMemoryRead.readPosition += 16;
+    }else if(toRead){
+        requestRamData(_ramMemoryRead.readOffset+_ramMemoryRead.readPosition, toRead);
+       _ramMemoryRead.readPosition = readSize;
+    }
+}
+
+void Device::_handleEepromRead(const QByteArray &data)
+{
+    uint8_t rxSize = data.length();
+    if(rxSize){
+        for(uint16_t i = 0; i<rxSize; i++){
+            uint16_t byteAddress = _eepromMemoryRead.readOffset + _eepromMemoryRead.readPosition - rxSize+i;
+
+            if(byteAddress < _ramData.length()){
+                MemoryTextWidget::MemoryByte byte {
+                    .read = true,
+                    .byte = (uint8_t) data.at(i)
+                };
+                _eepromData[byteAddress] = byte;
+            }else{
+                // todo: add some error?
+            }
+        }
+        emit eepromDataChanged();
+    }
+
+    uint16_t readSize = _eepromMemoryRead.stopOffset - _eepromMemoryRead.startOffset;
+    uint16_t toRead = readSize -_eepromMemoryRead.readPosition;
+    if(toRead > 16){
+        requestEepromData(_eepromMemoryRead.readOffset+_eepromMemoryRead.readPosition, 16);
+        _eepromMemoryRead.readPosition += 16;
+    }else if(toRead){
+        requestEepromData(_eepromMemoryRead.readOffset+_eepromMemoryRead.readPosition, toRead);
+        _eepromMemoryRead.readPosition = readSize;
+    }
 }
 
