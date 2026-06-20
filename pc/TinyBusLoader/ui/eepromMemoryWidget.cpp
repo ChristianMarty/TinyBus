@@ -19,14 +19,15 @@ EepromMemoryWidget::~EepromMemoryWidget()
 void EepromMemoryWidget::setDevice(Device *device)
 {
     if(_device != nullptr){
-        //disconnect(_device, &Device::eepromDataChanged, this, &EepromMemoryWidget::on_eepromDataChanged);
+        disconnect(_device, &Device::eepromDataChanged, this, &EepromMemoryWidget::on_eepromDataChanged);
     }
 
     _device = device;
 
     _update();
     _initMemory();
-    _printMemory();
+    _updateMemory();
+
     ui->spinBox_readStopAddress->setValue(_device->bootSystemInformation().memoryInformation.eepromSize);
 
     connect(_device, &Device::eepromDataChanged, this, &EepromMemoryWidget::on_eepromDataChanged);
@@ -50,21 +51,23 @@ void EepromMemoryWidget::on_pushButton_read_clicked()
     _startRead(ui->spinBox_readStartAddress->value(), ui->spinBox_readStopAddress->value());
 }
 
-void EepromMemoryWidget::on_eepromDataChanged(QByteArray data)
+void EepromMemoryWidget::on_eepromDataChanged(const QByteArray &data)
 {
-    uint8_t rxSize = data.size();
+    uint8_t rxSize = data.length();
     for(uint16_t i = 0; i<rxSize; i++){
-        uint16_t byteAddress = _readOffset+_readPosition-rxSize+i;
-        if(byteAddress < _memory.count()){
-            MemoryByte byte = _memory.at(byteAddress);
-            byte.read = true;
-            byte.byte = data.at(i);
+        uint16_t byteAddress = _readOffset+_readPosition - rxSize+i;
+
+        if(byteAddress < _memory.length()){
+            MemoryTextWidget::MemoryByte byte {
+                .read = true,
+                .byte = (uint8_t) data.at(i)
+            };
             _memory[byteAddress] = byte;
         }else{
             // todo: add some error?
         }
     }
-    _printMemory();
+    _updateMemory();
     _read();
 }
 
@@ -76,8 +79,13 @@ void EepromMemoryWidget::_initMemory()
     }
 
     for(uint16_t i = 0; i<_device->bootSystemInformation().memoryInformation.eepromSize; i++){
-        _memory.append(MemoryByte{.read=false,.byte=0});
+        _memory.append(MemoryTextWidget::MemoryByte{.read=false,.byte=0});
     }
+}
+
+void EepromMemoryWidget::_updateMemory()
+{
+    ui->textEdit_memory->updateMemory(_memory, _device->bootSystemInformation().memoryInformation.eepromAppStart);
 }
 
 void EepromMemoryWidget::_startRead(uint16_t start, uint16_t stop)
@@ -101,45 +109,11 @@ void EepromMemoryWidget::_read()
     }
 }
 
-void EepromMemoryWidget::_printMemory()
-{
-    ui->textEdit_memory->clear();
-    ui->textEdit_memory->append("                   00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F");
-    ui->textEdit_memory->append("                   ................................................");
-
-    uint16_t appEepromStart = _device->bootSystemInformation().memoryInformation.eepromAppStart;
-
-    for(uint16_t i = 0; i<_memory.count(); i+=16){
-        QString line = QString::number(i).rightJustified(5,' ')+" / ";
-        line += QString::number(i,16).toUpper().rightJustified(4,'0').prepend("0x");
-        line += "  : ";
-        for(uint16_t j = 0; j<16; j++){
-
-            uint16_t offset = i+j;
-            if(offset >= _memory.count()) break;
-
-            if(appEepromStart == offset){
-                ui->textEdit_memory->append("--------------  :  APP Start --------------------------------------");
-            }
-
-            MemoryByte byte = _memory.at(offset);
-
-            if(byte.read){
-                line +=" "+QString::number(byte.byte,16).toUpper().rightJustified(2,'0');
-            }else{
-                line +=" --";
-            }
-            if(j == 7)line +=" ";
-        }
-        ui->textEdit_memory->append(line);
-    }
-}
-
 void EepromMemoryWidget::on_pushButton_clear_clicked()
 {
     _update();
     _initMemory();
-    _printMemory();
+    _updateMemory();
 }
 
 void EepromMemoryWidget::on_pushButton_write_clicked()

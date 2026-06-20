@@ -15,6 +15,7 @@ SOURCES += \
     ../QuCLib/source/cobs.cpp \
     ../QuCLib/source/crc.cpp \
     ../QuCLib/source/hexFileParser.cpp \
+    ../QuCLib/source/uiComponents/memoryTextWidget.cpp \
     ../common/protocol.cpp \
     ../common/connection/connection.cpp \
     ../common/connection/connectionBase.cpp \
@@ -37,6 +38,7 @@ HEADERS += \
     ../QuCLib/source/cobs.h \
     ../QuCLib/source/crc.h \
     ../QuCLib/source/hexFileParser.h \
+    ../QuCLib/source/uiComponents/memoryTextWidget.h \
     ../common/datatype.h \
     ../common/protocol.h \
     ../common/connection/connection.h \
