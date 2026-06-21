@@ -23,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&_connection, &Connection::txIndicator, this, &MainWindow::on_txIndicator);
     connect(&_connection, &Connection::connectionStateChanged, this, &MainWindow::on_connectionStateChanged);
 
+    _busPassThrough.setConnection(&_connection);
+
     ui->label_rx->setPalette(ColorPalette::status());
     ui->label_tx->setPalette(ColorPalette::status());
 

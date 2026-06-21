@@ -41,7 +41,7 @@ void TinyBusInterface::abortUpdate()
 
 void TinyBusInterface::_updateNextDevice()
 {
-    for(Device *device: _updateQueue){
+    for(Device *device: std::as_const(_updateQueue)){
         if(device->updateState().state == Update::State::Pending){
             _currentUpdate = device;
             _currentUpdate->startUpload();
@@ -145,7 +145,7 @@ TinyBus::ApplicationHeader TinyBusInterface::appliactionHeader()
 {
     if(_hexFile.binary().empty()) return TinyBus::ApplicationHeader();
 
-    return TinyBus::Decode::extractApplicationHeader(_hexFile.binary().first().data);
+    return TinyBus::Decode::extractApplicationHeader(_hexFile.binary().constFirst().data);
 }
 
 void TinyBusInterface::on_deviceChanged(Device *device)

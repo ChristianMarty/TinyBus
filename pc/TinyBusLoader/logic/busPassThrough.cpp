@@ -50,7 +50,7 @@ void BusPassThrough::setConnection(Connection *newConnection)
     }*/
 
     _connection = newConnection;
-    for(TcpConnection *tcpSocket: _tcpConnections){
+    for(TcpConnection *tcpSocket: std::as_const(_tcpConnections)){
         tcpSocket->setConnection(_connection);
     }
 
@@ -78,7 +78,7 @@ void BusPassThrough::on_newData(QByteArray data)
     if(_connection == nullptr) return;
     if(_tcpServer.isNull()) return;
 
-    for(TcpConnection *connection: _tcpConnections){
+    for(TcpConnection *connection: std::as_const(_tcpConnections)){
         connection->write(data);
     }
 }
@@ -127,7 +127,7 @@ void TcpConnection::on_readyRead()
     if(_connection == nullptr) return;
 
     QByteArrayList data = _cobs.streamDecode(_socket->readAll());
-    for(const QByteArray &message: data){
+    for(const QByteArray &message: std::as_const(data)){
         _connection->sendData(message);
     }
 }

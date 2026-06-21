@@ -27,3 +27,5 @@ kernel/attiny841_par-16/Debug
 kernel/attiny841_4-channelDimmer/Debug
 *.vs
 kernel/updater_attiny841/Debug
+pc/TinyBusTester/build
+pc/TinyBusLoader/build

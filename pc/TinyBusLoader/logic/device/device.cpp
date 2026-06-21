@@ -161,10 +161,6 @@ void Device::newData(const QByteArray &data)
             emit changed(this);
             break;
         }
-
-        //case KernelCommand::CMD_ERASE_APP: _writeNextPage(true); break;
-        //case KernelCommand::CMD_WRITE_PAGE: _writeNextPage(false); break;
-
         case TinyBus::KernelCommand::GetApplicationName:{
             _applicationName = TinyBus::Decode::applicationName(payload);
             emit changed(this);
@@ -191,6 +187,18 @@ void Device::newData(const QByteArray &data)
             emit changed(this);
             break;
         }
+
+        case TinyBus::KernelCommand::EraseApplication:
+        case TinyBus::KernelCommand::WriteApplicationPage:
+        case TinyBus::KernelCommand::WriteEepromData:
+        case TinyBus::KernelCommand::Reboot:
+        case TinyBus::KernelCommand::AppStart:
+        case TinyBus::KernelCommand::AppStop:
+        case TinyBus::KernelCommand::SetAddress:
+        case TinyBus::KernelCommand::SetBaudRate:
+        case TinyBus::KernelCommand::SaveBaudRate:
+        case TinyBus::KernelCommand::Error:
+            break;
     }
 
     _update.handle();
