@@ -12,7 +12,7 @@ class EepromMemoryWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit EepromMemoryWidget(Device *device, QWidget *parent = nullptr);
+    explicit EepromMemoryWidget(QWidget *parent = nullptr);
     ~EepromMemoryWidget();
 
     void showEvent(QShowEvent *event) override;

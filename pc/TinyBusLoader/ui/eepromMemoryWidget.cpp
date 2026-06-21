@@ -1,13 +1,11 @@
 #include "eepromMemoryWidget.h"
 #include "ui_eepromMemoryWidget.h"
 
-EepromMemoryWidget::EepromMemoryWidget(Device *device, QWidget *parent)
+EepromMemoryWidget::EepromMemoryWidget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::EepromMemoryWidget)
 {
     ui->setupUi(this);
-
-    setDevice(device);
 }
 
 EepromMemoryWidget::~EepromMemoryWidget()
@@ -43,6 +41,10 @@ void EepromMemoryWidget::setDevice(Device *device)
 
 void EepromMemoryWidget::_update()
 {
+    if(_device == nullptr){
+        return;
+    }
+
     setWindowTitle("EEPROM - Device Address "+QString::number(_device->address()));
 
     uint16_t eepromSize = _device->bootSystemInformation().memoryInformation.eepromSize;

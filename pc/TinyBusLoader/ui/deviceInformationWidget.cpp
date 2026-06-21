@@ -12,15 +12,8 @@ DeviceInformationWidget::DeviceInformationWidget(QWidget *parent) :
 
 DeviceInformationWidget::~DeviceInformationWidget()
 {
-    if(_memoryWidget != nullptr){
-        _memoryWidget->close();
-        delete _memoryWidget;
-    }
-
-    if(_eepromMemoryWidget != nullptr){
-        _eepromMemoryWidget->close();
-        delete _eepromMemoryWidget;
-    }
+    _memoryWidget.close();
+    _eepromMemoryWidget.close();
 
     if(_device != nullptr){
         //disconnect(_device, &Device::changed, this, &DeviceInformationWidget::on_selectedDeviceChanged);
@@ -30,13 +23,8 @@ DeviceInformationWidget::~DeviceInformationWidget()
 
 void DeviceInformationWidget::setDevice(Device *device)
 {
-    if(_memoryWidget != nullptr){
-        _memoryWidget->setDevice(device);
-    }
-
-    if(_eepromMemoryWidget != nullptr){
-        _eepromMemoryWidget->setDevice(device);
-    }
+    _memoryWidget.setDevice(device);
+    _eepromMemoryWidget.setDevice(device);
 
     if(device == nullptr){
         if(_device != nullptr){
@@ -190,8 +178,8 @@ void DeviceInformationWidget::_update()
     ui->pushButton_readRam->setEnabled(bootSystemInformation.memoryInformation.ramReadAccess);
     ui->pushButton_readEeprom->setEnabled(bootSystemInformation.memoryInformation.eepromReadAccess || bootSystemInformation.memoryInformation.eepromWriteAccess);
 
-    if(_eepromMemoryWidget != nullptr) _eepromMemoryWidget->setDevice(_device);
-    if(_memoryWidget != nullptr) _memoryWidget->setDevice(_device);
+    _eepromMemoryWidget.setDevice(_device);
+    _memoryWidget.setDevice(_device);
 
     // Baud Rate
     _updateBaudRates(bootSystemInformation.supportedBaudRates);
@@ -315,16 +303,14 @@ void DeviceInformationWidget::on_pushButton_readRam_clicked()
 {
     if(_device == nullptr) return;
 
-    if(_memoryWidget == nullptr) _memoryWidget = new MemoryWidget(_device);
-    _memoryWidget->show();
+    _memoryWidget.show();
 }
 
 void DeviceInformationWidget::on_pushButton_readEeprom_clicked()
 {
     if(_device == nullptr) return;
 
-    if(_eepromMemoryWidget == nullptr) _eepromMemoryWidget = new EepromMemoryWidget(_device);
-    _eepromMemoryWidget->show();
+    _eepromMemoryWidget.show();
 }
 
 void DeviceInformationWidget::on_pushButton_readMemoryInformation_clicked()

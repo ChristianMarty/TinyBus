@@ -50,8 +50,8 @@ private:
     Ui::DeviceInformationWidget *ui;
     Device *_device = nullptr;
 
-    MemoryWidget *_memoryWidget = nullptr;
-    EepromMemoryWidget *_eepromMemoryWidget = nullptr;
+    MemoryWidget _memoryWidget;
+    EepromMemoryWidget _eepromMemoryWidget;
 
     void _update(void);
     void _updateBaudRates(TinyBus::BaudRates baudRates);

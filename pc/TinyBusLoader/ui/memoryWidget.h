@@ -12,7 +12,7 @@ class MemoryWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MemoryWidget(Device *device, QWidget *parent = nullptr);
+    explicit MemoryWidget(QWidget *parent = nullptr);
     ~MemoryWidget();
 
     void showEvent(QShowEvent *event) override;

@@ -1,13 +1,11 @@
 #include "memoryWidget.h"
 #include "ui_memoryWidget.h"
 
-MemoryWidget::MemoryWidget(Device *device, QWidget *parent)
+MemoryWidget::MemoryWidget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::MemoryWidget)
 {
     ui->setupUi(this);
-
-    setDevice(device);
 }
 
 MemoryWidget::~MemoryWidget()
@@ -43,6 +41,10 @@ void MemoryWidget::setDevice(Device *device)
 
 void MemoryWidget::_update()
 {
+    if(_device == nullptr){
+        return;
+    }
+
     setWindowTitle("RAM - Device Address "+QString::number(_device->address()));
 
     uint16_t ramSize = _device->bootSystemInformation().memoryInformation.ramSize;
