@@ -243,12 +243,12 @@ const QString &Device::firmwareName() const
     return _applicationName;
 }
 
-const QList<MemoryTextWidget::MemoryByte> &Device::eepromData() const
+const QList<UiDatatypes::MemoryByte> &Device::eepromData() const
 {
     return _eepromData;
 }
 
-const QList<MemoryTextWidget::MemoryByte> &Device::ramData() const
+const QList<UiDatatypes::MemoryByte> &Device::ramData() const
 {
     return _ramData;
 }
@@ -277,7 +277,7 @@ void Device::clearRamData()
 {
     _ramData.clear();
     for(uint16_t i = 0; i<_bootSystemInformation.memoryInformation.ramSize; i++){
-        _ramData.append(MemoryTextWidget::MemoryByte{.read=false,.byte=0});
+        _ramData.append(UiDatatypes::MemoryByte{.read=false,.byte=0});
     }
 
     emit ramDataChanged();
@@ -287,7 +287,7 @@ void Device::clearEepromData()
 {
     _eepromData.clear();
     for(uint16_t i = 0; i<_bootSystemInformation.memoryInformation.eepromSize; i++){
-        _eepromData.append(MemoryTextWidget::MemoryByte{.read=false,.byte=0});
+        _eepromData.append(UiDatatypes::MemoryByte{.read=false,.byte=0});
     }
 
     emit eepromDataChanged();
@@ -307,7 +307,7 @@ void Device::_handleRamRead(const QByteArray &data)
             uint16_t byteAddress = _ramMemoryRead.readOffset+_ramMemoryRead.readPosition - rxSize+i;
 
             if(byteAddress < _ramData.length()){
-                MemoryTextWidget::MemoryByte byte {
+                UiDatatypes::MemoryByte byte {
                     .read = true,
                     .byte = (uint8_t) data.at(i)
                 };
@@ -338,7 +338,7 @@ void Device::_handleEepromRead(const QByteArray &data)
             uint16_t byteAddress = _eepromMemoryRead.readOffset + _eepromMemoryRead.readPosition - rxSize+i;
 
             if(byteAddress < _ramData.length()){
-                MemoryTextWidget::MemoryByte byte {
+                UiDatatypes::MemoryByte byte {
                     .read = true,
                     .byte = (uint8_t) data.at(i)
                 };

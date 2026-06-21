@@ -4,7 +4,7 @@
 #include <QObject>
 #include "datatype.h"
 #include "update.h"
-#include "source/uiComponents/memoryTextWidget.h"
+#include "source/uiComponents/uiDatatypes.h"
 
 class TinyBusInterface;
 class Device : public QObject
@@ -42,8 +42,8 @@ public:
     void readEeprom(uint16_t start, uint16_t stop);
     void clearRamData(void);
     void clearEepromData(void);
-    const QList<MemoryTextWidget::MemoryByte> &eepromData(void) const;
-    const QList<MemoryTextWidget::MemoryByte> &ramData(void) const;
+    const QList<UiDatatypes::MemoryByte> &eepromData(void) const;
+    const QList<UiDatatypes::MemoryByte> &ramData(void) const;
 
     struct KernelInformation {
         TinyBus::DeviceState deviceState;
@@ -87,10 +87,10 @@ private:
         uint16_t readOffset;
     };
 
-    QList<MemoryTextWidget::MemoryByte> _eepromData;
+    QList<UiDatatypes::MemoryByte> _eepromData;
     MemoryRead _eepromMemoryRead;
 
-    QList<MemoryTextWidget::MemoryByte> _ramData;
+    QList<UiDatatypes::MemoryByte> _ramData;
     MemoryRead _ramMemoryRead;
 
     Update _update{*this};

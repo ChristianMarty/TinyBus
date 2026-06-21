@@ -39,6 +39,7 @@ HEADERS += \
     ../QuCLib/source/crc.h \
     ../QuCLib/source/hexFileParser.h \
     ../QuCLib/source/uiComponents/memoryTextWidget.h \
+    ../QuCLib/source/uiComponents/uiDatatypes.h \
     ../common/datatype.h \
     ../common/protocol.h \
     ../common/connection/connection.h \
