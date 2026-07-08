@@ -2,6 +2,7 @@
 #define CONNECTION_H
 
 #include <QObject>
+#include "datatype.h"
 
 class ConnectionBase;
 class Connection : public QObject
@@ -28,7 +29,8 @@ public:
     static Type typeFromUrl(QString url);
 
 signals:
-    void newData(QByteArray data);
+    void newDataTransmitted(TinyBus::Packet data);
+    void newDataReceived(TinyBus::Packet data);
     void newMessage(QString message);
     void connectionStateChanged(void);
 

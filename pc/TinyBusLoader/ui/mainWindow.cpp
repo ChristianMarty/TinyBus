@@ -286,3 +286,10 @@ void MainWindow::on_rxIndicator(bool state)
 {
     ui->label_rx->setEnabled(state);
 }
+
+void MainWindow::on_pushButton_busMonitor_clicked()
+{
+    _busMonitorWidget.show();
+    _busMonitorWidget.raise();
+}
+

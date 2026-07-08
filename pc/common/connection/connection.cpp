@@ -4,6 +4,8 @@
 #include "connection/connectionTcp.h"
 #include "connection/connectionSerial.h"
 
+#include "protocol.h"
+
 Connection::Connection(QObject *parent)
     : QObject{parent}
 {}
@@ -57,6 +59,12 @@ void Connection::sendData(const QByteArray &data)
         return;
     }
 
+    TinyBus::Packet packet;
+    packet.address = (data[0]>>4)&0x0F;
+    packet.command = data[0]&0x0F;
+    packet.message = data.mid(1);
+    emit newDataTransmitted(packet);
+
     _connection->sendData(data);
     _pendingLoopback = data;
 
@@ -74,16 +82,22 @@ void Connection::on_rxData(QByteArray data)
 {
     if(!_pendingLoopback.isEmpty()){
         if(data != _pendingLoopback){
-            emit newMessage("Loopback Error");
+            emit newMessage("Loopback error");
         }
         _pendingLoopback.clear();
+        return;
+    }
+
+    TinyBus::Packet packet = TinyBus::Decode::packet(data);
+    if(packet.error){
+        emit newMessage("Packet decoder error");
         return;
     }
 
     emit rxIndicator(true);
     QTimer::singleShot(100, this, &Connection::on_rxIndicatorTimer);
 
-    emit newData(data);
+    emit newDataReceived(packet);
 }
 
 void Connection::on_newMessage(QString message)

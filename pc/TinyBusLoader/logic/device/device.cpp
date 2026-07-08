@@ -121,22 +121,20 @@ void Device::startUpload(void)
     _update.start();
 }
 
-void Device::newData(const QByteArray &data)
+void Device::newData(const TinyBus::Packet &data)
 {
-    if(data.size() < 1) return; // TODO: error
+    if(data.error){
+        return; // TODO: error
+    }
 
-    TinyBus::Address address = TinyBus::Decode::extractAddress(data.at(0));
-    TinyBus::Command command = TinyBus::Decode::extractCommand(data.at(0));
-
-    if(address != _address) return; // TODO: error
-    if(command != (TinyBus::Command)TinyBus::DeviceCommand::KernelCommand) return;
-    if(data.size()<2) return;
+    if(data.address != _address) return; // TODO: error
+    if(data.command != (TinyBus::Command)TinyBus::DeviceCommand::KernelCommand) return;
 
     bool response = TinyBus::Decode::extractKernelResponse(data);
     if(!response) return;
 
     TinyBus::KernelCommand kernelCommand = TinyBus::Decode::extractKernelCommand(data);
-    QByteArray payload = data.mid(2);
+    QByteArray payload = data.message.mid(1);
 
     switch(kernelCommand)
     {

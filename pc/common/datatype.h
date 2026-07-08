@@ -134,6 +134,13 @@ static inline QString applicationStateString(ApplicationState state)
     }
 }
 
+struct Packet{
+    Address address = 0;
+    Command command = 0;
+    Message message;
+    bool error = true;
+};
+
 struct DeviceState{
     uint8_t deviceAddress;
     ApplicationState deviceState;

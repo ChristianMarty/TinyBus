@@ -21,11 +21,13 @@ SOURCES += \
     ../common/connection/connectionBase.cpp \
     ../common/connection/connectionSerial.cpp \
     ../common/connection/connectionTcp.cpp \
+    logic/busMonitorModel.cpp \
     logic/busPassThrough.cpp \
     logic/device/update.cpp \
     logic/tinyBus.cpp \
     logic/device/device.cpp \
     main.cpp \
+    ui/busMonitorWidget.cpp \
     ui/deviceInformationWidget.cpp \
     ui/deviceItemWidget.cpp \
     ui/eepromMemoryWidget.cpp \
@@ -46,10 +48,12 @@ HEADERS += \
     ../common/connection/connectionBase.h \
     ../common/connection/connectionSerial.h \
     ../common/connection/connectionTcp.h \
+    logic/busMonitorModel.h \
     logic/busPassThrough.h \
     logic/device/update.h \
     logic/tinyBus.h \
     logic/device/device.h \
+    ui/busMonitorWidget.h \
     ui/colorPalette.h \
     ui/deviceInformationWidget.h \
     ui/deviceItemWidget.h \
@@ -60,6 +64,7 @@ HEADERS += \
     ui/queueItemWidget.h
 
 FORMS += \
+    ui/busMonitorWidget.ui \
     ui/deviceInformationWidget.ui \
     ui/deviceItemWidget.ui \
     ui/eepromMemoryWidget.ui \

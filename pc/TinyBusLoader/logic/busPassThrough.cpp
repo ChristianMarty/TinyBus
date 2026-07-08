@@ -55,7 +55,7 @@ void BusPassThrough::setConnection(Connection *newConnection)
     }
 
     if(_connection != nullptr){
-        connect(_connection, &Connection::newData, this, &BusPassThrough::on_newData);
+      //  connect(_connection, &Connection::newData, this, &BusPassThrough::on_newData);
     }
 }
 

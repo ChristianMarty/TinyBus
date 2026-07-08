@@ -52,7 +52,7 @@ public:
         TinyBus::BaudRates supportedBaudRates = 0;
     };
 
-    void newData(const QByteArray &data);
+    void newData(const TinyBus::Packet &data);
 
     TinyBus::Address address() const;
     const KernelInformation &bootSystemInformation() const;

@@ -7,7 +7,7 @@ TinyBusInterface::TinyBusInterface(Connection &connection, QObject *parent)
     ,_connection{connection}
 {
     connect(&_busScanTimer, &QTimer::timeout, this, &TinyBusInterface::on_busScanTimer);
-    connect(&_connection, &Connection::newData, this, &TinyBusInterface::on_newData);
+    connect(&_connection, &Connection::newDataReceived, this, &TinyBusInterface::on_newData);
     connect(&_connection, &Connection::newMessage, this, &TinyBusInterface::on_newMessage);
 }
 
@@ -52,24 +52,20 @@ void TinyBusInterface::_updateNextDevice()
     _currentUpdate = nullptr;
 }
 
-void TinyBusInterface::on_newData(QByteArray data)
+void TinyBusInterface::on_newData(TinyBus::Packet packet)
 {
-    emit newMessage("RX: "+data.toHex().toUpper().prepend("0x"));
+    //emit newMessage("RX: "+data.toHex().toUpper().prepend("0x"));
 
-    if(data.size() < 2) return; // TODO: add error
+    if(!(packet.message.at(0)&0x80)) return; // ignore non-responces e.g. interface loopback
 
-    TinyBus::Address address = TinyBus::Decode::extractAddress(data.at(0));
-
-    if(!(data.at(1)&0x80)) return; // ignore non-responces e.g. interface loopback
-
-    if(!_devices.contains(address)){
-        Device *device = new Device(address, this);
-        _devices.insert(address, device);
+    if(!_devices.contains(packet.address)){
+        Device *device = new Device(packet.address, this);
+        _devices.insert(packet.address, device);
         connect(device, &Device::changed, this, &TinyBusInterface::on_deviceChanged);
         connect(device, &Device::newMessage, this, &TinyBusInterface::on_newDeviceMessage);
         emit deviceListChanged();
     }
-    _devices[address]->newData(data);
+    _devices[packet.address]->newData(packet);
 }
 
 void TinyBusInterface::startScan(uint16_t timeOut)

@@ -19,17 +19,18 @@ ApplicationHeader Decode::extractApplicationHeader(const QByteArray &data)
     return applicationHeader;
 }
 
-KernelCommand Decode::extractKernelCommand(const QByteArray &data)
+KernelCommand Decode::extractKernelCommand(const Packet &data)
 {
-    if(data.size()<2) return KernelCommand::Error;
+    if(data.error) return KernelCommand::Error;
+    if(data.message.isEmpty()) return KernelCommand::Error;
 
-    return (KernelCommand)((uint8_t)data[1] & 0x7F);
+    return (KernelCommand)((uint8_t)data.message[0] & 0x7F);
 }
 
-bool Decode::extractKernelResponse(const QByteArray &data)
+bool Decode::extractKernelResponse(const Packet &data)
 {
-    if(data.size()<2) return false;
-    return (bool)((uint8_t)data[1] & 0x81);
+    if(data.message.isEmpty()) return false;
+    return (bool)((uint8_t)data.message[0] & 0x81);
 }
 
 InstructionByte Decode::extractInstructionByte(const QByteArray &data)
@@ -47,6 +48,23 @@ Address Decode::extractAddress(InstructionByte instructionByte)
 Command Decode::extractCommand(InstructionByte instructionByte)
 {
     return instructionByte&0x0F;
+}
+
+Packet Decode::packet(const QByteArray &data)
+{
+    Packet output;
+    if(data.size() < 1){
+        output.error = true;
+        return output;
+    }
+
+    InstructionByte instructionByte = extractInstructionByte(data);
+
+    output.address = extractAddress(instructionByte);
+    output.command = extractCommand(instructionByte);
+    output.message = data.mid(1);
+    output.error =false;
+    return output;
 }
 
 DeviceState Decode::deviceState(const QByteArray &data)
@@ -188,6 +206,13 @@ ApplicationHeaderBase Decode::_extractApplicationHeaderBase(const QByteArray &da
     applicationHeaderBase.hardwareVersion.minor = data.at(7);
 
     return applicationHeaderBase;
+}
+
+QByteArray Encode::frame(const Packet &data)
+{
+    QByteArray output;
+
+    return output;
 }
 
 QByteArray Encode::requestDeviceState(Address address)

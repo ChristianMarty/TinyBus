@@ -69,7 +69,7 @@ uint16_t ConnectionSerial::suggestedTimeOut() const
 {
     float timePerBit = (float)1/(float)_baudRate;
     float maximumFrameTime = timePerBit*10*26;  // 10 Bit/Byte, 26 Byte/Frame
-    return (uint16_t)(maximumFrameTime*2*1000); // 2 Frames, 1000 ms/s
+    return (uint16_t)(maximumFrameTime*3*1000); // 2 Frames, 1000 ms/s
 }
 
 void ConnectionSerial::on_readyRead()

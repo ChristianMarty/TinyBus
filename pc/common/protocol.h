@@ -14,8 +14,9 @@ public:
     static InstructionByte extractInstructionByte(const QByteArray &data);
     static Address extractAddress(InstructionByte instructionByte);
     static Command extractCommand(InstructionByte instructionByte);
-    static KernelCommand extractKernelCommand(const QByteArray &data);
-    static bool extractKernelResponse(const QByteArray &data);
+    static Packet packet(const QByteArray &data);
+    static KernelCommand extractKernelCommand(const Packet &data);
+    static bool extractKernelResponse(const Packet &data);
 
     static DeviceState deviceState(const QByteArray &data);
     static HardwareInformation hardwareInformation(const QByteArray &data);
@@ -32,6 +33,8 @@ private:
 class Encode
 {
 public:
+    static QByteArray frame(const Packet &data);
+
     static QByteArray requestDeviceState(Address address);
     static QByteArray requestHardwareInformation(Address address);
     static QByteArray requestMemoryInformation(Address address);
