@@ -26,6 +26,8 @@ public:
     static ApplicationHeaderBase applicationHeader(const QByteArray &data);
     static BaudRates supportedBaudRates(const QByteArray &data);
 
+    static Packet frame(const QByteArray &data);
+
 private:
     static ApplicationHeaderBase _extractApplicationHeaderBase(const QByteArray &data);
 };
@@ -33,32 +35,33 @@ private:
 class Encode
 {
 public:
+    static Packet requestDeviceState(Address address);
+    static Packet requestHardwareInformation(Address address);
+    static Packet requestMemoryInformation(Address address);
+    static Packet requestApplicationCrc(Address address);
+    static Packet requestApplicationName(Address address);
+    static Packet requestApplicationHeader(Address address);
+    static Packet requestReboot(Address address);
+    static Packet requestApplicationStart(Address address);
+    static Packet requestApplicationStop(Address address);
+
+    static Packet setDeviceAddress(Address address, Address newAddress);
+    static Packet setBaudRate(Address address, TinyBus::BaudRate baudRate);
+    static Packet saveBaudRate(Address address);
+    static Packet requestSupportedBaudRate(Address address);
+
+    static Packet requestRamData(Address address, uint16_t offset, uint8_t size);
+    static Packet requestEepromData(Address address, uint16_t offset, uint8_t size);
+    static Packet writeEepromData(Address address, uint16_t offset, const QByteArray &eepromData);
+
+    static Packet requestEraseApp(Address address);
+    static Packet writeAppPage(Address address, uint16_t dataAddress, const QByteArray &appData);
+
+
     static QByteArray frame(const Packet &data);
 
-    static QByteArray requestDeviceState(Address address);
-    static QByteArray requestHardwareInformation(Address address);
-    static QByteArray requestMemoryInformation(Address address);
-    static QByteArray requestApplicationCrc(Address address);
-    static QByteArray requestApplicationName(Address address);
-    static QByteArray requestApplicationHeader(Address address);
-    static QByteArray requestReboot(Address address);
-    static QByteArray requestApplicationStart(Address address);
-    static QByteArray requestApplicationStop(Address address);
-
-    static QByteArray setDeviceAddress(Address address, Address newAddress);
-    static QByteArray setBaudRate(Address address, TinyBus::BaudRate baudRate);
-    static QByteArray saveBaudRate(Address address);
-    static QByteArray requestSupportedBaudRate(Address address);
-
-    static QByteArray requestRamData(Address address, uint16_t offset, uint8_t size);
-    static QByteArray requestEepromData(Address address, uint16_t offset, uint8_t size);
-    static QByteArray writeEepromData(Address address, uint16_t offset, const QByteArray &eepromData);
-
-    static QByteArray requestEraseApp(Address address);
-    static QByteArray writeAppPage(Address address, uint16_t dataAddress, const QByteArray &appData);
-
 private:
-    static QByteArray _encodeCommand(Address address, KernelCommand kernelCommand, const QByteArray &data = QByteArray());
+    static Packet _encodeCommand(Address address, KernelCommand kernelCommand, const QByteArray &data = QByteArray());
 };
 
 };

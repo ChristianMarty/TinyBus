@@ -52,19 +52,16 @@ ConnectionBase *Connection::connection()
     return _connection;
 }
 
-void Connection::sendData(const QByteArray &data)
+void Connection::sendData(const TinyBus::Packet &packet)
 {
     if(_connection == nullptr){
         emit newMessage("Connection is closed");
         return;
     }
 
-    TinyBus::Packet packet;
-    packet.address = (data[0]>>4)&0x0F;
-    packet.command = data[0]&0x0F;
-    packet.message = data.mid(1);
     emit newDataTransmitted(packet);
 
+    QByteArray data = TinyBus::Encode::frame(packet);
     _connection->sendData(data);
     _pendingLoopback = data;
 

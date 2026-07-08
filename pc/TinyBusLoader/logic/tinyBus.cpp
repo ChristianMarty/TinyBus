@@ -11,9 +11,9 @@ TinyBusInterface::TinyBusInterface(Connection &connection, QObject *parent)
     connect(&_connection, &Connection::newMessage, this, &TinyBusInterface::on_newMessage);
 }
 
-void TinyBusInterface::write(QByteArray data)
+void TinyBusInterface::write(const TinyBus::Packet &data)
 {
-    emit newMessage("TX: "+data.toHex().toUpper().prepend("0x"));
+    //emit newMessage("TX: "+data.toHex().toUpper().prepend("0x"));
     _connection.sendData(data);
 }
 
@@ -172,7 +172,7 @@ void TinyBusInterface::on_busScanTimer()
     }
 
     emit newMessage("---- Pinging address "+QString::number(_busScanDevcieAddress)+" ----");
-    write(Device::ping(_busScanDevcieAddress));
+    write(TinyBus::Encode::requestDeviceState(_busScanDevcieAddress));
     _busScanDevcieAddress++;
 }
 

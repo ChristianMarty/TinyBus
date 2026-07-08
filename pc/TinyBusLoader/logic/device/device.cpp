@@ -2,11 +2,6 @@
 #include "../tinyBus.h"
 #include "protocol.h"
 
-QByteArray Device::ping(TinyBus::Address address)
-{
-    return TinyBus::Encode::requestDeviceState(address);
-}
-
 Device::Device(TinyBus::Address address, TinyBusInterface *parent)
     : QObject{parent}
 {

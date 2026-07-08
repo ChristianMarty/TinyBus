@@ -30,7 +30,7 @@ signals:
     void stateChanged(void);
 
 private slots:
-    void on_newData(QByteArray data);
+    void on_newData(TinyBus::Packet data);
     void on_pendingConnectionAvailable(void);
 
 private:

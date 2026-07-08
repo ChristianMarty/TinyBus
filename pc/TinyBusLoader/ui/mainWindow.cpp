@@ -35,7 +35,14 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+
     delete ui;
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    _busMonitorWidget.close();
+    QMainWindow::closeEvent(event);
 }
 
 void MainWindow::selectDevice(Device *device)

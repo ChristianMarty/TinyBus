@@ -1,6 +1,7 @@
 #include "busPassThrough.h"
 
 #include <QNetworkDatagram>
+#include "protocol.h"
 
 BusPassThrough::BusPassThrough(QObject *parent)
     : QObject{parent}
@@ -55,7 +56,7 @@ void BusPassThrough::setConnection(Connection *newConnection)
     }
 
     if(_connection != nullptr){
-      //  connect(_connection, &Connection::newData, this, &BusPassThrough::on_newData);
+        connect(_connection, &Connection::newDataReceived, this, &BusPassThrough::on_newData);
     }
 }
 
@@ -73,13 +74,13 @@ int BusPassThrough::numberOfClients()
     return _tcpConnections.count();
 }
 
-void BusPassThrough::on_newData(QByteArray data)
+void BusPassThrough::on_newData(TinyBus::Packet data)
 {
     if(_connection == nullptr) return;
     if(_tcpServer.isNull()) return;
 
     for(TcpConnection *connection: std::as_const(_tcpConnections)){
-        connection->write(data);
+        connection->write(TinyBus::Encode::frame(data));
     }
 }
 
@@ -107,7 +108,6 @@ TcpConnection::TcpConnection(QTcpSocket *socket, Connection *connection)
 TcpConnection::~TcpConnection()
 {
     disconnect(_socket, &QTcpSocket::readyRead, this, &TcpConnection::on_readyRead);
-    // disconnect(_tcpServer.data(), &QTcpServer::stateChanged, this, &BusPassThrough::on_stateChanged);
 }
 
 void TcpConnection::setConnection(Connection *newConnection)
@@ -128,6 +128,6 @@ void TcpConnection::on_readyRead()
 
     QByteArrayList data = _cobs.streamDecode(_socket->readAll());
     for(const QByteArray &message: std::as_const(data)){
-        _connection->sendData(message);
+        _connection->sendData(TinyBus::Decode::frame(message));
     }
 }

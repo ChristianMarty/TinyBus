@@ -173,7 +173,7 @@
           </size>
          </property>
          <property name="text">
-          <string>serial://com9:9600</string>
+          <string>serial://com9:19200</string>
          </property>
         </widget>
        </item>

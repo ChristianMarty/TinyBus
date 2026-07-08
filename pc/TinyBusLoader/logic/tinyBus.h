@@ -8,6 +8,7 @@
 #include "device/device.h"
 #include "connection/connection.h"
 #include "../QuCLib/source/hexFileParser.h"
+#include "datatype.h"
 
 class TinyBusInterface : public QObject
 {
@@ -15,7 +16,7 @@ class TinyBusInterface : public QObject
 public:
     explicit TinyBusInterface(Connection &connection, QObject *parent = nullptr);
 
-    void write(QByteArray data);
+    void write(const TinyBus::Packet &data);
 
     void startUpdate(void);
     void abortUpdate(void);

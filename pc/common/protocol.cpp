@@ -185,6 +185,18 @@ BaudRates Decode::supportedBaudRates(const QByteArray &data)
     return output;
 }
 
+Packet Decode::frame(const QByteArray &data)
+{
+    Packet output;
+    if(!data.isEmpty()){
+        output.address = ((uint8_t)data[0]>>4)&0x0F;
+        output.command = ((uint8_t)data[0])&0x0F;
+        output.message = data.mid(1);
+        output.error = false;
+    }
+    return output;
+}
+
 ApplicationHeaderBase Decode::_extractApplicationHeaderBase(const QByteArray &data)
 {
     ApplicationHeaderBase applicationHeaderBase;
@@ -210,83 +222,87 @@ ApplicationHeaderBase Decode::_extractApplicationHeaderBase(const QByteArray &da
 
 QByteArray Encode::frame(const Packet &data)
 {
-    QByteArray output;
-
-    return output;
+    QByteArray tx;
+    uint8_t cmdByte = (data.address << 4) | data.command;
+    tx.append(cmdByte);
+    tx.append(data.message);
+    return tx;
 }
 
-QByteArray Encode::requestDeviceState(Address address)
+Packet Encode::requestDeviceState(Address address)
 {
     return _encodeCommand(address, TinyBus::KernelCommand::GetDeviceState);
 }
 
-QByteArray Encode::requestHardwareInformation(Address address)
+Packet Encode::requestHardwareInformation(Address address)
 {
     return _encodeCommand(address, TinyBus::KernelCommand::GetHardwareInformation);
 }
 
-QByteArray Encode::requestMemoryInformation(Address address)
+Packet Encode::requestMemoryInformation(Address address)
 {
     return _encodeCommand(address, TinyBus::KernelCommand::GetMemoryInformation);
 }
 
-QByteArray Encode::requestApplicationCrc(Address address)
+Packet Encode::requestApplicationCrc(Address address)
 {
     return _encodeCommand(address, TinyBus::KernelCommand::GetApplicationCrc);
 }
 
-QByteArray Encode::requestApplicationName(Address address)
+Packet Encode::requestApplicationName(Address address)
 {
     return _encodeCommand(address, TinyBus::KernelCommand::GetApplicationName);
 }
 
-QByteArray Encode::requestApplicationHeader(Address address)
+Packet Encode::requestApplicationHeader(Address address)
 {
     return _encodeCommand(address, TinyBus::KernelCommand::GetApplicationHeader);
 }
 
-QByteArray Encode::requestReboot(Address address)
+Packet Encode::requestReboot(Address address)
 {
     return _encodeCommand(address, TinyBus::KernelCommand::Reboot);
 }
 
-QByteArray Encode::requestApplicationStart(Address address)
+Packet Encode::requestApplicationStart(Address address)
 {
     return _encodeCommand(address, TinyBus::KernelCommand::AppStart);
 }
 
-QByteArray Encode::requestApplicationStop(Address address)
+Packet Encode::requestApplicationStop(Address address)
 {
     return _encodeCommand(address, TinyBus::KernelCommand::AppStop);
 }
 
-QByteArray Encode::setDeviceAddress(Address address, Address newAddress)
+Packet Encode::setDeviceAddress(Address address, Address newAddress)
 {
-    if(newAddress > 0x0E) return QByteArray();
+    if(newAddress > 0x0E){
+        return Packet();
+    }
 
     QByteArray data;
     data.append(newAddress);
     return _encodeCommand(address, TinyBus::KernelCommand::Reboot, data);
 }
 
-QByteArray Encode::setBaudRate(Address address, BaudRate baudRate)
+Packet Encode::setBaudRate(Address address, BaudRate baudRate)
 {
     QByteArray data;
     data.append((uint8_t)baudRate);
     return _encodeCommand(address, TinyBus::KernelCommand::SetBaudRate, data);
 }
 
-QByteArray Encode::saveBaudRate(Address address)
+Packet Encode::saveBaudRate(Address address)
 {
     return _encodeCommand(address, TinyBus::KernelCommand::SaveBaudRate);
 }
 
-QByteArray Encode::requestSupportedBaudRate(Address address)
+Packet Encode::requestSupportedBaudRate(Address address)
 {
     return _encodeCommand(address, TinyBus::KernelCommand::GetSupportedBaudRates);
 }
 
-QByteArray Encode::requestRamData(Address address, uint16_t offset, uint8_t size)
+Packet Encode::requestRamData(Address address, uint16_t offset, uint8_t size)
 {
     QByteArray data;
     data.append((uint8_t)(offset>>8));
@@ -295,7 +311,7 @@ QByteArray Encode::requestRamData(Address address, uint16_t offset, uint8_t size
     return _encodeCommand(address, TinyBus::KernelCommand::ReadRamData, data);
 }
 
-QByteArray Encode::requestEepromData(Address address, uint16_t offset, uint8_t size)
+Packet Encode::requestEepromData(Address address, uint16_t offset, uint8_t size)
 {
     QByteArray data;
     data.append((uint8_t)(offset>>8));
@@ -304,7 +320,7 @@ QByteArray Encode::requestEepromData(Address address, uint16_t offset, uint8_t s
     return _encodeCommand(address, TinyBus::KernelCommand::ReadEepromData, data);
 }
 
-QByteArray Encode::writeEepromData(Address address, uint16_t offset, const QByteArray &eepromData)
+Packet Encode::writeEepromData(Address address, uint16_t offset, const QByteArray &eepromData)
 {
     QByteArray data;
     data.append((uint8_t)(offset>>8));
@@ -313,12 +329,12 @@ QByteArray Encode::writeEepromData(Address address, uint16_t offset, const QByte
     return _encodeCommand(address, TinyBus::KernelCommand::WriteEepromData, data);
 }
 
-QByteArray Encode::requestEraseApp(Address address)
+Packet Encode::requestEraseApp(Address address)
 {
     return _encodeCommand(address, TinyBus::KernelCommand::EraseApplication);
 }
 
-QByteArray Encode::writeAppPage(Address address, uint16_t dataAddress, const QByteArray &appData)
+Packet Encode::writeAppPage(Address address, uint16_t dataAddress, const QByteArray &appData)
 {
     QByteArray data;
     data.append((uint8_t)(dataAddress>>8));
@@ -334,13 +350,13 @@ QByteArray Encode::writeAppPage(Address address, uint16_t dataAddress, const QBy
     return _encodeCommand(address, TinyBus::KernelCommand::WriteApplicationPage, data);
 }
 
-QByteArray Encode::_encodeCommand(Address address, KernelCommand kernelCommand, const QByteArray &data)
+Packet Encode::_encodeCommand(Address address, KernelCommand kernelCommand, const QByteArray &data)
 {
-    QByteArray tx;
-    uint8_t cmdByte = (address << 4) | (uint8_t)DeviceCommand::KernelCommand;
-    tx.append(cmdByte);
-    tx.append((uint8_t)kernelCommand);
-    tx.append(data);
+    Packet tx;
+    tx.address = address;
+    tx.command = (uint8_t)DeviceCommand::KernelCommand;
+    tx.message.append((uint8_t)kernelCommand);
+    tx.message.append(data);
     return tx;
 }
 

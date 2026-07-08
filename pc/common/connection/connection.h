@@ -23,7 +23,7 @@ public:
 
     ConnectionBase* connection(void);
 
-    void sendData(const QByteArray &data);
+    void sendData(const TinyBus::Packet &packet);
     uint16_t suggestedTimeOut(void) const;
 
     static Type typeFromUrl(QString url);
@@ -31,6 +31,7 @@ public:
 signals:
     void newDataTransmitted(TinyBus::Packet data);
     void newDataReceived(TinyBus::Packet data);
+
     void newMessage(QString message);
     void connectionStateChanged(void);
 

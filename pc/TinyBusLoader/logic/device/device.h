@@ -32,8 +32,6 @@ public:
     /* Command 33 */ void saveBaudRate(void);
     /* Command 34 */ void requestSupportedBaudRate(void);
 
-    static QByteArray ping(TinyBus::Address address);
-
     void setSelectedForUpdate(bool selected);
     void startUpload(void);
     void setUpdatePending(void);

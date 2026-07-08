@@ -48,7 +48,11 @@ int BusMonitorModel::columnCount(const QModelIndex &parent) const
 
 QVariant BusMonitorModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid()) return QVariant();
+    if(!index.isValid()) return QVariant();
+    if((index.column() == 0 || index.column() == 1 ) && role == Qt::TextAlignmentRole) {
+        return Qt::AlignCenter;
+    }
+
     if (role != Qt::DisplayRole) return QVariant();
 
     int rowIndex = index.row();
@@ -95,7 +99,14 @@ void BusMonitorModel::on_dataTransmitted(TinyBus::Packet data)
 
 void BusMonitorModel::on_dataReceived(TinyBus::Packet data)
 {
-    if(_data.isEmpty()) return;
+    if(_data.isEmpty()){
+        return;
+    }
 
     _data.last().response = data.message;
+
+    int row = _data.size() - 1;
+    int column = 3;
+
+    emit dataChanged(index(row, column), index(row, column));
 }

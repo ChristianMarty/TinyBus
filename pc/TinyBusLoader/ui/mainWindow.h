@@ -24,6 +24,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void closeEvent(QCloseEvent *event) override;
     void selectDevice(Device *device);
 
 private slots:
@@ -63,8 +64,8 @@ private slots:
 private:
     Ui::MainWindow *ui;
     Connection _connection{this};
-    TinyBusInterface _tinyBus{_connection, this};
     BusMonitorModel _busMonitorModel{_connection};
+    TinyBusInterface _tinyBus{_connection, this};
     BusPassThrough _busPassThrough;
     Device *_selectedDevice = nullptr;
 
