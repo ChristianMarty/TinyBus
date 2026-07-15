@@ -59,6 +59,81 @@ void InterruptVectorTable(void)
 
 #endif
 
+#ifdef AVRxxEBxx
+
+void InterruptVectorTable(void)
+{
+	asm("rjmp app_main"); //Main
+	asm("nop");
+	asm("rjmp dummy_interruptHandler");	//NMI
+	asm("nop");
+	asm("rjmp dummy_interruptHandler");	//BOD_VLM
+	asm("nop");
+	asm("rjmp dummy_interruptHandler");	//RTC_CNT
+	asm("nop");
+	asm("rjmp dummy_interruptHandler");	//RTC_PIT
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //CCL_CCL
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //PORTA_PORT
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //WEX0
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //TCA0_OVF
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //TCE0_CMP0
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //TCE0_CMP1
+	asm("nop");
+	asm("rjmp dummy_interruptHandler");	//TCE0_CMP2
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //TCE0_CMP3
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //TCB0_INT
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //TCB1_INT
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //TWI0_TWIC
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //TWI0_TWIH
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //SPI0_INT
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //USART0_RXC
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //USART0_DRE
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //USART0_TXC
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //PORTD_PORT
+	asm("nop");
+	asm("rjmp dummy_interruptHandler");	//TCF0_INT
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //AC0_AC
+	asm("nop");
+	asm("rjmp dummy_interruptHandler");	//ADC0_ERROR
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //ADC0_RESRDY
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //ADC0_SAMPRDY
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //AC1_AC
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //PORTC_PORT
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //PORTF_PORT
+	asm("nop");
+	asm("rjmp dummy_interruptHandler"); //NVMCTRL_NVMREADY
+
+	asm("rjmp app_com_receive_data");
+	asm("rjmp app_5ms_tick");
+}
+
+#define COM_TRANSMIT_DATA_ADDR 0x3E
+#define EEPROM_READ_DATA_ADDR 0x40
+#define EEPROM_WRITE_DATA_ADDR 0x42
+
+#endif
 void dummy_interruptHandler (void)
 {
 	while(1); // trip watchdog

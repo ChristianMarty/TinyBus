@@ -10,8 +10,17 @@
 
 #include <main.h>
 
+
+#ifdef AVRxxEBxx
+	#define AppInterruptVectorTableSize 30*2 // Number of Interrupt Vectors * 2 words
+#endif
+#ifdef TINYAVR_1SERIES
+	#define AppInterruptVectorTableSize 30 // Number of Interrupt Vectors
+#endif
+#ifdef ATTINYx41
+	#define AppInterruptVectorTableSize 30 // Number of Interrupt Vectors
+#endif
 #define AppHeaderByteOffset 0x20
-#define AppInterruptVectorTableSize 30 // Number of Interrupt Vectors
 #define AppBaseWordAddress (AppBaseByteAddress / 2)
 #define AppEntrypoint (AppBaseWordAddress+(AppHeaderByteOffset/2))
 

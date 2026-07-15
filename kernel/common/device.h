@@ -25,6 +25,12 @@ typedef struct{
 	com_baudRate baudRate;
 }settings_t;
 
+
+#ifdef AVRxxEBxx
+	#define reset_watchdog() asm("WDR")
+	extern shared_t shared __attribute__((section (".shared")));
+	extern settings_t eeSettings  __attribute__((section(".eeprom")));
+#endif
 #ifdef TINYAVR_1SERIES
     #define reset_watchdog() asm("WDR")
     extern shared_t shared __attribute__((section (".shared")));

@@ -13,6 +13,15 @@ extern "C" {
 #include "typedef.h"
 #include "main.h"
 
+#ifdef AVRxxEBxx
+#include "bootloader_AVRxxEBxx.h"
+settings_t eeSettings  __attribute__((section(".eeprom"))) = {
+	.deviceAddress = 0,
+	.hardwareVersionMajor = HARDWARE_VERSION_MAJOR,
+	.hardwareVersionMinor = HARDWARE_VERSION_MINOR,
+	.baudRate = BAUD_4800
+};
+#endif
 
 #ifdef TINYAVR_1SERIES
 	#include "bootloader_1series.h"
@@ -66,7 +75,7 @@ void device_init(void)
 	com_setBaudrate(baudRate);
 	com_init();
 	
-#ifdef TINYAVR_1SERIES
+#if defined(TINYAVR_1SERIES) || defined(AVRxxEBxx)
 	bool watchdogReset = (RSTCTRL.RSTFR & 0x08);
 #endif
 #ifdef ATTINYx41
@@ -143,7 +152,7 @@ void device_eraseApp(void)
 void device_reboot(void)
 {
 
-#ifdef TINYAVR_1SERIES
+#if defined(TINYAVR_1SERIES) || defined(AVRxxEBxx)
 	RSTCTRL.SWRR = 0x01;
 #endif
 
@@ -164,7 +173,7 @@ uint8_t device_updateAddress(uint8_t address)
 	#ifdef TINYAVR_1SERIES
 		bootloader_updateEeprom((&eeSettings.deviceAddress)+EepromOffset, address);
 	#endif
-	#ifdef ATTINYx41
+	#if defined(ATTINYx41) || defined(AVRxxEBxx)
 		bootloader_updateEeprom(&eeSettings.deviceAddress, address);
 	#endif
 		if(address == device_getAddress()){
@@ -179,7 +188,7 @@ uint8_t device_getAddress(void)
 #ifdef TINYAVR_1SERIES
 	return bootloader_readEeprom((&eeSettings.deviceAddress)+EepromOffset);
 #endif
-#ifdef ATTINYx41
+#if defined(ATTINYx41) || defined(AVRxxEBxx) || defined(ATMEGAx8x)
 	return bootloader_readEeprom(&eeSettings.deviceAddress);
 #endif
 }
@@ -189,7 +198,7 @@ com_baudRate device_getBaudRate(void)
 #ifdef TINYAVR_1SERIES
 	return bootloader_readEeprom((&eeSettings.baudRate)+EepromOffset);
 #endif
-#ifdef ATTINYx41
+#if defined(ATTINYx41) || defined(AVRxxEBxx) || defined(ATMEGAx8x)
 	return bootloader_readEeprom(&eeSettings.baudRate);
 #endif
 }
@@ -205,10 +214,10 @@ void device_setBaudRate(uint8_t baudRateIndex)
 
 void device_saveBaudRate(void)
 {
-#ifdef TINYAVR_1SERIES
+#if defined(TINYAVR_1SERIES) 
 	return bootloader_updateEeprom((&eeSettings.baudRate)+EepromOffset, baudRate);
 #endif
-#ifdef ATTINYx41
+#if defined(ATTINYx41) || defined(AVRxxEBxx) || defined(ATMEGAx8x)
 	return bootloader_updateEeprom(&eeSettings.baudRate, baudRate);
 #endif
 }
@@ -252,7 +261,7 @@ bool device_writeEepromAppSection(uint16_t offset, uint8_t *data, uint16_t size)
 		return false;
 	}
 	
-	#ifdef TINYAVR_1SERIES
+	#if defined(TINYAVR_1SERIES) || defined(AVRxxEBxx)
 		
 		uint16_t baseAddress = ((uint16_t)&eeSettings.deviceAddress) + AppEepromStart + offset;
 		for(uint16_t i = 0; i<size; i++){

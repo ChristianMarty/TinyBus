@@ -24,11 +24,11 @@ extern shared_t shared __attribute__((section (".shared")));
 
 void tickTimer_init(void)
 {
-#ifdef TINYAVR_1SERIES
+#if defined(TINYAVR_1SERIES) || defined(AVRxxEBxx)
 	RTC.CLKSEL = 0;
-	RTC.INTCTRL |= 0x01; // Overflow Interrupt Enable
-	RTC.PER = 0xAB;
-	RTC.CTRLA |= 0x01;   // Enable
+	RTC.INTCTRL = 0x01; // Overflow Interrupt Enable
+	RTC.PER = 0xA4;
+	RTC.CTRLA = 0x01;   // Enable
 #endif
 
 #ifdef ATTINYx41
@@ -60,11 +60,13 @@ void tickTimer_interruptHandler(void)
 {
 #ifndef TEST_RUN
 	com_5msTickHandler();
-	if(shared.deviceState == APP_RUNNING) app_5msTickHandler();
+	if(shared.deviceState == APP_RUNNING){
+		app_5msTickHandler();
+	}
 #endif
 	tickCounter ++;
 
-#ifdef TINYAVR_1SERIES
+#if defined(TINYAVR_1SERIES) || defined(AVRxxEBxx)
 	RTC.INTFLAGS |= 0x01;
 #endif
 }

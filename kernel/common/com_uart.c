@@ -24,14 +24,15 @@ extern shared_t shared __attribute__((section (".shared")));
 
 typedef enum {UART_IDLE, UART_TX, UART_TX_COMPLETE, UART_RX, UART_RX_COMPLETE} uart_state_t;
 	
-#ifdef TINYAVR_1SERIES
-#define USART0_RX_ENABLE  USART0.CTRLB |= 0x80
-#define USART0_RX_DISABLE USART0.CTRLB &= 0x7F
+#if defined(TINYAVR_1SERIES) || defined(AVRxxEBxx)
+	#define USART0_RX_ENABLE  USART0.CTRLB |= 0x80
+	#define USART0_RX_DISABLE USART0.CTRLB &= 0x7F
 #endif
 
 #ifdef ATTINYx41
-#define USART0_RX_ENABLE UCSR0B |= 0x90
-#define USART0_RX_DISABLE UCSR0B &= 0x6F
+	#define USART0_RX_ENABLE UCSR0B |= 0x90
+	#define USART0_RX_DISABLE UCSR0B &= 0x6F
+#endif
 #endif
 
 #ifdef TEST_RUN
@@ -64,7 +65,7 @@ volatile uint8_t uart_carrierSenseTimeoutCounter;
 
 void com_setBaudrate(com_baudRate baudRate)
 {	
-#ifdef TINYAVR_1SERIES
+#if defined(TINYAVR_1SERIES) || defined(AVRxxEBxx) 
 	switch(baudRate){
 #ifdef Baudrate300
 		case BAUD_300:
@@ -188,7 +189,7 @@ void com_setBaudrate(com_baudRate baudRate)
 #endif
 #ifdef Baudrate57600
 		case BAUD_57600:
-		UBRR0 = 16;
+		UBRR0 = 17;
 		break;
 #endif
 #ifdef Baudrate76800
@@ -227,12 +228,21 @@ void com_init(void)
 	rxLedTimer5ms = 0;
 #endif
 	
+#ifdef AVRxxEBxx
+	PORTMUX.USARTROUTEA = 0x04; // Use PC1, PC2 for UART
+	USART0.CTRLB = 0xC0;
+	PORTC.DIRSET = 0x02; // TX as output
+	USART0.CTRLC = 0x03; // 8N1
+	USART0.CTRLA = 0xC0; // USART Receive / Transmit Complete Interrupt Enable	
+#endif
+
 #ifdef TINYAVR_1SERIES
 	PORTMUX.CTRLB |= 0x01; // Use PA1, PA2 for UART
 	USART0.CTRLB = 0xC0;
 	PORTA.DIRSET = 0x02; // TX as output
 	USART0.CTRLC = 0x03; // 8N1
-	USART0.CTRLA = 0xC0; // USART Receive / Transmit Complete Interrupt Enable	
+	USART0.CTRLA = 0xC0; // USART Receive / Transmit Complete Interrupt Enable
+#endif
 #endif
 
 #ifdef ATTINYx41
@@ -313,7 +323,8 @@ void USART0_RX_interruptHandler(void)
 	
 	if(uart_state != UART_RX) return;
 	
-#ifdef TINYAVR_1SERIES
+	
+#if defined(TINYAVR_1SERIES) || defined(AVRxxEBxx) 
 	if(USART0.RXDATAH & 0x46) {
 		com_error = true; // check for frame error / data over-run
 	}
@@ -351,7 +362,7 @@ void transmitByte(void)
 		uint8_t tx_byte = uart_buffer[uart_buffer_position];
         uart_buffer_position ++;
 		
-	#ifdef TINYAVR_1SERIES
+	#if defined(TINYAVR_1SERIES) || defined(AVRxxEBxx) 
 		USART0.TXDATAL = tx_byte;
 	#endif
 	#ifdef ATTINYx41
@@ -417,7 +428,7 @@ void USART0_TX_interruptHandler(void)
 	uart_timeout_counter = 0; // Reset UART Timeout
 	transmitByte();
 
-#ifdef  TINYAVR_1SERIES
+#if defined(TINYAVR_1SERIES) || defined(AVRxxEBxx) 
 	USART0.STATUS = 0x40; // USART Transmit Complete Interrupt Clear
 #endif
 	

@@ -4,3 +4,7 @@
 * 0x0003 -> Teelicht
 * 0x0004 -> PAR-16 Dimmer
 * 0x0005 -> Ring Light Driver
+# Controller ID List
+* 0x0001 -> ATtiny841
+* 0x0002 -> ATtiny816
+* 0x0003 -> AVR16EB32

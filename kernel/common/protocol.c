@@ -16,6 +16,10 @@
 extern "C" {
 #endif
 
+#ifdef AVRxxEBxx
+	#include <avr/pgmspace.h>
+	#include "bootloader_AVRxxEBxx.h"
+#endif
 #ifdef TINYAVR_1SERIES
 	#include <avr/pgmspace.h>
 	#include "bootloader_1series.h"
@@ -198,7 +202,9 @@ void com_receiveData(uint8_t instruction_byte, uint8_t *data, uint8_t size)
 				uint16_t address = (uint16_t)(data[1]<<8);
 				address |= (uint16_t)(data[2]);
 				if(address >= AppEepromStart && address < EepromSize){
+					#ifdef ATTINYx41
 					address += EepromOffset;
+					#endif
 					for(uint8_t i = 0; i<size-3; i++){
 						bootloader_updateEeprom((uint8_t*)(address+i), data[i+3]);
 					}
@@ -216,7 +222,9 @@ void com_receiveData(uint8_t instruction_byte, uint8_t *data, uint8_t size)
 				if(size>16 || address>EepromSize){
 					error++;
 				}else{
+					#ifdef ATTINYx41
 					address+=EepromOffset;
+					#endif
 					for(uint8_t i = 0; i<size; i++){
 						acknowledgmentData[i+1] = bootloader_readEeprom((uint8_t*)(address+i));
 					}
