@@ -124,13 +124,30 @@ enum ApplicationState:uint8_t {
 static inline QString applicationStateString(ApplicationState state)
 {
     switch(state){
-        case Unknown: return ""; break;
-        case CheckingCrc: return "Checking CRC"; break;
-        case CrcError: return "CRC Error"; break;
-        case Starting: return "Starting Up"; break;
-        case Running: return "Running"; break;
-        case ShuttingDown: return "Shutting Down"; break;
-        case Stopped: return "Stopped"; break;
+        case Unknown: return QStringLiteral("");
+        case CheckingCrc: return QStringLiteral("Checking CRC");
+        case CrcError: return QStringLiteral("CRC Error");
+        case Starting: return QStringLiteral("Starting Up");
+        case Running: return QStringLiteral("Running");
+        case ShuttingDown: return QStringLiteral("Shutting Down");
+        case Stopped: return QStringLiteral("Stopped");
+    }
+}
+
+enum class PacketError: uint8_t{
+    NoError,
+    PacketDecoderError,
+    OtherError,
+    Uninitialized
+};
+
+static inline QString packetErrorString(PacketError error)
+{
+    switch(error){
+        case PacketError::NoError: return QStringLiteral("No error");
+        case PacketError::PacketDecoderError: return QStringLiteral("Packet decoder error");
+        case PacketError::OtherError: return QStringLiteral("Other error");
+        case PacketError::Uninitialized: return QStringLiteral("Uninitialized");
     }
 }
 
@@ -138,7 +155,7 @@ struct Packet{
     Address address = 0;
     Command command = 0;
     Message message;
-    bool error = true;
+    PacketError error = PacketError::Uninitialized;
 };
 
 struct DeviceState{

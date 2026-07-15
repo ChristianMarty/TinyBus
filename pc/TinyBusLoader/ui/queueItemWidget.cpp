@@ -39,33 +39,32 @@ void QueueItemWidget::_update()
         }
 
         case Update::State::StartUpload:
-        case Update::State::GetDeviceInformation:
-        {
+        case Update::State::GetDeviceInformation:{
             ui->label_state->setText("<font color='black'>Get Device Information</font>");
             break;
         }
-        case Update::State::Erase:
-        {
+
+        case Update::State::Erase:{
             ui->label_state->setText("<font color='black'>Erase</font>");
             break;
         }
-        case Update::State::DataTransfere:
-        {
+
+        case Update::State::DataTransfere:{
             ui->label_state->setText("<font color='black'>Data Transfere</font>");
             break;
         }
-        case Update::State::GetCrc:
-        {
+
+        case Update::State::GetCrc:{
             ui->label_state->setText("<font color='black'>Checking CRC</font>");
             break;
         }
 
-        case Update::State::Done: {
+        case Update::State::Done:{
             ui->label_state->setText("<font color='green'>Done</font>");
             break;
         }
 
-        case Update::State::Faild: {
+        case Update::State::Faild:{
             ui->label_state->setText("<font color='red'>Faild</font>");
             break;
         }

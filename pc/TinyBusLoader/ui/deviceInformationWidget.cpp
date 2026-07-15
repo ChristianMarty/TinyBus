@@ -103,6 +103,12 @@ void DeviceInformationWidget::clear()
     ui->label_eepromAppStart->clear();
 }
 
+void DeviceInformationWidget::closeEvent(QCloseEvent *event)
+{
+    _memoryWidget.close();
+    _eepromMemoryWidget.close();
+}
+
 void DeviceInformationWidget::on_selectedDeviceChanged()
 {
     _update();

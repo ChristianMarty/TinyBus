@@ -22,6 +22,8 @@ public:
     void setEnabled(bool enabled);
     void clear();
 
+    void closeEvent(QCloseEvent *event) override;
+
 private slots:
     void on_selectedDeviceChanged(void);
 

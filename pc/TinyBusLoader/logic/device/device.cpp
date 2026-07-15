@@ -118,7 +118,7 @@ void Device::startUpload(void)
 
 void Device::newData(const TinyBus::Packet &data)
 {
-    if(data.error){
+    if(data.error != TinyBus::PacketError::NoError){
         return; // TODO: error
     }
 

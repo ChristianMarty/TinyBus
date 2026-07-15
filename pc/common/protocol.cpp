@@ -21,7 +21,7 @@ ApplicationHeader Decode::extractApplicationHeader(const QByteArray &data)
 
 KernelCommand Decode::extractKernelCommand(const Packet &data)
 {
-    if(data.error) return KernelCommand::Error;
+    if(data.error != PacketError::NoError) return KernelCommand::Error;
     if(data.message.isEmpty()) return KernelCommand::Error;
 
     return (KernelCommand)((uint8_t)data.message[0] & 0x7F);
@@ -54,7 +54,7 @@ Packet Decode::packet(const QByteArray &data)
 {
     Packet output;
     if(data.size() < 1){
-        output.error = true;
+        output.error = PacketError::PacketDecoderError;
         return output;
     }
 
@@ -63,7 +63,7 @@ Packet Decode::packet(const QByteArray &data)
     output.address = extractAddress(instructionByte);
     output.command = extractCommand(instructionByte);
     output.message = data.mid(1);
-    output.error =false;
+    output.error = PacketError::NoError;
     return output;
 }
 
@@ -192,7 +192,7 @@ Packet Decode::frame(const QByteArray &data)
         output.address = ((uint8_t)data[0]>>4)&0x0F;
         output.command = ((uint8_t)data[0])&0x0F;
         output.message = data.mid(1);
-        output.error = false;
+        output.error = PacketError::NoError;
     }
     return output;
 }

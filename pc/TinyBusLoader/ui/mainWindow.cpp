@@ -41,6 +41,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    ui->widget_device->close();
+    _flashMemoryWidget.close();
     _busMonitorWidget.close();
     QMainWindow::closeEvent(event);
 }

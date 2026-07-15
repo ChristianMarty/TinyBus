@@ -1,5 +1,6 @@
 #include "connectionTcp.h"
 #include <QUrl>
+#include "../QuCLib/source/crc.h"
 
 ConnectionTcp::ConnectionTcp(QObject *parent)
     : ConnectionBase{parent}
@@ -45,16 +46,34 @@ void ConnectionTcp::sendData(QByteArray data)
         emit newMessage("not open");
         return;
     }
-    _tcpClient.write(_cobs.encode(data));
+
+    uint16_t crc = QuCLib::Crc::crc16(data);
+    data.append((crc>>8)&0xFF);
+    data.append(crc&0xFF);
+
+    QByteArray encodedData = _cobs.encode(data);
+    encodedData.prepend((uint8_t)_cobs.delimiter());
+
+    _tcpClient.write(encodedData);
 }
 
 
 void ConnectionTcp::on_readyRead()
 {
-    QByteArrayList data = _cobs.streamDecode(_tcpClient.readAll());
+    QByteArray decodeData = _tcpClient.readAll();
+    QByteArrayList data = _cobs.streamDecode(decodeData);
 
     for(QByteArray &message : data){
-        emit newData(message);
+        uint16_t crc = QuCLib::Crc::crc16(message);
+        if(message.length() <2){
+            newMessage("Message too short");
+            return;
+        }
+        if(crc != 0) {
+            newMessage("CRC Error");
+            return;
+        }
+        emit newData(message.mid(0,message.length()-2));
     }
 }
 

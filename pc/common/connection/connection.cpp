@@ -86,8 +86,8 @@ void Connection::on_rxData(QByteArray data)
     }
 
     TinyBus::Packet packet = TinyBus::Decode::packet(data);
-    if(packet.error){
-        emit newMessage("Packet decoder error");
+    if(packet.error != TinyBus::PacketError::NoError){
+        emit newMessage(TinyBus::packetErrorString(packet.error));
         return;
     }
 
