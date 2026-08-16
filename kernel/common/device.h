@@ -16,34 +16,35 @@ extern "C" {
 #include "com_uart.h"
 #include "tickTimer.h"
 
-#include "../common/typedef.h"
+#include "../common/typeDefinition.h"
 	
 typedef struct{
 	uint8_t deviceAddress;
 	uint8_t hardwareVersionMajor;
 	uint8_t hardwareVersionMinor;
-	com_baudRate baudRate;
+	com_baudRate_t baudRate;
 }settings_t;
 
 
 #ifdef AVRxxEBxx
-	#define reset_watchdog() asm("WDR")
+	#define watchdogReset() asm("WDR")
 	extern shared_t shared __attribute__((section (".shared")));
 	extern settings_t eeSettings  __attribute__((section(".eeprom")));
 #endif
 #ifdef TINYAVR_1SERIES
-    #define reset_watchdog() asm("WDR")
+    #define watchdogReset() asm("WDR")
     extern shared_t shared __attribute__((section (".shared")));
 	extern settings_t eeSettings  __attribute__((section(".eeprom")));
 #endif
 #ifdef ATTINYx41
-    #define reset_watchdog() asm("WDR")
+    #define watchdogReset() asm("WDR")
     extern shared_t shared __attribute__((section (".shared")));
 	extern settings_t eeSettings  __attribute__((section(".eeprom")));
 #endif
 #ifdef TEST_RUN
-    #define reset_watchdog()
+    #define watchdogReset()
     extern shared_t shared;
+	extern settings_t eeSettings;
 #endif
 
 void device_init(void);
@@ -60,7 +61,7 @@ uint8_t device_updateAddress(uint8_t address);
 //**************************************************************************
 //  Read EEPROM App Section
 //
-//	Parameter: Offset within app section, read data, read size
+//	Parameter:    Offset within app section, read data, read size
 //	Return value: true if successful
 //	
 //**************************************************************************
@@ -69,7 +70,7 @@ bool device_readEepromAppSection(uint16_t offset, uint8_t *data, uint16_t size);
 //**************************************************************************
 //  Write EEPROM App Section
 //
-//	Parameter: Offset within app section, write data, write size
+//	Parameter:    Offset within app section, write data, write size
 //	Return value: true if successful
 //
 //**************************************************************************

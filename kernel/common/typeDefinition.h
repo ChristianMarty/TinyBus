@@ -1,33 +1,33 @@
 //**********************************************************************************************************************
-// FileName : typedef.h
+// FileName : typeDefinition.h
 // FilePath : common/
 // Author   : Christian Marty
 // Date		: 26.05.2024
 // Website  : www.christian-marty.ch
 //**********************************************************************************************************************
-#ifndef TYPEDEF_H_
-#define TYPEDEF_H_
+#ifndef TYPE_DEFINITION_H_
+#define TYPE_DEFINITION_H_
 
 typedef enum {
-	APP_UNKNOWN = 0,
-	APP_CHECK_CRC, 
-	APP_CRC_ERROR, 
-	APP_START, 
-	APP_RUNNING,
-	APP_SHUTDOWN,
-	APP_STOPPED
-} device_state_t; // must be max one nibble (4 bit)
+	DeviceState_unknown = 0,
+	DeviceState_appCrcCheck, 
+	DeviceState_appCrcError, 
+	DeviceState_appStarting, 
+	DeviceState_appRunning,
+	DeviceState_appShutdown,
+	DeviceState_appStopped
+} deviceState_t; // must be max one nibble (4 bit)
 
 typedef struct {
 	uint8_t address;
 	uint16_t appCrc;
-	device_state_t deviceState:4;
+	deviceState_t deviceState:4;
 	uint8_t carrierDetected:1;
 	uint8_t reserved0:3;
 } shared_t;
 
 typedef struct {
-	uint8_t header_version:2;
+	uint8_t headerVersion:2;
 	uint8_t reserved0:5;
 	uint8_t autostart:1;
 	
@@ -44,6 +44,6 @@ typedef struct {
 	uint8_t reserved2[6];
 	
 	uint8_t name[18];
-} application_header_t;
+} applicationHeader_t;
 
-#endif /* TYPEDEF_H_ */
+#endif /* TYPE_DEFINITION_H_ */

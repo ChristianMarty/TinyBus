@@ -23,12 +23,12 @@
 // Note: Destination needs to be 2 Bytes larger than source
 // Return: Length of encoded data
 //**********************************************************************************************************************
-static inline uint8_t cobs_encode(uint8_t *destination, const uint8_t *source, uint8_t source_length)
+static inline uint8_t cobs_encode(uint8_t *destination, const uint8_t *source, uint8_t sourceLength)
 {
     uint8_t nullIndex = 0;
     uint8_t i = 0;
 
-    for(i = 1; i<source_length+1; i++)
+    for(i = 1; i<sourceLength+1; i++)
     {
         destination[i] = source[i-1];
         if(destination[i] == COBS_DELIMITER)

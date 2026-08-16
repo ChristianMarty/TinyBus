@@ -118,7 +118,7 @@ int main(void)
 	CPU_CCP = CCP_IOREG_gc;
 	CLKCTRL.OSCHFCTRLA = 0x01; // Enable Auto-tune
 	
-	reset_watchdog();
+	watchdogReset();
 			
 	device_init();
 	device_run();	// this function contains the main while(1) loop

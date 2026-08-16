@@ -28,4 +28,9 @@ kernel/attiny841_4-channelDimmer/Debug
 *.vs
 kernel/updater_attiny841/Debug
 pc/TinyBusTester/build
+kernel/avr16eb32/Debug
+application/Not-Aus Rev1.4/Not-Aus/Debug
+kernel/avr16eb32_notAus/Debug
 pc/TinyBusLoader/build
+*.PDF
+pc/build

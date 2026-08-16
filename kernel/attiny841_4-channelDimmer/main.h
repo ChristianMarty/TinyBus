@@ -60,16 +60,16 @@ Enable and configure Rx and TX LED
 Supported baud rates -> Uncomment to Enable
 ******************************************************************************/
 
-//#define Baudrate300
-//#define Baudrate600
-//#define Baudrate1200
-//#define Baudrate2400
-#define Baudrate4800
-#define Baudrate9600
-#define Baudrate14400
-#define Baudrate19200
-//#define Baudrate28800
-//#define Baudrate38400
-//#define Baudrate57600
-//#define Baudrate76800
-//#define Baudrate115200
+//#define BaudRate300
+//#define BaudRate600
+//#define BaudRate1200
+//#define BaudRate2400
+#define BaudRate4800 // mandatory baud rate -> disabling has no effect
+#define BaudRate9600
+#define BaudRate14400
+#define BaudRate19200
+//#define BaudRate28800
+//#define BaudRate38400
+//#define BaudRate57600
+//#define BaudRate76800
+//#define BaudRate115200

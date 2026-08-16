@@ -82,7 +82,7 @@ int main(void)
 	MainPowerOn();
 	CPU_CCP = CCP_IOREG_gc;
 	CPUINT.CTRLA = 0x40; //Interrupt vectors are placed at the start of the BOOT section of the Flash
-	reset_watchdog();
+	watchdogReset();
 		
 	device_init();
 	device_run();	// this function contains the main while(1) loop

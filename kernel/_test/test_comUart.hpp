@@ -2,6 +2,7 @@
 #include "utility/cobs_u8.h"
 #include "utility/softCRC.h"
 #include "bootloader_test.h"
+#include "kernel.h"
 
 uint8_t rxRegister = 0;
 

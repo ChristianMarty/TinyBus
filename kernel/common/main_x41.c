@@ -9,8 +9,8 @@
 #include "device.h"
 #include "bootloader_x41.h"
 
-void InterruptVectorTable(void)  __attribute__ ((naked))  __attribute__ ((section (".vectors")));
-void InterruptVectorTable(void)
+void interruptVectorTable(void)  __attribute__ ((naked))  __attribute__ ((section (".vectors")));
+void interruptVectorTable(void)
 {
 	asm("rjmp main"); //RESET
 	asm("rjmp %0" ::  "i" (AppBaseByteAddress+0):);	 //INT0
@@ -72,7 +72,7 @@ int main(void)
 	MainPowerOn();
 	CCP = 0xD8;		// Configuration Change Protection
 	WDTCSR = 0x47;	// Watchdog reset after 2s
-	reset_watchdog();
+	watchdogReset();
 			
 	device_init();
 	device_run();	// this function contains the main while(1) loop 

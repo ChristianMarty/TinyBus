@@ -7,7 +7,7 @@
 //**********************************************************************************************************************
 #include <main.h>
 #include "com_uart.h"
-#include "../common/typedef.h"
+#include "../common/typeDefinition.h"
 #include "../common/protocol.h"
 
 #define COBS_DELIMITER 0x55 // IMPORTANT! This must be defined before cobs_u8.h is included
@@ -22,7 +22,7 @@ extern "C" {
 extern shared_t shared __attribute__((section (".shared")));
 #endif
 
-typedef enum {UART_IDLE, UART_TX, UART_TX_COMPLETE, UART_RX, UART_RX_COMPLETE} uart_state_t;
+typedef enum {UART_IDLE, UART_TX, UART_TX_COMPLETE, UART_RX, UART_RX_COMPLETE} uartState_t;
 	
 #if defined(TINYAVR_1SERIES) || defined(AVRxxEBxx)
 	#define USART0_RX_ENABLE  USART0.CTRLB |= 0x80
@@ -33,37 +33,36 @@ typedef enum {UART_IDLE, UART_TX, UART_TX_COMPLETE, UART_RX, UART_RX_COMPLETE} u
 	#define USART0_RX_ENABLE UCSR0B |= 0x90
 	#define USART0_RX_DISABLE UCSR0B &= 0x6F
 #endif
-#endif
-
-#ifdef TEST_RUN
-#define USART0_RX_ENABLE
-#define USART0_RX_DISABLE
-extern uint8_t rxRegister;
-#endif
 
 #ifdef RxTxLedEnable
 	volatile int8_t rxLedTimer5ms;
 #endif
 
-volatile uint8_t uart_buffer[UartBufferSize];
-volatile uint8_t uart_buffer_position;
+volatile uint8_t uartBuffer[UartBufferSize];
+volatile uint8_t uartBufferPosition;
 
-volatile uint8_t uart_tx_size;
-volatile uint8_t rx_byte_count;
+volatile uint8_t txSize;
+volatile uint8_t rxByteCount;
 
-volatile uart_state_t uart_state; 
+volatile uartState_t uartState; 
 volatile uint8_t com_error;
 volatile uint8_t uart_timeout_counter;
 volatile uint8_t uart_carrierSenseTimeoutCounter;
 
+
 #ifdef TEST_RUN
-    void com_setUartIdle(void)
-    {
-        uart_state = UART_IDLE;
-    }
+#define USART0_RX_ENABLE
+#define USART0_RX_DISABLE
+#define RxPinState true
+extern uint8_t rxRegister;
+shared_t shared;
+void com_setUartIdle(void)
+{
+	uartState = UART_IDLE;
+}
 #endif
 
-void com_setBaudrate(com_baudRate baudRate)
+void com_setBaudrate(com_baudRate_t baudRate)
 {	
 #if defined(TINYAVR_1SERIES) || defined(AVRxxEBxx) 
 	switch(baudRate){
@@ -77,57 +76,58 @@ void com_setBaudrate(com_baudRate baudRate)
 		USART0.BAUD = 22222;
 		break;
 #endif
-#ifdef Baudrate1200
+#ifdef BaudRate1200
 		case BAUD_1200:
 		USART0.BAUD = 11111;
 		break;
 #endif
-#ifdef Baudrate2400
+#ifdef BaudRate2400
 		case BAUD_2400:
 		USART0.BAUD = 5555;
 		break;
 #endif
-#ifdef Baudrate4800
+
+		default:
 		case BAUD_4800:
 		USART0.BAUD = 2778;
 		break;
-#endif
-#ifdef Baudrate9600
+
+#ifdef BaudRate9600
 		case BAUD_9600:
 		USART0.BAUD = 1389;
 		break;
 #endif
-#ifdef Baudrate14400
+#ifdef BaudRate14400
 		case BAUD_14400:
 		USART0.BAUD = 925;
 		break;
 #endif
-#ifdef Baudrate19200
+#ifdef BaudRate19200
 		case BAUD_19200:
 		USART0.BAUD = 694;
 		break;
 #endif
-#ifdef Baudrate28800
+#ifdef BaudRate28800
 		case BAUD_28800:
 		USART0.BAUD = 462;
 		break;
 #endif
-#ifdef Baudrate38400
+#ifdef BaudRate38400
 		case BAUD_38400:
 		USART0.BAUD = 347;
 		break;
 #endif
-#ifdef Baudrate57600
+#ifdef BaudRate57600
 		case BAUD_57600:
 		USART0.BAUD = 231;
 		break;
 #endif
-#ifdef Baudrate76800
+#ifdef BaudRate76800
 		case BAUD_76800:
 		USART0.BAUD = 173;
 		break;
 #endif
-#ifdef Baudrate115200
+#ifdef BaudRate115200
 		case BAUD_115200:
 		USART0.BAUD = 115;
 		break;
@@ -135,69 +135,69 @@ void com_setBaudrate(com_baudRate baudRate)
 	}
 #endif
 
-#ifdef ATTINYx41
+#if defined(ATTINYx41)
 	switch(baudRate){
-#ifdef Baudrate300
+#ifdef BaudRate300
 		case BAUD_300:
 		UBRR0 = 3328;
 		break;
 #endif
-#ifdef Baudrate600
+#ifdef BaudRate600
 		case BAUD_600:
 		UBRR0 = 1664;
 		break;
 #endif
-#ifdef Baudrate1200
+#ifdef BaudRate1200
 		case BAUD_1200:
 		UBRR0 = 832;
 		break;
 #endif
-#ifdef Baudrate2400
+#ifdef BaudRate2400
 		case BAUD_2400:
 		UBRR0 = 416;
 		break;
 #endif
-#ifdef Baudrate4800
+		default:
 		case BAUD_4800:
 		UBRR0 = 207;
 		break;
-#endif
-#ifdef Baudrate9600
+		
+#ifdef BaudRate9600
 		case BAUD_9600:
 		UBRR0 = 103;
 		break;
 #endif
-#ifdef Baudrate14400
+#ifdef BaudRate14400
 		case BAUD_14400:
 		UBRR0 = 68;
 		break;
 #endif
-#ifdef Baudrate19200
+#ifdef BaudRate19200
 		case BAUD_19200:
 		UBRR0 = 51;
 		break;
 #endif
-#ifdef Baudrate28800
+#ifdef BaudRate28800
 		case BAUD_28800:
 		UBRR0 = 34;
 		break;
 #endif
-#ifdef Baudrate38400
+#ifdef BaudRate38400
 		case BAUD_38400:
 		UBRR0 = 25;
 		break;
 #endif
-#ifdef Baudrate57600
+#ifdef BaudRate57600
 		case BAUD_57600:
 		UBRR0 = 17;
 		break;
 #endif
-#ifdef Baudrate76800
+#ifdef BaudRate76800
 		case BAUD_76800:
 		UBRR0 = 12;
 		break;
 #endif
-#ifdef Baudrate115200
+#ifdef BaudRate115200
 		case BAUD_115200:
 		UBRR0 = 8;
 		break;
@@ -213,11 +213,11 @@ void com_setBaudrate(com_baudRate baudRate)
 //**********************************************************************************************************************
 void com_init(void)
 {
-	uart_state = UART_IDLE; 
-	uart_buffer_position = 0;
+	uartState = UART_IDLE; 
+	uartBufferPosition = 0;
 
-	uart_tx_size = 0;
-	rx_byte_count = 0;
+	txSize = 0;
+	rxByteCount = 0;
 
   	com_error = 0;
 	uart_timeout_counter = 0;
@@ -243,14 +243,13 @@ void com_init(void)
 	USART0.CTRLC = 0x03; // 8N1
 	USART0.CTRLA = 0xC0; // USART Receive / Transmit Complete Interrupt Enable
 #endif
-#endif
 
 #ifdef ATTINYx41
-	uint8_t rx_byte = UDR0;
+	uint8_t rxByte = UDR0;
 	UCSR0A = 0b00000000;
 	UCSR0C = 0b00000110;
 	UCSR0B = 0b11011000; // normal
-	rx_byte = UDR0;
+	rxByte = UDR0;
 	
 	REMAP = 0x01;  // Pin mapping
 #endif
@@ -261,13 +260,13 @@ void com_init(void)
 void com_5msTickHandler(void)
 {		
 	if(uart_timeout_counter > UartTimeout){
-		uart_state = UART_IDLE;	
+		uartState = UART_IDLE;	
 		uart_timeout_counter = 0;
-		uart_buffer_position = 0;
+		uartBufferPosition = 0;
 		com_error = 0;
 	}
 	
-	if(uart_state != UART_IDLE){
+	if(uartState != UART_IDLE){
 		uart_timeout_counter ++;
 	}	
 	
@@ -293,20 +292,19 @@ void com_handler(void)
 		uart_carrierSenseTimeoutCounter = 0;
 	}
 	
-	if(uart_state == UART_RX_COMPLETE)
+	if(uartState == UART_RX_COMPLETE)
 	{
-		if((!com_error)&&(uart_buffer_position > 4))
+		if((!com_error)&&(uartBufferPosition > 4))
 		{
-			uint8_t rx_dataSize = 0;
-			rx_dataSize = cobs_decode((uint8_t*)&uart_buffer[0], (const uint8_t*)&uart_buffer[1], uart_buffer_position-1); // uart_buffer[0] -> byte 0 is cobs 0 and can be ignored
+            uint8_t rx_dataSize = cobs_decode((uint8_t*)&uartBuffer[0], (const uint8_t*)&uartBuffer[1], uartBufferPosition-1); // uartBuffer[0] -> byte 0 is cobs 0 and can be ignored
 			
-			uint16_t crc_16 = crc16((uint8_t*)&uart_buffer[0], rx_dataSize);
+			uint16_t crc_16 = crc16((uint8_t*)&uartBuffer[0], rx_dataSize);
 			if(crc_16 == 0){
-				com_receiveData(uart_buffer[0], (uint8_t*)&uart_buffer[1], (rx_dataSize - 3)); // -3 because 2 bytes of crc and data_buffer[0] is passed separately 
+				com_receiveData(uartBuffer[0], (uint8_t*)&uartBuffer[1], (rx_dataSize - 3)); // -3 because 2 bytes of crc and data_buffer[0] is passed separately 
 			}
 		}
 		com_error = 0;
-		uart_state = UART_IDLE;	
+		uartState = UART_IDLE;	
 	}
 }
 
@@ -316,51 +314,51 @@ void USART0_RX_interruptHandler(void)
 	uart_timeout_counter = 0; // Reset UART Timeout 
 	uart_carrierSenseTimeoutCounter = 0; // Reset Carrier Sense Timeout 
 	
-	if(uart_state == UART_IDLE){
-		uart_state = UART_RX;
-		uart_buffer_position = 0;
+	if(uartState == UART_IDLE){
+		uartState = UART_RX;
+		uartBufferPosition = 0;
 	}
 	
-	if(uart_state != UART_RX) return;
+	if(uartState != UART_RX) return;
 	
 	
 #if defined(TINYAVR_1SERIES) || defined(AVRxxEBxx) 
 	if(USART0.RXDATAH & 0x46) {
 		com_error = true; // check for frame error / data over-run
 	}
-	uint8_t rx_byte =  USART0.RXDATAL;
+	uint8_t rxByte =  USART0.RXDATAL;
 #endif
 
 #ifdef ATTINYx41
 	if(UCSR0A & 0x14){
 		com_error = true; // check for frame error / data over-run
 	}
-	uint8_t rx_byte =  UDR0;
+	uint8_t rxByte =  UDR0;
 #endif
 
 #ifdef TEST_RUN
-	uint8_t rx_byte = rxRegister;
+	uint8_t rxByte = rxRegister;
 #endif
 	
-	if(uart_buffer_position < UartBufferSize) {
-        uart_buffer[uart_buffer_position] = rx_byte;
+	if(uartBufferPosition < UartBufferSize) {
+        uartBuffer[uartBufferPosition] = rxByte;
     }else{
 		com_error = true;
 	}
-	uart_buffer_position++;
+	uartBufferPosition++;
 	
-	if((rx_byte == COBS_DELIMITER)&&(uart_buffer_position > 1)){
-		uart_state = UART_RX_COMPLETE;
+	if((rxByte == COBS_DELIMITER)&&(uartBufferPosition > 1)){
+		uartState = UART_RX_COMPLETE;
 	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------   
 void transmitByte(void)
 {
-	if(uart_tx_size > uart_buffer_position) // transmitting
+	if(txSize > uartBufferPosition) // transmitting
 	{
-		uint8_t tx_byte = uart_buffer[uart_buffer_position];
-        uart_buffer_position ++;
+		uint8_t tx_byte = uartBuffer[uartBufferPosition];
+        uartBufferPosition ++;
 		
 	#if defined(TINYAVR_1SERIES) || defined(AVRxxEBxx) 
 		USART0.TXDATAL = tx_byte;
@@ -376,7 +374,7 @@ void transmitByte(void)
 	else // transmission completed
 	{
 		USART0_RX_ENABLE;
-		uart_state = UART_IDLE;
+		uartState = UART_IDLE;
 	#ifdef RxTxLedEnable
 		TxLedOff();
 	#endif
@@ -384,41 +382,41 @@ void transmitByte(void)
 }
 
 //---------------------------------------------------------------------------------------------------------------------- 
-void com_transmitData(uint8_t instruction_byte,  uint8_t * data, uint8_t size, bool is_nAck)
+void com_transmitData(uint8_t instructionByte, const uint8_t * data, uint8_t size, bool is_nAck)
 {	
 #ifdef RxTxLedEnable
 	TxLedOn();
 #endif
 
-	uart_state = UART_TX;
+	uartState = UART_TX;
 	USART0_RX_DISABLE;
 	
-	uint8_t i = 0;
-	uart_buffer[0] = COBS_DELIMITER;
+	uint8_t i;
+	uartBuffer[0] = COBS_DELIMITER;
 	// Copy data to uart buffer
-	uart_buffer[2] = instruction_byte;
+	uartBuffer[2] = instructionByte;
 	for(i = 0; i<size; i++){
-		uart_buffer[i+3] = data[i];
+		uartBuffer[i+3] = data[i];
 	}
 	size++; // Because of instruction_byte
 	
 	if(is_nAck == 0){
-		uint16_t crc = crc16((uint8_t*)&uart_buffer[2],size);
+		uint16_t crc = crc16((uint8_t*)&uartBuffer[2],size);
 		
-		uart_buffer[i+3] = (uint8_t) (crc >> 8); // CRC High
-		uart_buffer[i+4] = (uint8_t) (crc & 0xFF); // CRC Low
+		uartBuffer[i+3] = (uint8_t) (crc >> 8); // CRC High
+		uartBuffer[i+4] = (uint8_t) (crc & 0xFF); // CRC Low
 	}else{
-		uart_buffer[i+3] = 0; // CRC High
-		uart_buffer[i+4] = 0; // CRC Low
+		uartBuffer[i+3] = 0; // CRC High
+		uartBuffer[i+4] = 0; // CRC Low
 	}
 	size+=2; // Because of crc
 	
-	uint8_t tx_size = cobs_encode((uint8_t*)&uart_buffer[1],(const uint8_t*)&uart_buffer[2],size);
+	uint8_t tx_size = cobs_encode((uint8_t*)&uartBuffer[1], (const uint8_t*)&uartBuffer[2], size);
 	tx_size++;
 	
 	// Start Transmitting
-	uart_tx_size = tx_size;
-	uart_buffer_position = 0;
+	txSize = tx_size;
+	uartBufferPosition = 0;
 	
 	transmitByte();
 }

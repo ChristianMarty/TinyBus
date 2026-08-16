@@ -10,17 +10,18 @@ extern "C" {
 #endif
 	
 #include "device.h"
-#include "typedef.h"
+#include "typeDefinition.h"
 #include "main.h"
 
 #ifdef AVRxxEBxx
-#include "bootloader_AVRxxEBxx.h"
-settings_t eeSettings  __attribute__((section(".eeprom"))) = {
-	.deviceAddress = 0,
-	.hardwareVersionMajor = HARDWARE_VERSION_MAJOR,
-	.hardwareVersionMinor = HARDWARE_VERSION_MINOR,
-	.baudRate = BAUD_4800
-};
+	#include "bootloader_AVRxxEBxx.h"
+	settings_t eeSettings  __attribute__((section(".eeprom"))) = {
+		.deviceAddress = 0,
+		.hardwareVersionMajor = HARDWARE_VERSION_MAJOR,
+		.hardwareVersionMinor = HARDWARE_VERSION_MINOR,
+		.baudRate = BAUD_4800
+	};
+	shared_t shared __attribute__((section (".shared")));
 #endif
 
 #ifdef TINYAVR_1SERIES
@@ -31,6 +32,7 @@ settings_t eeSettings  __attribute__((section(".eeprom"))) = {
 		.hardwareVersionMinor = HARDWARE_VERSION_MINOR,
 		.baudRate = BAUD_4800
 	};
+	shared_t shared __attribute__((section (".shared")));
 #endif
 
 #ifdef ATTINYx41
@@ -41,6 +43,7 @@ settings_t eeSettings  __attribute__((section(".eeprom"))) = {
 		.hardwareVersionMinor = HARDWARE_VERSION_MINOR,
 		.baudRate = BAUD_4800
 	};
+	shared_t shared __attribute__((section (".shared")));
 #endif
 
 #ifdef TEST_RUN
@@ -50,11 +53,9 @@ settings_t eeSettings  __attribute__((section(".eeprom"))) = {
     {}
 #endif
 
-shared_t shared __attribute__((section (".shared")));
-
 uint8_t device_getAddress(void);
-com_baudRate device_getBaudRate(void);
-com_baudRate baudRate;
+com_baudRate_t device_getBaudRate(void);
+com_baudRate_t baudRate;
 
 void device_init(void)
 {
@@ -65,10 +66,10 @@ void device_init(void)
 	
 	device_setBaudRate(device_getBaudRate());
 	
-	shared.deviceState = APP_STOPPED;
+	shared.deviceState = DeviceState_appStopped;
 	shared.appCrc = bootloader_appCRC();
 	if(bootloader_checkAppCRC(shared.appCrc) != 0){
-		shared.deviceState = APP_CRC_ERROR;
+		shared.deviceState = DeviceState_appCrcError;
 	}
 	sei();
 	tickTimer_init();
@@ -86,11 +87,11 @@ void device_init(void)
 #endif
 
 // Autostart app
-	if(shared.deviceState == APP_STOPPED && watchdogReset == false) //only in case watchdog reset was not triggered
+	if(shared.deviceState == DeviceState_appStopped && watchdogReset == false) //only in case watchdog reset was not triggered
 	{
 		uint8_t byte = bootloader_readByte(AppBaseByteAddress);
 		if(byte&0x80){ // if autostart bit is set
-			shared.deviceState = APP_START;
+			shared.deviceState = DeviceState_appStarting;
 		}
 	}
 }
@@ -100,52 +101,52 @@ void device_run(void)
 	while(1)
 	{
 		com_handler();
-		reset_watchdog();
+		watchdogReset();
 		
 		switch(shared.deviceState)
 		{
-			case APP_CHECK_CRC:
+			case DeviceState_appCrcCheck:
 				shared.appCrc = bootloader_appCRC();
 				if(bootloader_checkAppCRC(shared.appCrc) == 0){
-					shared.deviceState = APP_START;
+					shared.deviceState = DeviceState_appStarting;
 				}else{
-					shared.deviceState = APP_CRC_ERROR;
+					shared.deviceState = DeviceState_appCrcError;
 				}
 				break;
 				
-			case APP_START:
+			case DeviceState_appStarting:
 				app_main();
-				shared.deviceState = APP_RUNNING;
+				shared.deviceState = DeviceState_appRunning;
 				break;
 			
-			case APP_RUNNING:
+			case DeviceState_appRunning:
 				app_main();
 				break;
 			
-			case APP_SHUTDOWN:
+			case DeviceState_appShutdown:
 				app_main();
-				shared.deviceState = APP_STOPPED;
+				shared.deviceState = DeviceState_appStopped;
 				break;
 			
-			case APP_CRC_ERROR:
-			case APP_UNKNOWN:
-			case APP_STOPPED:
+			case DeviceState_appCrcError:
+			case DeviceState_unknown:
+			case DeviceState_appStopped:
 				break;
 		}
 		
-		reset_watchdog();
+		watchdogReset();
 	}	
 }
 
 void device_eraseApp(void)
 {
-	if(shared.deviceState == APP_START || shared.deviceState == APP_RUNNING)
+	if(shared.deviceState == DeviceState_appStarting || shared.deviceState == DeviceState_appRunning)
 	{
-		shared.deviceState = APP_SHUTDOWN;
+		shared.deviceState = DeviceState_appShutdown;
 		app_main();
 	}
 	
-	shared.deviceState = APP_CRC_ERROR;
+	shared.deviceState = DeviceState_appCrcError;
 	bootloader_eraseAppSection();
 }
 
@@ -193,7 +194,7 @@ uint8_t device_getAddress(void)
 #endif
 }
 
-com_baudRate device_getBaudRate(void)
+com_baudRate_t device_getBaudRate(void)
 {
 #ifdef TINYAVR_1SERIES
 	return bootloader_readEeprom((&eeSettings.baudRate)+EepromOffset);
@@ -205,9 +206,6 @@ com_baudRate device_getBaudRate(void)
 
 void device_setBaudRate(uint8_t baudRateIndex)
 {
-	if(baudRateIndex >= BAUD_LENGTH){
-		baudRateIndex = BAUD_4800; // in case value is invalid
-	}
 	baudRate = baudRateIndex;
 	com_setBaudrate(baudRate);
 }

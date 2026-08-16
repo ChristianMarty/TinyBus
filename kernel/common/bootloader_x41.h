@@ -96,7 +96,7 @@ static inline uint16_t bootloader_checkAppCRC(uint16_t crcValue)
 //	Return value: None
 //
 //**************************************************************************
-static inline void bootloader_writePage(uint16_t pageAddress, uint8_t *data)
+static inline void bootloader_writePage(uint16_t pageAddress, const uint8_t *data)
 {
 	cli();
 	
@@ -124,7 +124,7 @@ static inline void bootloader_writePage(uint16_t pageAddress, uint8_t *data)
 //	Return value: EEPROM Data
 //
 //**************************************************************************
-uint8_t bootloader_readEeprom(uint8_t *address);
+uint8_t bootloader_readEeprom(const uint8_t *address);
 
 //**************************************************************************
 //
@@ -134,7 +134,7 @@ uint8_t bootloader_readEeprom(uint8_t *address);
 //	Return value: None
 //
 //**************************************************************************
-void bootloader_updateEeprom(uint8_t *address, uint8_t data);
+void bootloader_updateEeprom(const uint8_t *address, uint8_t data);
 
 //**************************************************************************
 //

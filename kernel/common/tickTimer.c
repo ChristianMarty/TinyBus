@@ -14,7 +14,7 @@
 #endif
 
 #include "tickTimer.h"
-#include "typedef.h"
+#include "typeDefinition.h"
 
 volatile uint16_t tickCounter;
 
@@ -25,42 +25,42 @@ extern shared_t shared __attribute__((section (".shared")));
 void tickTimer_init(void)
 {
 #if defined(TINYAVR_1SERIES) || defined(AVRxxEBxx)
-	RTC.CLKSEL = 0;
+	RTC.CLKSEL  = 0x00;
 	RTC.INTCTRL = 0x01; // Overflow Interrupt Enable
-	RTC.PER = 0xA4;
-	RTC.CTRLA = 0x01;   // Enable
+	RTC.PER     = 0xA4;
+	RTC.CTRLA   = 0x01; // Enable
 #endif
 
-#ifdef ATTINYx41
+#if defined(ATTINYx41)
 	TCCR0A = 0;
-	TCCR0B = 0b00000101;  // ckl/1024
+	TCCR0B = 0b00000101; // Clock / 1024
 	TIMSK0 = 0b00000001; // Overflow interrupt enable
 	TCNT0 = 177;
 #endif
 	tickCounter = 0;
 }
 
-bool tickTimer_delay5ms(tickTimer_t *counter, uint16_t delay)
+bool tickTimer_delay5ms(tickTimer_t *tickTimer, uint16_t delay)
 {
-    uint16_t t = tickCounter-*counter;
+    uint16_t t = tickCounter-tickTimer->counter;
 	if(t < delay) {
         return false;
     }else{
-		*counter = tickCounter;
+		tickTimer->counter = tickCounter;
 		return true;
 	}
 }
 
-void tickTimer_reset(tickTimer_t *counter)
+void tickTimer_reset(tickTimer_t *tickTimer)
 {
-	*counter = tickCounter;
+	tickTimer->counter = tickCounter;
 }
 
 void tickTimer_interruptHandler(void)
 {
 #ifndef TEST_RUN
 	com_5msTickHandler();
-	if(shared.deviceState == APP_RUNNING){
+	if(shared.deviceState == DeviceState_appRunning){
 		app_5msTickHandler();
 	}
 #endif

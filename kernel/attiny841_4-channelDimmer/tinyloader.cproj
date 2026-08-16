@@ -219,9 +219,9 @@
       <SubType>compile</SubType>
       <Link>common\tickTimer.h</Link>
     </Compile>
-    <Compile Include="..\common\typedef.h">
+    <Compile Include="..\common\typeDefinition.h">
       <SubType>compile</SubType>
-      <Link>common\typedef.h</Link>
+      <Link>common\typeDefinition.h</Link>
     </Compile>
     <Compile Include="..\uCodebase\utility\cobs_u8.h">
       <SubType>compile</SubType>

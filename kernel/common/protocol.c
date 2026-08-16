@@ -8,7 +8,7 @@
 #include "main.h"
 #include "protocol.h"
 #include "com_uart.h"
-#include "typedef.h"
+#include "typeDefinition.h"
 #include "device.h"
 #include "kernel.h"
 
@@ -30,7 +30,7 @@ extern "C" {
 #endif
 #ifdef TEST_RUN
     #include "bootloader_test.h"
-    void app_receiveDataHandler(uint8_t instruction, uint8_t *data, uint8_t size, bool broadcast)
+    void app_receiveDataHandler(uint8_t instructionByte, const uint8_t *data, uint8_t size, bool broadcast)
     {}
 #endif
 
@@ -51,7 +51,7 @@ typedef enum  {
 	CMD_READ_RAM,
 	
 	CMD_REBOOT = 10,
-	CMD_APP_START,
+	CMD_DeviceState_appStarting,
 	CMD_APP_STOP,
 	CMD_GET_APP_NAME,
 	CMD_GET_APP_HEADER,
@@ -66,7 +66,7 @@ typedef enum  {
 
 #define BROADCAST_ADDRESS  0x0F
 
-uint16_t unpackU16( uint8_t *data){
+uint16_t unpackU16(const uint8_t *data){
 	return ((uint16_t)(data[0]<<8))+data[1];
 }
 
@@ -75,13 +75,13 @@ uint16_t unpackU16( uint8_t *data){
 //	Communication Handler -> RX Complete Call Back
 //
 //**************************************************************************  
-void com_receiveData(uint8_t instruction_byte, uint8_t *data, uint8_t size)
+void com_receiveData(uint8_t instructionByte, const uint8_t *data, uint8_t size)
 {
 	// Extract destination address from received data
-	uint8_t des_address = (instruction_byte >> 4);
+	uint8_t des_address = (instructionByte >> 4);
 
 	// Extract command from received data
-	uint8_t command = (instruction_byte & 0x0F);
+	uint8_t command = (instructionByte & 0x0F);
 
 	if(des_address != shared.address && des_address != BROADCAST_ADDRESS) return;
 	
@@ -91,10 +91,10 @@ void com_receiveData(uint8_t instruction_byte, uint8_t *data, uint8_t size)
 		
 	if(command != 15)
 	{
-		if(shared.deviceState == APP_RUNNING){
+		if(shared.deviceState == DeviceState_appRunning){
 			app_receiveDataHandler(command, data, size, (des_address == BROADCAST_ADDRESS));
-		}else if(shared.deviceState == APP_STOPPED){
-			shared.deviceState = APP_CHECK_CRC;
+		}else if(shared.deviceState == DeviceState_appStopped){
+			shared.deviceState = DeviceState_appCrcCheck;
 		}
 	}
 	else// If kernel command is received
@@ -176,8 +176,8 @@ void com_receiveData(uint8_t instruction_byte, uint8_t *data, uint8_t size)
 				uint16_t crc = bootloader_appCRC();
 				acknowledgmentData[2] = (crc &0x00FF);
 				acknowledgmentData[1] = (crc >>8);
-				if(shared.deviceState == APP_CRC_ERROR && bootloader_checkAppCRC(crc) == 0){
-					shared.deviceState = APP_STOPPED;
+				if(shared.deviceState == DeviceState_appCrcError && bootloader_checkAppCRC(crc) == 0){
+					shared.deviceState = DeviceState_appStopped;
 				}
 			
 				acknowledgmentSize += 2;
@@ -218,17 +218,17 @@ void com_receiveData(uint8_t instruction_byte, uint8_t *data, uint8_t size)
 	#ifdef EEPROM_READ
 			case CMD_READ_EEPROM:{
 				uint16_t address = unpackU16(&data[1]);
-				uint8_t size = data[3];
-				if(size>16 || address>EepromSize){
+				uint8_t readSize = data[3];
+				if(readSize>16 || address>EepromSize){
 					error++;
 				}else{
 					#ifdef ATTINYx41
 					address+=EepromOffset;
 					#endif
-					for(uint8_t i = 0; i<size; i++){
+					for(uint8_t i = 0; i<readSize; i++){
 						acknowledgmentData[i+1] = bootloader_readEeprom((uint8_t*)(address+i));
 					}
-					acknowledgmentSize+=size;
+					acknowledgmentSize+=readSize;
 				}
 				break;
 			}
@@ -237,15 +237,15 @@ void com_receiveData(uint8_t instruction_byte, uint8_t *data, uint8_t size)
 	#ifdef RAM_READ
 			case CMD_READ_RAM:{
 				uint16_t address  = unpackU16(&data[1]);
-				uint8_t size = data[3];
-				if(size>16 || address>RamSize){
+				uint8_t readSize = data[3];
+				if(readSize>16 || address>RamSize){
 					error++;
 				}else{
 					uint8_t *ramData = ((uint8_t*)(RamOffset+address));
-					for(uint8_t i = 0; i<size; i++){
+					for(uint8_t i = 0; i<readSize; i++){
 						acknowledgmentData[i+1] = ramData[i];
 					}
-					acknowledgmentSize+=size;
+					acknowledgmentSize+=readSize;
 				}
 				break;
 			}
@@ -255,18 +255,18 @@ void com_receiveData(uint8_t instruction_byte, uint8_t *data, uint8_t size)
 				device_reboot();
 				break;
 			}
-			case CMD_APP_START:{
-				shared.deviceState = APP_CHECK_CRC;
+			case CMD_DeviceState_appStarting:{
+				shared.deviceState = DeviceState_appCrcCheck;
 				break;
 			}
 			case CMD_APP_STOP:{
-				if(shared.deviceState == APP_RUNNING || shared.deviceState == APP_START){
-					shared.deviceState = APP_SHUTDOWN;
+				if(shared.deviceState == DeviceState_appRunning || shared.deviceState == DeviceState_appStarting){
+					shared.deviceState = DeviceState_appShutdown;
 				}
 				break;
 			}
 			case CMD_GET_APP_NAME:{
-				if(shared.deviceState == APP_CRC_ERROR){
+				if(shared.deviceState == DeviceState_appCrcError){
 					error++;
 					break;
 				}
@@ -279,7 +279,7 @@ void com_receiveData(uint8_t instruction_byte, uint8_t *data, uint8_t size)
 				break;
 			}
 			case CMD_GET_APP_HEADER:{
-				if(shared.deviceState == APP_CRC_ERROR){
+				if(shared.deviceState == DeviceState_appCrcError){
 					error++;
 					break;
 				}
@@ -311,37 +311,37 @@ void com_receiveData(uint8_t instruction_byte, uint8_t *data, uint8_t size)
 				#ifdef Baudrate600
 					byteLow |= 0x02;
 				#endif
-				#ifdef Baudrate1200
+				#ifdef BaudRate1200
 					byteLow |= 0x04;
 				#endif
-				#ifdef Baudrate2400
+				#ifdef BaudRate2400
 					byteLow |= 0x08;
 				#endif
-				#ifdef Baudrate4800
+				#ifdef BaudRate4800
 					byteLow |= 0x10;
 				#endif
-				#ifdef Baudrate9600
+				#ifdef BaudRate9600
 					byteLow |= 0x20;
 				#endif
-				#ifdef Baudrate14400
+				#ifdef BaudRate14400
 					byteLow |= 0x40;
 				#endif
-				#ifdef Baudrate19200
+				#ifdef BaudRate19200
 					byteLow |= 0x80;
 				#endif
-				#ifdef Baudrate28800
+				#ifdef BaudRate28800
 					byteHigh |= 0x01;
 				#endif
-				#ifdef Baudrate38400
+				#ifdef BaudRate38400
 					byteHigh |= 0x02;
 				#endif
-				#ifdef Baudrate57600
+				#ifdef BaudRate57600
 					byteHigh |= 0x04;
 				#endif
-				#ifdef Baudrate76800
+				#ifdef BaudRate76800
 					byteHigh |= 0x08;
 				#endif
-				#ifdef Baudrate115200
+				#ifdef BaudRate115200
 					byteHigh |= 0x10;
 				#endif
 				acknowledgmentData[1] = byteLow;
@@ -355,6 +355,6 @@ void com_receiveData(uint8_t instruction_byte, uint8_t *data, uint8_t size)
 				break;
 			}
 		}
-		com_transmitData(instruction_byte, &acknowledgmentData[0], acknowledgmentSize, error);
+		com_transmitData(instructionByte, &acknowledgmentData[0], acknowledgmentSize, error);
 	}
 }

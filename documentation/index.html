@@ -118,7 +118,7 @@
     <p>Additionally, all nodes can be commanded simultaneously via a broadcast address.</p>
     
     <h3>Baud Rates</h3>
-    <p>Each TinyBus node must support all eight specified baud rates. See <a href="#command0x20">Command 0x20 - Set Baud Rate</a> for reference.</p>
+    <p>See <a href="#command0x20">Command 0x20 - Set Baud Rate</a> for reference.</p>
 
     <h4>Limitations</h4>
     <p>Empirical testing has shown that the highest realistically achievable standard baud rate is 14'400 baud. This was tested over multiple meters of cabling in a tree topology.</p>
@@ -1388,13 +1388,32 @@
             <td class='protocol'>If the command exicution fails, a non-acknowledgment will be replied.</td>
         </tr>
     </table>
-   <p>This command returns a list of supported baud rates as bit-field. For each supported baud-rate the corresponding bit is set to 1.</p>
+   <p>This command returns a list of supported baud rates. For each supported baud-rate the corresponding bit is set to 1.</p>
    
    <table>
         <tr>
             <th class='command_header'>Byte</th>
             <th colspan="8">0</th>
 			<th colspan="8">1</th>
+        </tr>
+		<tr>
+            <th>Bit</th>
+            <th>0</th>
+			<th>1</th>
+			<th>2</th>
+			<th>3</th>
+			<th>4</th>
+			<th>5</th>
+			<th>6</th>
+			<th>7</th>
+			<th>0</th>
+			<th>1</th>
+			<th>2</th>
+			<th>3</th>
+			<th>4</th>
+			<th>5</th>
+			<th>6</th>
+			<th>7</th>
         </tr>
         <tr>
             <th>Data</th>

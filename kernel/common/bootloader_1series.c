@@ -16,7 +16,7 @@
 //	Return value: EEPROM Data
 //
 //**************************************************************************
-uint8_t bootloader_readEeprom(uint8_t *address)
+uint8_t bootloader_readEeprom(const uint8_t *address)
 {
 	cli();
 	while(NVMCTRL.STATUS&0x02);
@@ -34,7 +34,7 @@ uint8_t bootloader_readEeprom(uint8_t *address)
 //	Return value: None
 //
 //**************************************************************************
-void bootloader_updateEeprom(uint8_t *address, uint8_t data)
+void bootloader_updateEeprom(const uint8_t *address, uint8_t data)
 {
 	cli();
 	while(NVMCTRL.STATUS&0x02);
