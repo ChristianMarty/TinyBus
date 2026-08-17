@@ -1,9 +1,12 @@
-/*
- * BH2221FV.c
- *
- */ 
+//**********************************************************************************************************************
+// FileName : BH2221FV.c
+// FilePath : /
+// Project  : Ring Light Driver
+// Author   : Christian Marty
+// Date		: 17.08.2026
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
 #include "BH2221FV.h"
-
 
 #define  DataLow() (PORTA &= 0xFD)
 #define  DataHigh() (PORTA |= 0x02)
@@ -15,7 +18,7 @@
 #define  LdHigh() (PORTA |= 0x04)
 
 
-void BH2221FV_sendAll( uint8_t *data)
+void BH2221FV_sendAll(const uint8_t *data)
 {
 	BH2221FV_send( 8,data[ 0]); //R1
 	BH2221FV_send( 7,data[ 1]); //G1
@@ -44,8 +47,7 @@ void BH2221FV_send(uint8_t channel, uint8_t data)
 	DataLow();
 	
 	// send address
-	for(uint8_t i = 0; i<4; i++)
-	{
+	for(uint8_t i = 0; i<4; i++){
 		ClockLow();
 		
 		if(channel & 0x01) DataHigh();
@@ -56,8 +58,7 @@ void BH2221FV_send(uint8_t channel, uint8_t data)
 	}
 	
 	// send data
-	for(uint8_t i = 0; i<8; i++)
-	{
+	for(uint8_t i = 0; i<8; i++){
 		ClockLow();
 		
 		if(data & 0x80) DataHigh();

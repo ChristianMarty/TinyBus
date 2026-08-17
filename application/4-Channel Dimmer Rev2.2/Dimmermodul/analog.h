@@ -1,17 +1,19 @@
-/*
- * analog.h
- *
- * Created: 23.06.2017 21:43:52
- *  Author: Christian
- */ 
-
+//**********************************************************************************************************************
+// FileName : analog.h
+// FilePath : /
+// Project  : 4-Channel PWM Dimmer
+// Author   : Christian Marty
+// Date		: 08.05.2017
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
 #ifndef ANALOG_H_
 #define ANALOG_H_
-#include <avr/io.h>
+
+#include <stdint.h>
 
 void analog_init(void);
 
-uint16_t analog_read_voltage(void);
-uint16_t analog_read_current(void);
+uint16_t analog_readVoltage(void);
+uint16_t analog_readCurrent(void);
 
 #endif /* ANALOG_H_ */

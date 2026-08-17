@@ -1,41 +1,30 @@
-/*
- * Dimmermodul.c
- *
- * Created: 08.05.2017 21:15:44
- * Author : Christian
- */ 
-
-#include <stdbool.h>
+//**********************************************************************************************************************
+// FileName : main.c
+// FilePath : /
+// Project  : PAR-16
+// Author   : Christian Marty
+// Date		: 22.10.2024
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
+#include "main.h"
 #include <avr/io.h>
-#include <avr/interrupt.h>
-#include <avr/pgmspace.h>
+
+#include "sharedFunctions.h"
+#include "typeDefinition.h"
 
 #include "PWM.h"
 #include "analog.h"
-#include "sharedFunctions.h"
-#include "typedef.h"
-
-#define MAJOR_SW_REV 1
-#define MINOR_SW_REV 1
-
-#define MAJOR_HW_REV 1
-#define MINOR_HW_REV 0
-
-#define HARDWARE_ID 0x0004
-
-#define APPLICATION_NAME "PAR-16" // Max 18 characters
 
 volatile shared_t shared __attribute__((section (".shared")));
-volatile const application_header_t header __attribute__((section (".header"))) = {
+volatile const applicationHeader_t header __attribute__((section (".header"))) = {
 	.autostart = true,
-	.header_version = 0,
+	.headerVersion = 0,
 	.firmwareVersion_major = MAJOR_SW_REV,
 	.firmwareVersion_minor = MINOR_SW_REV,
 	.hardwareId_h = (uint8_t)(HARDWARE_ID>>8),
 	.hardwareId_l = (uint8_t)(HARDWARE_ID),
 	.name = APPLICATION_NAME
 };
-
 
 void cmd_setPwm(uint8_t pwm_ch, uint8_t *data);
 void updateLight();
@@ -45,7 +34,7 @@ uint8_t temperature;
 
 void app_main(void)
 {
-	if(shared.deviceState == APP_START)
+	if(shared.deviceState == DeviceState_appStarting)
 	{	
 		pwm_setWw(0x00, 0x00);
 		pwm_setCw(0x00, 0x00);
@@ -68,7 +57,7 @@ void app_main(void)
 	
 	// Add main code here
 	
-	if(shared.deviceState == APP_SHUTDOWN)
+	if(shared.deviceState == DeviceState_appShutdown)
 	{
 		// Turn LED off
 		pwm_setWw(0x00, 0x00);
@@ -140,8 +129,8 @@ void app_com_receive_data(uint8_t instruction, uint8_t *data, uint8_t size, bool
 		
 		// Voltage / Current
 		case 14: {
-				uint16_t v_read = analog_read_voltage();
-				uint16_t i_read = analog_read_current();
+				uint16_t v_read = analog_readVoltage();
+				uint16_t i_read = analog_readCurrent();
 				
 				// Returns the Voltage reading in 10mV and current reading in 1mA steps
 				ack_data[0] = (uint8_t) (v_read>>8);

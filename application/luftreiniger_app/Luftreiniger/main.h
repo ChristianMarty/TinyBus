@@ -1,19 +1,25 @@
 //**********************************************************************************************************************
-// FileName : pwm.h
+// FileName : main.h
 // FilePath : /
-// Project  : PAR-16
+// Project  : Luftreiniger
 // Author   : Christian Marty
-// Date		: 22.10.2024
+// Date		: 17.08.2026
 // Website  : www.christian-marty.ch
 //**********************************************************************************************************************
-#ifndef PWM_H_
-#define PWM_H_
+#ifndef MAIN_H_
+#define MAIN_H_
 
-#include <avr/io.h>
+#define TINYAVR_1SERIES
 
-void pwm_init(void);
+#define MAJOR_SW_REV 2
+#define MINOR_SW_REV 1
 
-void pwm_setWw(uint16_t pwm, uint8_t analog);
-void pwm_setCw(uint16_t pwm, uint8_t analog);
+#define MAJOR_HW_REV 2
+#define MINOR_HW_REV 0
 
-#endif /* PWM_H_ */
+#define HARDWARE_ID 0x1234
+
+#define APPLICATION_NAME "Luftreiniger" // Max 18 characters
+
+
+#endif /* MAIN_H_ */

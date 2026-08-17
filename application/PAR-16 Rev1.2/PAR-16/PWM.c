@@ -1,14 +1,13 @@
-/*
- * PWM.c
- *
- * Created: 20.05.2017 11:49:04
- *  Author: Christian
- */ 
-
-
+//**********************************************************************************************************************
+// FileName : pwm.c
+// FilePath : /
+// Project  : PAR-16
+// Author   : Christian Marty
+// Date		: 22.10.2024
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
+#include "pwm.h"
 #include <avr/io.h>
-#include <avr/interrupt.h>
-#include "PWM.h"
 
 #define PWM_TOP 0xFFFF
 #define ADIM_TOP 0xFF

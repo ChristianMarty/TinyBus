@@ -1,31 +1,21 @@
-/*
- * Not-Aus.c
- *
- * Created: 22.04.2026 21:12:04
- * Author : Christian
- */ 
-#include <stdbool.h>
-#include <avr/io.h>
-#include <avr/interrupt.h>
-
+//**********************************************************************************************************************
+// FileName : main.c
+// FilePath : /
+// Project  : Not-Aus Relais
+// Author   : Christian Marty
+// Date		: 22.04.2026
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
 #include "main.h"
+#include <avr/io.h>
+
 #include "sharedFunctions.h"
-#include "typedef.h"
-
-#define MAJOR_SW_REV 1
-#define MINOR_SW_REV 1
-
-#define MAJOR_HW_REV 1
-#define MINOR_HW_REV 4
-
-#define HARDWARE_ID 0x0005
-
-#define APPLICATION_NAME "Not-Aus Relais" // Max 18 characters
+#include "typeDefinition.h"
 
 volatile shared_t shared __attribute__((section (".shared")));
-volatile const application_header_t header __attribute__((section (".header"))) = {
+volatile const applicationHeader_t header __attribute__((section (".header"))) = {
 	.autostart = true,
-	.header_version = 0,
+	.headerVersion = 0,
 	.firmwareVersion_major = MAJOR_SW_REV,
 	.firmwareVersion_minor = MINOR_SW_REV,
 	.hardwareId_h = (uint8_t)(HARDWARE_ID>>8),
@@ -96,11 +86,10 @@ void runHeartbeat(void);
 void adc_init(void);
 void adc_run(void);
 
-
 void app_main(void)
 {
 	
-	if(shared.deviceState == APP_START)
+	if(shared.deviceState == DeviceState_appStarting)
 	{
 		inputState.byte = 0;
 		outputState.byte = 0;
@@ -120,7 +109,7 @@ void app_main(void)
 	
 	adc_run();
 	
-	if(shared.deviceState == APP_SHUTDOWN)
+	if(shared.deviceState == DeviceState_appShutdown)
 	{
 		HEARTBEAT_LED_OFF();
 		outputState.bit.on = false;

@@ -5,8 +5,8 @@
 // Date		: 26.05.2024
 // Website  : www.christian-marty.ch
 //**********************************************************************************************************************
-#ifndef SHAREDFUNCTIONS_H_
-#define SHAREDFUNCTIONS_H_
+#ifndef SHARED_FUNCTIONS_H_
+#define SHARED_FUNCTIONS_H_
 
 #include <stdbool.h>
 #include "main.h"
@@ -49,6 +49,54 @@ void InterruptVectorTable(void)
 	asm("rjmp dummy_interruptHandler"); //TWI
 	asm("rjmp dummy_interruptHandler"); //RESERVED
 
+	asm("rjmp app_com_receive_data");
+	asm("rjmp app_5ms_tick");
+}
+
+#define COM_TRANSMIT_DATA_ADDR 0x20
+#define EEPROM_READ_DATA_ADDR 0x21
+#define EEPROM_WRITE_DATA_ADDR 0x22
+
+#endif
+
+#ifdef TINYAVR_1SERIES
+
+void InterruptVectorTable(void)
+{
+	asm("rjmp app_main"); //RESET
+	asm("rjmp dummy_interruptHandler");	//CRCSCAN_NMI
+	asm("rjmp dummy_interruptHandler");	//BOD_VLM
+	asm("rjmp dummy_interruptHandler");	//PORTA_PORT
+	asm("rjmp dummy_interruptHandler");	//PORTB_PORT
+	asm("rjmp dummy_interruptHandler"); //PORTC_PORT
+	asm("rjmp dummy_interruptHandler"); //RTC_CNT
+	asm("rjmp dummy_interruptHandler"); //RTC_PIT
+	asm("rjmp dummy_interruptHandler"); //TCA0_OVF, TCA0_LUNF
+	asm("rjmp dummy_interruptHandler"); //TCA0_HUNF
+	asm("rjmp dummy_interruptHandler"); //TCA0_CMP0, TCA0_LCMP0
+	asm("rjmp dummy_interruptHandler"); //TCA0_CMP1, TCA0_LCMP1
+	asm("rjmp dummy_interruptHandler"); //TCA0_CMP2, TCA0_LCMP2
+	asm("rjmp dummy_interruptHandler"); //TCB0_INT
+	asm("rjmp dummy_interruptHandler"); //TCD0_OVF
+	asm("rjmp dummy_interruptHandler"); //TCD0_TRIG
+	asm("rjmp dummy_interruptHandler"); //AC0_AC
+	asm("rjmp dummy_interruptHandler"); //ADC0_RESRDY
+	asm("rjmp dummy_interruptHandler"); //ADC0_WCOMP
+	asm("rjmp dummy_interruptHandler"); //TWI0_TWIS
+	asm("rjmp dummy_interruptHandler"); //TWI0_TWIM
+	asm("rjmp dummy_interruptHandler"); //SPI0_INT
+	asm("rjmp dummy_interruptHandler"); //USART0_RXC
+	asm("rjmp dummy_interruptHandler"); //USART0_DRE
+	asm("rjmp dummy_interruptHandler"); //USART0_TXC
+	asm("rjmp dummy_interruptHandler"); //NVMCTRL_EE
+	
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	asm("nop");
+	
 	asm("rjmp app_com_receive_data");
 	asm("rjmp app_5ms_tick");
 }
@@ -160,4 +208,4 @@ bool writeEepromAppSection(uint16_t offset, uint8_t *data, uint16_t size)
 	return ((PF_EEPROM) (EEPROM_WRITE_DATA_ADDR))(offset, data, size);
 }
 
-#endif /* SHAREDFUNCTIONS_H_ */
+#endif /* SHARED_FUNCTIONS_H_ */

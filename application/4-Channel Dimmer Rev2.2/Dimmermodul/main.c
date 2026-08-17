@@ -1,34 +1,25 @@
-/*
- * Dimmermodul.c
- *
- * Created: 08.05.2017 21:15:44
- * Author : Christian
- */ 
-
-#include <stdbool.h>
+//**********************************************************************************************************************
+// FileName : main.c
+// FilePath : /
+// Project  : 4-Channel PWM Dimmer
+// Author   : Christian Marty
+// Date		: 08.05.2017
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
+#include "main.h"
 #include <avr/io.h>
-#include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 
-#include "PWM.h"
-#include "analog.h"
 #include "sharedFunctions.h"
-#include "typedef.h"
+#include "typeDefinition.h"
 
-#define MAJOR_SW_REV 2
-#define MINOR_SW_REV 3
-
-#define MAJOR_HW_REV 2
-#define MINOR_HW_REV 0
-
-#define HARDWARE_ID 0x0002
-
-#define APPLICATION_NAME "4-Ch PWM Dimmer" // Max 18 characters
+#include "analog.h"
+#include "pwm.h"
 
 volatile shared_t shared __attribute__((section (".shared")));
-volatile const application_header_t header __attribute__((section (".header"))) = {
+volatile const applicationHeader_t header __attribute__((section (".header"))) = {
 	.autostart = true,
-	.header_version = 0,
+	.headerVersion = 0,
 	.firmwareVersion_major = MAJOR_SW_REV,
 	.firmwareVersion_minor = MINOR_SW_REV,
 	.hardwareId_h = (uint8_t)(HARDWARE_ID>>8),
@@ -103,22 +94,16 @@ const PROGMEM uint16_t dimmingCurve[] = {
 1024
 };
 
-void cmd_set_pwm_with_curve(uint8_t pwm_ch, uint8_t master, uint8_t value)
-{
-	uint16_t output = pgm_read_word(&dimmingCurve[(value & 0x3F)]) * (master & 0x3F);
-	pwm_fade(pwm_ch, 20, output, false);	
-}
-
 uint16_t dimmerValue[4];
 
 void app_main(void)
 {
-	if(shared.deviceState == APP_START)
+	if(shared.deviceState == DeviceState_appStarting)
 	{	
-		pwm_set_ch1(0x00);
-		pwm_set_ch2(0x00);
-		pwm_set_ch3(0x00);
-		pwm_set_ch4(0X00);
+		pwm_setChannel1(0x00);
+		pwm_setChannel2(0x00);
+		pwm_setChannel3(0x00);
+		pwm_setChannel4(0X00);
 		pwm_init();
 	
 		PORTA &= 0x87;
@@ -131,22 +116,26 @@ void app_main(void)
 		if(shared.carrierDetected == false){
 			readEepromAppSection(0, (uint8_t*)&dimmerValue[0], 8);
 			
-			pwm_set_ch1(dimmerValue[0]);
-			pwm_set_ch2(dimmerValue[1]);
-			pwm_set_ch3(dimmerValue[2]);
-			pwm_set_ch4(dimmerValue[3]);
+			pwm_setChannel1(dimmerValue[0]);
+			pwm_setChannel2(dimmerValue[1]);
+			pwm_setChannel3(dimmerValue[2]);
+			pwm_setChannel4(dimmerValue[3]);
 		}
 	}
 	
-	// Add main code here
-	
-	if(shared.deviceState == APP_SHUTDOWN){
-		// Turn LED off
-		pwm_set_ch1(0x00);
-		pwm_set_ch2(0x00);
-		pwm_set_ch3(0x00);
-		pwm_set_ch4(0X00);
+	if(shared.deviceState == DeviceState_appShutdown)
+	{
+		pwm_setChannel1(0x00);
+		pwm_setChannel2(0x00);
+		pwm_setChannel3(0x00);
+		pwm_setChannel4(0X00);
 	}
+}
+
+void cmd_set_pwm_with_curve(uint8_t pwm_ch, uint8_t master, uint8_t value)
+{
+	uint16_t output = pgm_read_word(&dimmingCurve[(value & 0x3F)]) * (master & 0x3F);
+	pwm_fade(pwm_ch, 20, output, false);
 }
 
 void cmd_set_pwm(uint8_t pwm_ch, uint8_t *data);
@@ -193,8 +182,8 @@ void app_com_receive_data(uint8_t instruction, uint8_t *data, uint8_t size, bool
 			
 		// Voltage / Current
 		case 14: {
-				uint16_t v_read = analog_read_voltage();
-				uint16_t i_read = analog_read_current();
+				uint16_t v_read = analog_readVoltage();
+				uint16_t i_read = analog_readCurrent();
 				
 				// Returns the Voltage reading in 10mV and current reading in 1mA steps
 				ack_data[0] = (uint8_t) (v_read>>8);

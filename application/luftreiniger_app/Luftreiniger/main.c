@@ -1,93 +1,74 @@
-/*
- * Dimmermodul.c
- *
- * Created: 08.05.2017 21:15:44
- * Author : Christian
- */ 
-
+//**********************************************************************************************************************
+// FileName : main.c
+// FilePath : /
+// Project  : Ring Light Driver
+// Author   : Christian Marty
+// Date		: 17.08.2026
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
+#include "main.h"
 #include <avr/io.h>
-#include <stdbool.h>
-#include <avr/interrupt.h>
 
-#include "PWM.h"
-#include "SharedFunctions.h"
-#include "typedef.h"
+#include "sharedFunctions.h"
+#include "typeDefinition.h"
 
-void init_timer0(void);
-void wait (uint16_t wait_time);
-volatile uint16_t wait_takt;
-
-void hv_enable(uint8_t enable);
-
-#define MAJOR_SW_REV 2
-#define MINOR_SW_REV 1
-
-#define MAJOR_HW_REV 2
-#define MINOR_HW_REV 0
-
-#define HARDWARE_ID 0x1234
+#include "pwm.h"
 
 volatile shared_t shared __attribute__((section (".shared")));
-
-volatile const application_header_t header __attribute__((section (".header"))) = {
+volatile const applicationHeader_t header __attribute__((section (".header"))) = {
 	.autostart = false,
-	.header_version = 0,
+	.headerVersion = 0,
 	.firmwareVersion_major = MAJOR_SW_REV,
 	.firmwareVersion_minor = MINOR_SW_REV,
 	.hardwareId_h = (uint8_t)(HARDWARE_ID>>8),
 	.hardwareId_l = (uint8_t)(HARDWARE_ID),
-	.name = "Luftreiniger"
+	.name = APPLICATION_NAME
 };
+
+#define HighVoltage_enable() PORTC.OUTSET = 0x04
+#define HighVoltage_disable() PORTC.OUTCLR = 0x04
 
 void app_main(void)
 {
-	if(shared.deviceState == APP_START)
+	if(shared.deviceState == DeviceState_appStarting)
 	{
 		pwm_init();
 		pwm_update(0);
-		hv_enable(0);
+		HighVoltage_disable();
 		PORTC.DIRSET = 0x04;
 	}
 	
 	// Add main code here
 	
-	if(shared.deviceState == APP_SHUTDOWN)
+	if(shared.deviceState == DeviceState_appShutdown)
 	{
 		pwm_update(0);
-		hv_enable(0);
+		HighVoltage_disable();
 	}
 }
 
 // Com RX Complete Call Back
 void app_com_receive_data(uint8_t instruction, uint8_t *data, uint8_t size, bool broadcast)
 {
-	uint8_t ack_data[4];
 	uint8_t cmd_error = 0;
-	uint8_t ack_size = 0;
 		
 	switch(instruction)
 	{
-		case 0:		pwm_update(data[0]);
-		break;
+		case 0:{
+				pwm_update(data[0]);
+		} break;
 			
-		case 1:		hv_enable(data[0]);
-		break;
-			
-		// send some data
-		case 2:
-		ack_data[0] = 'A';
-		ack_data[1] = 'B';
-		ack_data[2] = 'C';
-		ack_data[3] = 'D';
-		ack_size = 4;
-		break;
-			
-		// Command not found
-		default:	cmd_error++;
-		break;
+		case 1:{
+				if(data[0])	HighVoltage_enable();
+				else HighVoltage_disable();
+		} break;
+		
+		default:{
+			cmd_error++;
+		} break;
 	}
 		
-	if (!broadcast) com_transmit_data(instruction, &ack_data[0], ack_size, cmd_error);
+	if (!broadcast) com_transmit_data(instruction, 0, 0, cmd_error);
 }
 
 void app_5ms_tick(void)
@@ -95,11 +76,7 @@ void app_5ms_tick(void)
 
 }
 
-void hv_enable(uint8_t enable)
-{
-	if(enable != 0) PORTC.OUTSET = 0x04;
-	else PORTC.OUTCLR = 0x04;
-}
+
 
 
 

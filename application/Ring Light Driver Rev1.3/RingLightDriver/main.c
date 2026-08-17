@@ -1,31 +1,24 @@
-/*
- * Dimmermodul.c
- *
- * Created: 08.05.2017 21:15:44
- * Author : Christian
- */ 
-
-#include <stdbool.h>
+//**********************************************************************************************************************
+// FileName : main.c
+// FilePath : /
+// Project  : Ring Light Driver
+// Author   : Christian Marty
+// Date		: 17.08.2026
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
+#include "main.h"
 #include <avr/io.h>
-#include <avr/interrupt.h>
-#include <avr/pgmspace.h>
+
+#include "sharedFunctions.h"
+#include "typeDefinition.h"
 
 #include "analog.h"
-#include "SharedFunctions.h"
-#include "typedef.h"
 #include "BH2221FV.h"
 
-#define MAJOR_SW_REV 1
-#define MINOR_SW_REV 0
-
-#define HARDWARE_ID 0x0005
-
-#define APPLICATION_NAME "Ring Light Driver" // Max 18 characters
-
 volatile shared_t shared __attribute__((section (".shared")));
-volatile const application_header_t header __attribute__((section (".header"))) = {
+volatile const applicationHeader_t header __attribute__((section (".header"))) = {
 	.autostart = true,
-	.header_version = 0,
+	.headerVersion = 0,
 	.firmwareVersion_major = MAJOR_SW_REV,
 	.firmwareVersion_minor = MINOR_SW_REV,
 	.hardwareId_h = (uint8_t)(HARDWARE_ID>>8),
@@ -35,7 +28,7 @@ volatile const application_header_t header __attribute__((section (".header"))) 
 
 void app_main(void)
 {
-	if(shared.deviceState == APP_START)
+	if(shared.deviceState == DeviceState_appStarting)
 	{
 		analog_init();
 		
@@ -46,9 +39,7 @@ void app_main(void)
 		}
 	}
 	
-	// Add main code here
-	
-	if(shared.deviceState == APP_SHUTDOWN)
+	if(shared.deviceState == DeviceState_appShutdown)
 	{
 		uint8_t data[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
 		BH2221FV_sendAll(&data[0]);
@@ -80,12 +71,12 @@ void app_com_receive_data(uint8_t instruction, uint8_t *data, uint8_t size, bool
 		case 10: 
 		case 11: 
 		case 12: 
-		BH2221FV_send(instruction,data[0]); break;
+		BH2221FV_send(instruction, data[0]); break;
 
 		
 		// Voltage / Current
 		case 14: {
-				uint16_t v_read = analog_read_voltage();
+				uint16_t v_read = analog_readVoltage();
 				
 				// Returns the Voltage reading in 1mV
 				ack_data[0] = (uint8_t) (v_read>>8);

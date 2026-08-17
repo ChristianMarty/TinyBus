@@ -1,17 +1,18 @@
-/*
- * analog.h
- *
- * Created: 23.06.2017 21:43:52
- *  Author: Christian
- */ 
-
+//**********************************************************************************************************************
+// FileName : analog.h
+// FilePath : /
+// Project  : PAR-16
+// Author   : Christian Marty
+// Date		: 17.08.2026
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
 #ifndef ANALOG_H_
 #define ANALOG_H_
 #include <avr/io.h>
 
 void analog_init(void);
 
-uint16_t analog_read_voltage(void);
-uint16_t analog_read_current(void);
+uint16_t analog_readVoltage(void);
+uint16_t analog_readCurrent(void);
 
 #endif /* ANALOG_H_ */

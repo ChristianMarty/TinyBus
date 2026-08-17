@@ -13,7 +13,7 @@
 #include "PWM.h"
 #include "analog.h"
 #include "SharedFunctions.h"
-#include "typedef.h"
+#include "typeDefinition.h"
 
 #include "led/dimmingCurve.h"
 #include "led/perlin.h"
@@ -30,9 +30,9 @@
 #define APPLICATION_NAME "Teelicht" // Max 18 characters
 
 volatile shared_t shared __attribute__((section (".shared")));
-volatile const application_header_t header __attribute__((section (".header"))) = {
+volatile const applicationHeader_t header __attribute__((section (".header"))) = {
 	.autostart = true,
-	.header_version = 0,
+	.headerVersion = 0,
 	.firmwareVersion_major = MAJOR_SW_REV,
 	.firmwareVersion_minor = MINOR_SW_REV,
 	.hardwareId_h = (uint8_t)(HARDWARE_ID>>8),
@@ -52,7 +52,7 @@ void perlin_handler(void);
 
 void app_main(void)
 {
-	if(shared.deviceState == APP_START)
+	if(shared.deviceState == DeviceState_appStarting)
 	{	
 		pwm_set_ch1(0);
 		pwm_set_ch2(0);
@@ -79,7 +79,7 @@ void app_main(void)
 	
 	perlin_handler();
 	
-	if(shared.deviceState == APP_SHUTDOWN)
+	if(shared.deviceState == DeviceState_appShutdown)
 	{
 		// Turn LED off
 		pwm_set_ch1(0);

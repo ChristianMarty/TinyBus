@@ -126,6 +126,7 @@
   </avrgcc.compiler.symbols.DefSymbols>
   <avrgcc.compiler.directories.IncludePaths>
     <ListValues>
+      <Value>..</Value>
       <Value>../../../../kernel/common</Value>
       <Value>%24(PackRepoDir)\Atmel\ATtiny_DFP\2.0.368\include\</Value>
     </ListValues>
@@ -164,22 +165,29 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\kernel\common\typedef.h">
+    <Compile Include="..\..\..\kernel\common\sharedFunctions.h">
       <SubType>compile</SubType>
-      <Link>typedef.h</Link>
+      <Link>kernel\sharedFunctions.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\kernel\common\typeDefinition.h">
+      <SubType>compile</SubType>
+      <Link>kernel\typeDefinition.h</Link>
     </Compile>
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="PWM.c">
+    <Compile Include="main.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="PWM.h">
+    <Compile Include="pwm.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="SharedFunctions.h">
+    <Compile Include="pwm.h">
       <SubType>compile</SubType>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="kernel" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>

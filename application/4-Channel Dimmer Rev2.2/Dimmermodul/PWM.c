@@ -1,13 +1,14 @@
-/*
- * PWM.c
- *
- * Created: 20.05.2017 11:49:04
- *  Author: Christian
- */ 
+//**********************************************************************************************************************
+// FileName : pwm.c
+// FilePath : /
+// Project  : 4-Channel PWM Dimmer
+// Author   : Christian Marty
+// Date		: 08.05.2017
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
+#include "pwm.h"
 
 #include <avr/io.h>
-#include <avr/interrupt.h>
-#include "PWM.h"
 
 #define PWM_TOP 0xFFFF
 
@@ -152,19 +153,19 @@ void pwm_execute(uint8_t channel)
 void pwm_set(uint8_t channel, uint16_t value)
 {
 	switch(channel){
-		case 0:		pwm_set_ch1(value);
+		case 0:		pwm_setChannel1(value);
 					break;
-		case 1:		pwm_set_ch2(value);
+		case 1:		pwm_setChannel2(value);
 					break;
-		case 2:		pwm_set_ch3(value);
+		case 2:		pwm_setChannel3(value);
 					break;
-		case 3:		pwm_set_ch4(value);
+		case 3:		pwm_setChannel4(value);
 					break;
 	}
 }
 
 
-void pwm_set_ch1(uint16_t value)
+void pwm_setChannel1(uint16_t value)
 {	
 	pwm_channel[0].current_value = value;
 	
@@ -181,7 +182,7 @@ void pwm_set_ch1(uint16_t value)
 	}
 }
 
-void pwm_set_ch2(uint16_t value)
+void pwm_setChannel2(uint16_t value)
 {
 	pwm_channel[1].current_value = value;
 	
@@ -198,7 +199,7 @@ void pwm_set_ch2(uint16_t value)
 	}
 }
 
-void pwm_set_ch3(uint16_t value)
+void pwm_setChannel3(uint16_t value)
 {
 	pwm_channel[2].current_value = value;
 	
@@ -215,7 +216,7 @@ void pwm_set_ch3(uint16_t value)
 	}
 }
 
-void pwm_set_ch4(uint16_t value)
+void pwm_setChannel4(uint16_t value)
 {
 	pwm_channel[3].current_value = value;
 	

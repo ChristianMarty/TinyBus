@@ -1,10 +1,11 @@
-/*
- * analog.c
- *
- * Created: 23.06.2017 21:43:33
- *  Author: Christian
- */ 
-
+//**********************************************************************************************************************
+// FileName : analog.c
+// FilePath : /
+// Project  : Ring Light Driver
+// Author   : Christian Marty
+// Date		: 17.08.2026
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
 #include "analog.h"
 
 uint16_t adc_voltage = 0;
@@ -21,7 +22,7 @@ void analog_init(void)
 }
 
 // Returns Voltage reading in 10mV 
-uint16_t analog_read_voltage(void)
+uint16_t analog_readVoltage(void)
 {	
 	ADMUXB = 0x60; // Set reference to 4.096V and Gain to 1
 	ADMUXA = 4; // Set ADC input MUX to Single ended ADC4

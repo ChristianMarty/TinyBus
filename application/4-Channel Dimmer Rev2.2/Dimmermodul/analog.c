@@ -1,11 +1,14 @@
-/*
- * analog.c
- *
- * Created: 23.06.2017 21:43:33
- *  Author: Christian
- */ 
-
+//**********************************************************************************************************************
+// FileName : analog.c
+// FilePath : /
+// Project  : 4-Channel PWM Dimmer
+// Author   : Christian Marty
+// Date		: 08.05.2017
+// Website  : www.christian-marty.ch
+//**********************************************************************************************************************
 #include "analog.h"
+
+#include <avr/io.h>
 
 void analog_init(void)
 {
@@ -14,7 +17,7 @@ void analog_init(void)
 }
 
 // Returns Voltage reading in 10mV 
-uint16_t analog_read_voltage(void)
+uint16_t analog_readVoltage(void)
 {	
 	ADMUXB = 0x60; // Set reference to 4.096V and Gain to 1
 	ADMUXA = 0x01; // Set ADC input MUX to Single ended ADC1
@@ -43,7 +46,7 @@ uint16_t analog_read_voltage(void)
 }
 
 // Returns Current reading in 1mA
-uint16_t analog_read_current(void)
+uint16_t analog_readCurrent(void)
 {
 	ADMUXB = 0x61; // Set reference to 4.096V and Gain to 20
 	ADMUXA = 0x30; // Set ADC input MUX to Differential ended n ADC0 p ADC1
