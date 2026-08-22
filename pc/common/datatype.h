@@ -132,6 +132,8 @@ static inline QString applicationStateString(ApplicationState state)
         case ShuttingDown: return QStringLiteral("Shutting Down");
         case Stopped: return QStringLiteral("Stopped");
     }
+
+    Q_UNREACHABLE();
 }
 
 enum class PacketError: uint8_t{
@@ -149,6 +151,8 @@ static inline QString packetErrorString(PacketError error)
         case PacketError::OtherError: return QStringLiteral("Other error");
         case PacketError::Uninitialized: return QStringLiteral("Uninitialized");
     }
+
+    Q_UNREACHABLE();
 }
 
 struct Packet{

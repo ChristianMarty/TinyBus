@@ -59,11 +59,13 @@ void Connection::sendData(const TinyBus::Packet &packet)
         return;
     }
 
-    emit newDataTransmitted(packet);
-
     QByteArray data = TinyBus::Encode::frame(packet);
-    _connection->sendData(data);
-    _pendingLoopback = data;
+    if(!_connection->sendData(data)){
+        return;
+    }
+
+    _pendingLoopback.append(data);
+    emit newDataTransmitted(packet);
 
     emit txIndicator(true);
     QTimer::singleShot(100, this, &Connection::on_txIndicatorTimer);
@@ -78,10 +80,9 @@ uint16_t Connection::suggestedTimeOut() const
 void Connection::on_rxData(QByteArray data)
 {
     if(!_pendingLoopback.isEmpty()){
-        if(data != _pendingLoopback){
+        if(data != _pendingLoopback.takeFirst()){
             emit newMessage("Loopback error");
         }
-        _pendingLoopback.clear();
         return;
     }
 
@@ -90,6 +91,8 @@ void Connection::on_rxData(QByteArray data)
         emit newMessage(TinyBus::packetErrorString(packet.error));
         return;
     }
+
+
 
     emit rxIndicator(true);
     QTimer::singleShot(100, this, &Connection::on_rxIndicatorTimer);

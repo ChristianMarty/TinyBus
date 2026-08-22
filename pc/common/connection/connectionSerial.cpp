@@ -46,11 +46,11 @@ bool ConnectionSerial::connected()
     return _isConnected;
 }
 
-void ConnectionSerial::sendData(QByteArray data)
+bool ConnectionSerial::sendData(QByteArray data)
 {
     if(!_serialPort.isOpen()){
-        emit newMessage("not open");
-        return;
+        emit newMessage("serial port is not open");
+        return false;
     }
 
     uint16_t crc = QuCLib::Crc::crc16(data);
@@ -60,9 +60,13 @@ void ConnectionSerial::sendData(QByteArray data)
     QByteArray encodedData = _cobs.encode(data);
     encodedData.prepend((uint8_t)_cobs.delimiter());
 
-    if(_serialPort.bytesToWrite()) return;
+    if(_serialPort.bytesToWrite()){
+        newMessage("TX overrun");
+        return false;
+    }
 
     _serialPort.write(encodedData);
+    return true;
 }
 
 uint16_t ConnectionSerial::suggestedTimeOut() const

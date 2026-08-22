@@ -18,6 +18,7 @@ public:
 
 private slots:
     void on_pushButton_clear_clicked();
+    void on_rowsInserted(const QModelIndex &parent, int first, int last);
 
 private:
     Ui::BusMonitorWidget *ui;

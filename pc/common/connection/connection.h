@@ -49,7 +49,7 @@ private slots:
 private:
     ConnectionBase* _connection = nullptr;
 
-    QByteArray _pendingLoopback;
+    QList<QByteArray> _pendingLoopback;
 };
 
 #endif // CONNECTION_H

@@ -16,7 +16,7 @@ public:
     void close(void) override;
     bool connected(void) override;
 
-    void sendData(QByteArray data) override;
+    bool sendData(QByteArray data) override;
 
     uint16_t suggestedTimeOut(void) const override;
 

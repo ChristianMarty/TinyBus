@@ -40,11 +40,11 @@ bool ConnectionTcp::connected()
     return _tcpClient.isOpen();
 }
 
-void ConnectionTcp::sendData(QByteArray data)
+bool ConnectionTcp::sendData(QByteArray data)
 {
     if(!_tcpClient.isOpen()){
         emit newMessage("not open");
-        return;
+        return false;
     }
 
     uint16_t crc = QuCLib::Crc::crc16(data);
@@ -55,8 +55,9 @@ void ConnectionTcp::sendData(QByteArray data)
     encodedData.prepend((uint8_t)_cobs.delimiter());
 
     _tcpClient.write(encodedData);
-}
 
+    return true;
+}
 
 void ConnectionTcp::on_readyRead()
 {

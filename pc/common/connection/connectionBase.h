@@ -20,7 +20,7 @@ public:
     virtual void close(void) {};
     virtual bool connected(void) {return false;};
 
-    virtual void sendData(QByteArray data) {Q_UNUSED(data);};
+    virtual bool sendData(QByteArray data) {Q_UNUSED(data);};
 
     virtual uint16_t suggestedTimeOut(void) const {return 500;};
 
