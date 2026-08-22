@@ -2,10 +2,10 @@
 <hex-merger version="1.0">
 	<input>
 		<name>Updater</name>
-		<path>../updater_attiny841/Debug/kernelUpdater.hex</path>
+		<path>../updater_avr16eb32/Debug/kernelUpdater.hex</path>
 		<range>
-			<minimum>0x0C00</minimum>
-			<maximum>0x0D7F</maximum>
+			<minimum>0x0F00</minimum>
+			<maximum>0x114F</maximum>
 		</range>
 	</input>
 	<input>
@@ -13,11 +13,11 @@
 		<path>Debug/tinyloader.hex</path>
 		<range>
 			<minimum>0x0000</minimum>
-			<maximum>0x0BFF</maximum>
+			<maximum>0x0EFF</maximum>
 		</range>
-		<offset>0x0D80</offset>
+		<offset>0x1150</offset>
 	</input>
 	<output>
-		<path>Debug/4-channel-dimmer_kernelUpdate.hex</path>
+		<path>Debug/notAus_kernelUpdate.hex</path>
 	</output>
 </hex-merger>

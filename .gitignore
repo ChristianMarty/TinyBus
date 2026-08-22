@@ -34,3 +34,5 @@ kernel/avr16eb32_notAus/Debug
 pc/TinyBusLoader/build
 *.PDF
 pc/build
+kernel/_release
+kernel/updater_avr16eb32/Debug

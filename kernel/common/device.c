@@ -251,7 +251,7 @@ bool device_readEepromAppSection(uint16_t offset, uint8_t *data, uint16_t size)
 	return false;
 }
 
-bool device_writeEepromAppSection(uint16_t offset, uint8_t *data, uint16_t size)
+bool device_writeEepromAppSection(uint16_t offset, const uint8_t *data, uint16_t size)
 {
 	#define EepromAppSize (EepromSize-AppEepromStart)
 	

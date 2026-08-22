@@ -5,7 +5,7 @@
 		<path>../updater_attiny841/Debug/kernelUpdater.hex</path>
 		<range>
 			<minimum>0x0C00</minimum>
-			<maximum>0x0D70</maximum>
+			<maximum>0x0D7F</maximum>
 		</range>
 	</input>
 	<input>
@@ -15,9 +15,9 @@
 			<minimum>0x0000</minimum>
 			<maximum>0x0BFF</maximum>
 		</range>
-		<offset>0x0D70</offset>
+		<offset>0x0D80</offset>
 	</input>
 	<output>
-		<path>Debug/kernelUpdate_par-16.hex</path>
+		<path>Debug/par-16_kernelUpdate.hex</path>
 	</output>
 </hex-merger>

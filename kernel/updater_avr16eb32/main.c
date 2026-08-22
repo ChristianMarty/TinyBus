@@ -11,7 +11,7 @@
 #include "sharedFunctions.h"
 #include "typeDefinition.h"
 
-#include "kernelUpdater_x41.h"
+#include "kernelUpdater_AVRxxEBxx.h"
 
 volatile shared_t shared __attribute__((section (".shared")));
 volatile const applicationHeader_t header __attribute__((section (".header"))) = {

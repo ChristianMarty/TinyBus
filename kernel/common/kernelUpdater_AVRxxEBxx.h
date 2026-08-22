@@ -1,19 +1,18 @@
 //**********************************************************************************************************************
-// FileName : bootloader_AVRxxEBxx.h
+// FileName : kernelUpdater_AVRxxEBxx.h
 // FilePath : common/
 // Author   : Christian Marty
-// Date		: 20.04.2026
+// Date		: 22.08.2026
 // Website  : www.christian-marty.ch
 //**********************************************************************************************************************
-#ifndef BOOTLOADER_H_
-#define BOOTLOADER_H_
-
-#include "utility/softCRC.h"
 #include "main.h"
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+
+#ifndef KERNEL_UPDATER_H_
+#define KERNEL_UPDATER_H_
 
 enum{
 	NVMCTRL_NOCMD = 0x00,
@@ -52,15 +51,15 @@ enum{
 
 //**************************************************************************
 //
-//  Erases the Application
+//  Erases the old Kernel
 //
 //	Parameter: None
 //	Return value: None
 //
 //**************************************************************************
-static inline void bootloader_eraseAppSection(void)
+static inline void kernelUpdater_eraseKernelSection(void)
 {
-	cli(); 
+	cli();
 
 	CPU_CCP = 0x9D;
 	NVMCTRL.CTRLA = NVMCTRL_FLPBCLR;
@@ -70,7 +69,7 @@ static inline void bootloader_eraseAppSection(void)
 	uint8_t *nvm_addr = (uint8_t *)MAPPED_PROGMEM_START + PROGMEM_START;
 	
 	volatile uint16_t i = 0;
-	for(i = AppBaseByteAddress; i< FlashByteSize; i += PROGMEM_PAGE_SIZE)
+	for(i = 0; i< AppBaseByteAddress; i += PROGMEM_PAGE_SIZE)
 	{
 		CPU_CCP = 0x9D;
 		nvm_addr[i] = 0xFF;
@@ -85,40 +84,32 @@ static inline void bootloader_eraseAppSection(void)
 
 //**************************************************************************
 //
-//  Calculates the CRC16
+//  Erases application header
 //
 //	Parameter: None
-//	Return value: The CRC16 checksum of the Application
+//	Return value: None
 //
 //**************************************************************************
-static inline uint16_t bootloader_appCRC(void)
+static inline void kernelUpdater_eraseApplicationHeader(void)
 {
+	cli();
+
+	CPU_CCP = 0x9D;
+	NVMCTRL.CTRLA = NVMCTRL_FLPBCLR;
+	
+	while(NVMCTRL.STATUS & 0x01);
+	
 	uint8_t *nvm_addr = (uint8_t *)MAPPED_PROGMEM_START + PROGMEM_START;
 	
-	uint16_t CRC_value = 0xFFFF;
-	for(uint16_t i = AppBaseByteAddress; i<FlashByteSize-2; i++)
-	{
-		CRC_value = crc16_addByte(CRC_value, nvm_addr[i]);
-	}
-	return CRC_value;
-}
+	CPU_CCP = 0x9D;
+	nvm_addr[AppBaseByteAddress] = 0xFF;
 
-//**************************************************************************
-//
-//  Checks the CRC16
-//
-//	Parameter: App CRC
-//	Return value: Return 0 if App CRC is valid
-//
-//**************************************************************************
-static inline uint16_t bootloader_checkAppCRC(uint16_t crcValue)
-{
-	uint8_t *nvm_addr = (uint8_t *)MAPPED_PROGMEM_START + PROGMEM_START;
-		
-	crcValue = crc16_addByte(crcValue,nvm_addr[FlashByteSize-2]);
-	crcValue = crc16_addByte(crcValue,nvm_addr[FlashByteSize-1]);
+	CPU_CCP = CCP_SPM_gc;
+	NVMCTRL.CTRLA = NVMCTRL_FLPER;
 
-	return crcValue;
+	while(NVMCTRL.STATUS & 0x01);
+	
+	sei();
 }
 
 //**************************************************************************
@@ -129,7 +120,7 @@ static inline uint16_t bootloader_checkAppCRC(uint16_t crcValue)
 //	Return value: None
 //
 //**************************************************************************
-static inline void bootloader_writePage(uint16_t pageAddress, const uint8_t *data)
+static inline void kernelUpdater_writePage(uint16_t pageAddress, const uint8_t *data)
 {
 	cli();
 	while(NVMCTRL.STATUS & 0x03);
@@ -159,35 +150,26 @@ static inline void bootloader_writePage(uint16_t pageAddress, const uint8_t *dat
 
 //**************************************************************************
 //
-//  Read EEPROM
+//  Writes one Page of the Flash
 //
-//	Parameter: Read address
-//	Return value: EEPROM Data
-//
-//**************************************************************************
-uint8_t bootloader_readEeprom(uint8_t *address);
-
-//**************************************************************************
-//
-//  Update EEPROM
-//
-//	Parameter: Write address, write data
+//	Parameter: The page address, pointer to the data to write
 //	Return value: None
 //
 //**************************************************************************
-void bootloader_updateEeprom(uint8_t *address, uint8_t data);
-
-//**************************************************************************
-//
-//  Read byte from flash
-//
-//	Parameter: Read byte address
-//	Return value: Flash Data
-//
-//**************************************************************************
-static inline uint8_t bootloader_readByte(uint16_t address)
+static inline void kernelUpdater_copy()
 {
-	return pgm_read_byte(address);
+	uint16_t newKernelStartAddress = AppBaseByteAddress+KernelAddressOffset;
+	
+	for(uint16_t i = 0; i<AppBaseByteAddress; i+=FlashPageByteSize)
+	{	
+		uint8_t temp[FlashPageByteSize];
+		for (uint8_t j = 0; j<FlashPageByteSize; j++)
+		{
+			temp[j] = pgm_read_byte(newKernelStartAddress+i+j);
+		}
+		
+		kernelUpdater_writePage(i, &temp[0]);
+	}
 }
 
-#endif /* BOOTLOADER_H_ */
+#endif /* KERNEL_UPDATER_H_ */

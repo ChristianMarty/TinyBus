@@ -52,7 +52,7 @@ static inline bool bytearray_pushByte(bytearray_t *bytearray, uint8_t data)
 	return true;
 }
 
-static inline bool bytearray_pushArray(bytearray_t *bytearray, uint8_t *data, uint8_t length)
+static inline bool bytearray_pushArray(bytearray_t *bytearray, const uint8_t *data, uint8_t length)
 {
 	if(bytearray->size + length >= bytearray->capacity) return false;
 	
@@ -101,17 +101,17 @@ static inline bool bytearray_pushU16_LE(bytearray_t *bytearray, uint16_t data)
 }
 
 
-static inline uint8_t bytearray_getSize(bytearray_t *bytearray)
+static inline uint8_t bytearray_getSize(const bytearray_t *bytearray)
 {
 	return bytearray->size;
 }
 
-static inline uint8_t bytearray_getCapacity(bytearray_t *bytearray)
+static inline uint8_t bytearray_getCapacity(const bytearray_t *bytearray)
 {
 	return bytearray->capacity;
 }
 
-static inline uint8_t bytearray_getSpace(bytearray_t *bytearray)
+static inline uint8_t bytearray_getSpace(const bytearray_t *bytearray)
 {
 	return bytearray->capacity - bytearray->size;
 }

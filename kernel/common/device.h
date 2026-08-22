@@ -74,7 +74,7 @@ bool device_readEepromAppSection(uint16_t offset, uint8_t *data, uint16_t size);
 //	Return value: true if successful
 //
 //**************************************************************************
-bool device_writeEepromAppSection(uint16_t offset, uint8_t *data, uint16_t size);
+bool device_writeEepromAppSection(uint16_t offset, const uint8_t *data, uint16_t size);
 
 #ifdef __cplusplus
 }

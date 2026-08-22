@@ -169,9 +169,13 @@
       <SubType>compile</SubType>
       <Link>kernelUpdater_x41.h</Link>
     </Compile>
-    <Compile Include="..\common\typedef.h">
+    <Compile Include="..\common\sharedFunctions.h">
       <SubType>compile</SubType>
-      <Link>typedef.h</Link>
+      <Link>kernel\sharedFunctions.h</Link>
+    </Compile>
+    <Compile Include="..\common\typeDefinition.h">
+      <SubType>compile</SubType>
+      <Link>kernel\typeDefinition.h</Link>
     </Compile>
     <Compile Include="main.c">
       <SubType>compile</SubType>
@@ -179,6 +183,9 @@
     <Compile Include="main.h">
       <SubType>compile</SubType>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="kernel" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>
