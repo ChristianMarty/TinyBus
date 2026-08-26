@@ -13,7 +13,6 @@ TinyBusInterface::TinyBusInterface(Connection &connection, QObject *parent)
 
 void TinyBusInterface::write(const TinyBus::Packet &data)
 {
-    //emit newMessage("TX: "+data.toHex().toUpper().prepend("0x"));
     _connection.sendData(data);
 }
 
@@ -54,9 +53,9 @@ void TinyBusInterface::_updateNextDevice()
 
 void TinyBusInterface::on_newData(TinyBus::Packet packet)
 {
-    //emit newMessage("RX: "+data.toHex().toUpper().prepend("0x"));
-
-    if(!(packet.message.at(0)&0x80)) return; // ignore non-responces e.g. interface loopback
+    if(!(packet.message.at(0)&0x80)){
+        return; // ignore non-responces e.g. interface loopback
+    }
 
     if(!_devices.contains(packet.address)){
         Device *device = new Device(packet.address, this);
@@ -171,7 +170,7 @@ void TinyBusInterface::on_busScanTimer()
         return;
     }
 
-    emit newMessage("---- Pinging address "+QString::number(_busScanDevcieAddress)+" ----");
+    emit newMessage("Pinging address "+QString::number(_busScanDevcieAddress)+" ----");
     write(TinyBus::Encode::requestDeviceState(_busScanDevcieAddress));
     _busScanDevcieAddress++;
 }
