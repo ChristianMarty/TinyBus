@@ -21,11 +21,11 @@ void Connection::open(QString url)
     else if(type == Type::SerialPort) _connection = new ConnectionSerial();
     else return;
 
-    _connection->open(url);
-
     connect(_connection, &ConnectionBase::newData, this, &Connection::on_rxData);
     connect(_connection, &ConnectionBase::newMessage, this, &Connection::on_newMessage);
     connect(_connection, &ConnectionBase::connectionStateChanged, this, &Connection::on_connectionStateChanged);
+
+    _connection->open(url);
 }
 
 void Connection::close()
@@ -45,11 +45,6 @@ bool Connection::connected()
     if(_connection == nullptr) return false;
 
     return _connection->connected();
-}
-
-ConnectionBase *Connection::connection()
-{
-    return _connection;
 }
 
 void Connection::sendData(const TinyBus::Packet &packet)
@@ -91,8 +86,6 @@ void Connection::on_rxData(QByteArray data)
         emit newMessage(TinyBus::packetErrorString(packet.error));
         return;
     }
-
-
 
     emit rxIndicator(true);
     QTimer::singleShot(100, this, &Connection::on_rxIndicatorTimer);

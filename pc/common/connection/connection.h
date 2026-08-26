@@ -21,8 +21,6 @@ public:
     void close(void);
     bool connected(void);
 
-    ConnectionBase* connection(void);
-
     void sendData(const TinyBus::Packet &packet);
     uint16_t suggestedTimeOut(void) const;
 
