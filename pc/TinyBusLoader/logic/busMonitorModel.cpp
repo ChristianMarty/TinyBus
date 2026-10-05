@@ -1,12 +1,12 @@
 #include "busMonitorModel.h"
-#include "connection/connection.h"
+#include "connectionHandler.h"
 
-BusMonitorModel::BusMonitorModel(Connection &connection, QObject *parent)
+BusMonitorModel::BusMonitorModel(ConnectionHandler &connection, QObject *parent)
     : QAbstractTableModel(parent)
     ,_connection{connection}
 {
-    connect(&_connection, &Connection::newDataReceived, this, &BusMonitorModel::on_dataReceived);
-    connect(&_connection, &Connection::newDataTransmitted, this, &BusMonitorModel::on_dataTransmitted);
+    connect(&_connection, &ConnectionHandler::newDataReceived, this, &BusMonitorModel::on_dataReceived);
+    connect(&_connection, &ConnectionHandler::newDataTransmitted, this, &BusMonitorModel::on_dataTransmitted);
 }
 
 QVariant BusMonitorModel::headerData(int section, Qt::Orientation orientation, int role) const

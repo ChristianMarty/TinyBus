@@ -14,9 +14,9 @@ public:
 
     void open(QString url) override;
     void close(void) override;
-    bool connected(void) override;
+    bool connected(void) const override;
 
-    bool sendData(QByteArray data) override;
+    bool sendData(const QByteArray &data) override;
 
     uint16_t suggestedTimeOut(void) const override;
 

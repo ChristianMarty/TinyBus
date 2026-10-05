@@ -17,16 +17,16 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&_tinyBus, &TinyBusInterface::hexFileChanged, this, &MainWindow::on_hexFileChanged);
     connect(&_tinyBus, &TinyBusInterface::newMessage, this, &MainWindow::on_message);
 
-    connect(&_busPassThrough, &BusPassThrough::stateChanged, this, &MainWindow::on_passthroughStateChanged);
+    connect(&_connectionHandler, &ConnectionHandler::rxIndicator, this, &MainWindow::on_rxIndicator);
+    connect(&_connectionHandler, &ConnectionHandler::txIndicator, this, &MainWindow::on_txIndicator);
+    connect(&_connectionHandler, &ConnectionHandler::txOverrun, this, &MainWindow::on_txOverrun);
+    connect(&_connectionHandler, &ConnectionHandler::connectionStateChanged, this, &MainWindow::on_connectionStateChanged);
 
-    connect(&_connection, &Connection::rxIndicator, this, &MainWindow::on_rxIndicator);
-    connect(&_connection, &Connection::txIndicator, this, &MainWindow::on_txIndicator);
-    connect(&_connection, &Connection::connectionStateChanged, this, &MainWindow::on_connectionStateChanged);
-
-    _busPassThrough.setConnection(&_connection);
+    connect(&_connectionHandler, &ConnectionHandler::passThroughStateChanged, this, &MainWindow::on_passthroughStateChanged);
 
     ui->label_rx->setPalette(ColorPalette::status());
     ui->label_tx->setPalette(ColorPalette::status());
+    ui->label_txOverrun->setPalette(ColorPalette::error());
 
     _updateConnectionState();
     _updatePassthroughState();
@@ -40,6 +40,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    _connectionHandler.close();
+
+    while(_connectionHandler.running()); // todo: fix
+
     ui->widget_device->close();
     _flashMemoryWidget.close();
     _busMonitorWidget.close();
@@ -129,14 +133,14 @@ void MainWindow::on_message(QString message)
 
 void MainWindow::on_pushButton_connect_clicked()
 {
-    _connection.open(ui->lineEdit_url->text());
+    _connectionHandler.open(ui->lineEdit_url->text());
     _updateConnectionState();
 }
 
 void MainWindow::on_pushButton_disconnect_clicked()
 {
     _tinyBus.abortScan();
-    _connection.close();
+    _connectionHandler.close();
 
     _updateConnectionState();
 }
@@ -170,7 +174,7 @@ void MainWindow::_update()
 
 void MainWindow::_updateConnectionState()
 {
-    if(_connection.connected()){
+    if(_connectionHandler.connected()){
         ui->label_connected->setText("Connected");
         ui->label_connected->setPalette(ColorPalette::ok());
 
@@ -195,11 +199,11 @@ void MainWindow::_updateConnectionState()
 
 void MainWindow::_updatePassthroughState()
 {
-    if(_busPassThrough.isOpen()){
+    if(_connectionHandler.isOpenPassThrough()){
         ui->pushButton_passthroughOpen->setEnabled(false);
         ui->pushButton_passthroughClose->setEnabled(true);
         ui->spinBox_passthroughPort->setEnabled(false);
-        ui->label_passthroughState->setText(QString::number(_busPassThrough.numberOfClients())+" clients connected");
+        ui->label_passthroughState->setText(QString::number(_connectionHandler.numberOfClientsPassThrough())+" clients connected");
     }else{
         ui->pushButton_passthroughOpen->setEnabled(true);
         ui->pushButton_passthroughClose->setEnabled(false);
@@ -217,7 +221,7 @@ void MainWindow::on_pushButton_startScan_clicked()
 {
     ui->listWidget_devices->clear();
     selectDevice(nullptr);
-    _tinyBus.startScan(_connection.suggestedTimeOut());
+    _tinyBus.startScan(_connectionHandler.suggestedTimeOut());
 
     ui->pushButton_startScan->setEnabled(!_tinyBus.activeScan());
     ui->pushButton_abortScan->setEnabled(_tinyBus.activeScan());
@@ -266,12 +270,14 @@ void MainWindow::on_connectionStateChanged()
 
 void MainWindow::on_pushButton_passthroughOpen_clicked()
 {
-    _busPassThrough.open(ui->spinBox_passthroughPort->value());
+    _connectionHandler.openPassThrough(ui->spinBox_passthroughPort->value());
+    //_busPassThrough.open(ui->spinBox_passthroughPort->value());
 }
 
 void MainWindow::on_pushButton_passthroughClose_clicked()
 {
-    _busPassThrough.close();
+    _connectionHandler.closePassThrough();
+    //_busPassThrough.close();
 }
 
 void MainWindow::on_passthroughStateChanged()
@@ -293,6 +299,11 @@ void MainWindow::on_txIndicator(bool state)
 void MainWindow::on_rxIndicator(bool state)
 {
     ui->label_rx->setEnabled(state);
+}
+
+void MainWindow::on_txOverrun(bool state)
+{
+    ui->label_txOverrun->setEnabled(state);
 }
 
 void MainWindow::on_pushButton_busMonitor_clicked()

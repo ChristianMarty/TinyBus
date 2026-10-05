@@ -2,13 +2,13 @@
 #include "protocol.h"
 #include "../QuCLib/source/crc.h"
 
-TinyBusInterface::TinyBusInterface(Connection &connection, QObject *parent)
+TinyBusInterface::TinyBusInterface(ConnectionHandler &connection, QObject *parent)
     : QObject{parent}
     ,_connection{connection}
 {
     connect(&_busScanTimer, &QTimer::timeout, this, &TinyBusInterface::on_busScanTimer);
-    connect(&_connection, &Connection::newDataReceived, this, &TinyBusInterface::on_newData);
-    connect(&_connection, &Connection::newMessage, this, &TinyBusInterface::on_newMessage);
+    connect(&_connection, &ConnectionHandler::newDataReceived, this, &TinyBusInterface::on_newData);
+    connect(&_connection, &ConnectionHandler::newMessage, this, &TinyBusInterface::on_newMessage);
 }
 
 void TinyBusInterface::write(const TinyBus::Packet &data)

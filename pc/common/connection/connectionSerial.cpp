@@ -41,29 +41,30 @@ void ConnectionSerial::close()
     emit connectionStateChanged();
 }
 
-bool ConnectionSerial::connected()
+bool ConnectionSerial::connected() const
 {
     return _isConnected;
 }
 
-bool ConnectionSerial::sendData(QByteArray data)
+bool ConnectionSerial::sendData(const QByteArray &data)
 {
     if(!_serialPort.isOpen()){
         emit newMessage("serial port is not open");
         return false;
     }
 
-    uint16_t crc = QuCLib::Crc::crc16(data);
-    data.append((crc>>8)&0xFF);
-    data.append(crc&0xFF);
-
-    QByteArray encodedData = _cobs.encode(data);
-    encodedData.prepend((uint8_t)_cobs.delimiter());
-
     if(_serialPort.bytesToWrite()){
-        newMessage("TX overrun");
+        emit txOverrun();
         return false;
     }
+
+    QByteArray txData = data;
+    uint16_t crc = QuCLib::Crc::crc16(data);
+    txData.append((crc>>8)&0xFF);
+    txData.append(crc&0xFF);
+
+    QByteArray encodedData = _cobs.encode(txData);
+    encodedData.prepend((uint8_t)_cobs.delimiter());
 
     _serialPort.write(encodedData);
     return true;

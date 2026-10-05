@@ -4,13 +4,13 @@
 #include <QAbstractTableModel>
 #include "datatype.h"
 
-class Connection;
+class ConnectionHandler;
 
 class BusMonitorModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit BusMonitorModel(Connection &connection, QObject *parent = nullptr);
+    explicit BusMonitorModel(ConnectionHandler &connection, QObject *parent = nullptr);
 
     // Header:
     QVariant headerData(int section,
@@ -30,7 +30,7 @@ private slots:
     void on_dataReceived(TinyBus::Packet data);
 
 private:
-    Connection &_connection;
+    ConnectionHandler &_connection;
 
     struct Line{
         TinyBus::Packet packet;

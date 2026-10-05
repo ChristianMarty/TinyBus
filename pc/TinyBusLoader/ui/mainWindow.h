@@ -4,10 +4,9 @@
 #include <QMainWindow>
 #include <QMap>
 
-#include "connection/connection.h"
+#include "connectionHandler.h"
 #include "logic/device/device.h"
 #include "logic/tinyBus.h"
-#include "logic/busPassThrough.h"
 #include "logic/busMonitorModel.h"
 #include "ui/flashMemoryWidget.h"
 #include "ui/busMonitorWidget.h"
@@ -50,6 +49,7 @@ private slots:
     void on_connectionStateChanged(void);
     void on_txIndicator(bool state);
     void on_rxIndicator(bool state);
+    void on_txOverrun(bool state);
 
     void on_pushButton_passthroughOpen_clicked();
     void on_pushButton_passthroughClose_clicked();
@@ -58,15 +58,14 @@ private slots:
     void on_lineEdit_url_returnPressed();
 
     void on_pushButton_view_clicked();
-
     void on_pushButton_busMonitor_clicked();
 
 private:
     Ui::MainWindow *ui;
-    Connection _connection{this};
-    BusMonitorModel _busMonitorModel{_connection};
-    TinyBusInterface _tinyBus{_connection, this};
-    BusPassThrough _busPassThrough;
+
+    ConnectionHandler _connectionHandler;
+    BusMonitorModel _busMonitorModel{_connectionHandler};
+    TinyBusInterface _tinyBus{_connectionHandler, this};
     Device *_selectedDevice = nullptr;
 
     FlashMemoryWidget _flashMemoryWidget;

@@ -5,11 +5,12 @@
 #include "datatype.h"
 
 class ConnectionBase;
+class ConnectionHandler;
 class Connection : public QObject
 {
     Q_OBJECT
 public:
-    explicit Connection(QObject *parent = nullptr);
+    explicit Connection(ConnectionHandler *parent = nullptr);
 
     enum Type {
         Undefined,
@@ -19,12 +20,14 @@ public:
 
     void open(QString url);
     void close(void);
-    bool connected(void);
+    bool connected(void) const;
 
     void sendData(const TinyBus::Packet &packet);
     uint16_t suggestedTimeOut(void) const;
 
     static Type typeFromUrl(QString url);
+
+
 
 signals:
     void newDataTransmitted(TinyBus::Packet data);
@@ -32,17 +35,16 @@ signals:
 
     void newMessage(QString message);
     void connectionStateChanged(void);
+    void txOverrun(void);
 
-    void txIndicator(bool state);
-    void rxIndicator(bool state);
+public slots:
+    void sendPacket(TinyBus::Packet packet);
 
 private slots:
     void on_rxData(QByteArray data);
     void on_newMessage(QString message);
     void on_connectionStateChanged(void);
-
-    void on_txIndicatorTimer(void);
-    void on_rxIndicatorTimer(void);
+    void on_txOverrun(void);
 
 private:
     ConnectionBase* _connection = nullptr;

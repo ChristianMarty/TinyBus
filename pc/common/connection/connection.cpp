@@ -6,8 +6,8 @@
 
 #include "protocol.h"
 
-Connection::Connection(QObject *parent)
-    : QObject{parent}
+Connection::Connection(ConnectionHandler *parent)
+    : QObject{(QObject*)parent}
 {}
 
 void Connection::open(QString url)
@@ -22,6 +22,7 @@ void Connection::open(QString url)
     else return;
 
     connect(_connection, &ConnectionBase::newData, this, &Connection::on_rxData);
+    connect(_connection, &ConnectionBase::txOverrun, this, &Connection::on_txOverrun);
     connect(_connection, &ConnectionBase::newMessage, this, &Connection::on_newMessage);
     connect(_connection, &ConnectionBase::connectionStateChanged, this, &Connection::on_connectionStateChanged);
 
@@ -40,7 +41,7 @@ void Connection::close()
     _connection = nullptr;
 }
 
-bool Connection::connected()
+bool Connection::connected() const
 {
     if(_connection == nullptr) return false;
 
@@ -61,15 +62,18 @@ void Connection::sendData(const TinyBus::Packet &packet)
 
     _pendingLoopback.append(data);
     emit newDataTransmitted(packet);
-
-    emit txIndicator(true);
-    QTimer::singleShot(100, this, &Connection::on_txIndicatorTimer);
 }
 
 uint16_t Connection::suggestedTimeOut() const
 {
     if(_connection == nullptr) return 0;
     return _connection->suggestedTimeOut();
+}
+
+void Connection::sendPacket(TinyBus::Packet packet)
+{
+    qDebug() << "Connection::sendPacket:" << QThread::currentThreadId();
+    sendData(packet);
 }
 
 void Connection::on_rxData(QByteArray data)
@@ -86,9 +90,6 @@ void Connection::on_rxData(QByteArray data)
         emit newMessage(TinyBus::packetErrorString(packet.error));
         return;
     }
-
-    emit rxIndicator(true);
-    QTimer::singleShot(100, this, &Connection::on_rxIndicatorTimer);
 
     emit newDataReceived(packet);
 }
@@ -115,12 +116,7 @@ void Connection::on_connectionStateChanged(void)
     emit connectionStateChanged();
 }
 
-void Connection::on_txIndicatorTimer()
+void Connection::on_txOverrun()
 {
-    emit txIndicator(false);
-}
-
-void Connection::on_rxIndicatorTimer()
-{
-    emit rxIndicator(false);
+    emit txOverrun();
 }

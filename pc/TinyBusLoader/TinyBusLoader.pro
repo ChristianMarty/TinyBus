@@ -33,13 +33,14 @@ SOURCES += \
     ../QuCLib/source/crc.cpp \
     ../QuCLib/source/hexFileParser.cpp \
     ../QuCLib/source/uiComponents/memoryTextWidget.cpp \
+    ../common/connectionHandler.cpp \
     ../common/protocol.cpp \
     ../common/connection/connection.cpp \
     ../common/connection/connectionBase.cpp \
     ../common/connection/connectionSerial.cpp \
     ../common/connection/connectionTcp.cpp \
     logic/busMonitorModel.cpp \
-    logic/busPassThrough.cpp \
+    ../common/busPassThrough.cpp \
     logic/device/update.cpp \
     logic/tinyBus.cpp \
     logic/device/device.cpp \
@@ -59,6 +60,7 @@ HEADERS += \
     ../QuCLib/source/hexFileParser.h \
     ../QuCLib/source/uiComponents/memoryTextWidget.h \
     ../QuCLib/source/uiComponents/uiDatatypes.h \
+    ../common/connectionHandler.h \
     ../common/datatype.h \
     ../common/protocol.h \
     ../common/connection/connection.h \
@@ -66,7 +68,7 @@ HEADERS += \
     ../common/connection/connectionSerial.h \
     ../common/connection/connectionTcp.h \
     logic/busMonitorModel.h \
-    logic/busPassThrough.h \
+    ../common/busPassThrough.h \
     logic/device/update.h \
     logic/tinyBus.h \
     logic/device/device.h \

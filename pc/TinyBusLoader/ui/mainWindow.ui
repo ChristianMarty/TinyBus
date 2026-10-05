@@ -240,6 +240,16 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QLabel" name="label_txOverrun">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>TX Overrun</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </item>

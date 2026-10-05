@@ -35,23 +35,24 @@ void ConnectionTcp::close()
     _tcpClient.close();
 }
 
-bool ConnectionTcp::connected()
+bool ConnectionTcp::connected() const
 {
     return _tcpClient.isOpen();
 }
 
-bool ConnectionTcp::sendData(QByteArray data)
+bool ConnectionTcp::sendData(const QByteArray &data)
 {
     if(!_tcpClient.isOpen()){
         emit newMessage("not open");
         return false;
     }
 
+    QByteArray txData = data;
     uint16_t crc = QuCLib::Crc::crc16(data);
-    data.append((crc>>8)&0xFF);
-    data.append(crc&0xFF);
+    txData.append((crc>>8)&0xFF);
+    txData.append(crc&0xFF);
 
-    QByteArray encodedData = _cobs.encode(data);
+    QByteArray encodedData = _cobs.encode(txData);
     encodedData.prepend((uint8_t)_cobs.delimiter());
 
     _tcpClient.write(encodedData);
