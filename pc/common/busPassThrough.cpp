@@ -6,8 +6,9 @@
 
 #include <QThread>
 
-BusPassThrough::BusPassThrough(ConnectionHandler *parent)
-    : QObject{(QObject*)parent}
+BusPassThrough::BusPassThrough(Connection &connection)
+    : QObject{nullptr}
+    ,_connection{connection}
 {
     qDebug() << "BusPassThrough:" << QThread::currentThreadId();
 }
@@ -61,11 +62,8 @@ int BusPassThrough::numberOfClients()
     return _tcpConnections.count();
 }
 
-void BusPassThrough::on_newData(TinyBus::Packet data)
+void BusPassThrough::sendPacket(const TinyBus::Packet &data)
 {
-    if(_connection == nullptr) return;
-    if(_tcpServer == nullptr) return;
-
     for(TcpConnection *connection: std::as_const(_tcpConnections)){
         connection->write(TinyBus::Encode::frame(data));
     }
@@ -73,13 +71,10 @@ void BusPassThrough::on_newData(TinyBus::Packet data)
 
 void BusPassThrough::on_pendingConnectionAvailable()
 {
-    qDebug() << "on_pendingConnectionAvailable:" << QThread::currentThreadId();
-
     QTcpSocket *connection = _tcpServer->nextPendingConnection();
     while(connection){
         TcpConnection *tcpConnection = new TcpConnection(connection, this);
         _tcpConnections.insert(tcpConnection);
-        connect(tcpConnection, &TcpConnection::closing, this, &BusPassThrough::on_closing);
 
         connection = _tcpServer->nextPendingConnection();
     }
@@ -87,7 +82,7 @@ void BusPassThrough::on_pendingConnectionAvailable()
     emit stateChanged();
 }
 
-void BusPassThrough::on_closing(TcpConnection *tcpConnection)
+void BusPassThrough::_closing(TcpConnection *tcpConnection)
 {
     _tcpConnections.remove(tcpConnection);
     tcpConnection->deleteLater();
@@ -97,9 +92,8 @@ void BusPassThrough::on_closing(TcpConnection *tcpConnection)
 
 void BusPassThrough::_rxData(const QByteArrayList &data)
 {
-    qDebug() << "BusPassThrough::_rxData:" << QThread::currentThreadId();
     for(const QByteArray &message: std::as_const(data)){
-        emit newData(TinyBus::Decode::frame(message));
+        _connection.sendData(TinyBus::Decode::frame(message));
     }
 }
 
@@ -136,6 +130,6 @@ void TcpConnection::on_stateChanged(QAbstractSocket::SocketState socketState)
 {
     if(socketState == QAbstractSocket::SocketState::UnconnectedState)
     {
-        emit closing(this);
+        _busPassThrough->_closing(this);
     }
 }

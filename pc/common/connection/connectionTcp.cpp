@@ -1,9 +1,10 @@
 #include "connectionTcp.h"
 #include <QUrl>
 #include "../QuCLib/source/crc.h"
+#include "connection.h"
 
-ConnectionTcp::ConnectionTcp(QObject *parent)
-    : ConnectionBase{parent}
+ConnectionTcp::ConnectionTcp(Connection *connection)
+    : ConnectionBase{connection}
 {
     connect( &_tcpClient, &QTcpSocket::readyRead, this, &ConnectionTcp::on_readyRead);
     connect( &_tcpClient, &QTcpSocket::stateChanged, this, &ConnectionTcp::on_stateChanged);
@@ -17,7 +18,6 @@ ConnectionTcp::~ConnectionTcp()
 void ConnectionTcp::open(QString url)
 {
     _cobs.clear();
-    emit newMessage("Connecting to "+url);
 
     url = url.remove("tcp://", Qt::CaseInsensitive);
     QStringList urlParts = url.split(':');
@@ -31,7 +31,6 @@ void ConnectionTcp::open(QString url)
 
 void ConnectionTcp::close()
 {
-    emit newMessage("Disconnecting");
     _tcpClient.close();
 }
 
@@ -43,7 +42,7 @@ bool ConnectionTcp::connected() const
 bool ConnectionTcp::sendData(const QByteArray &data)
 {
     if(!_tcpClient.isOpen()){
-        emit newMessage("not open");
+        emit _connection->newMessage("not open");
         return false;
     }
 
@@ -66,28 +65,34 @@ void ConnectionTcp::on_readyRead()
     QByteArrayList data = _cobs.streamDecode(decodeData);
 
     for(QByteArray &message : data){
+
+        if(message.length() < 2){
+            emit _connection->newMessage("RX Error: Message too short");
+            continue;
+        }
+
         uint16_t crc = QuCLib::Crc::crc16(message);
-        if(message.length() <2){
-            newMessage("Message too short");
-            return;
-        }
         if(crc != 0) {
-            newMessage("CRC Error");
-            return;
+            emit _connection->newMessage("RX Error: CRC");
+            continue;
         }
-        emit newData(message.mid(0,message.length()-2));
+
+        _connection->_handleRxData(message.mid(0,message.length()-2));
     }
 }
 
 void ConnectionTcp::on_stateChanged(QAbstractSocket::SocketState socketState)
 {
+    QString errorMessage;
     switch(socketState){
-        case QAbstractSocket::UnconnectedState: emit newMessage("Unconnected State"); break;
-        case QAbstractSocket::HostLookupState: emit newMessage("Host Lookup State"); break;
-        case QAbstractSocket::ConnectingState: emit newMessage("Connecting State"); break;
-        case QAbstractSocket::ConnectedState: emit newMessage("Connected State"); break;
-        case QAbstractSocket::BoundState: emit newMessage("Bound State"); break;
-        case QAbstractSocket::ClosingState: emit newMessage("Closing State"); break;
-        case QAbstractSocket::ListeningState: emit newMessage("Listening State"); break;
+        case QAbstractSocket::UnconnectedState: errorMessage = "Unconnected State"; break;
+        case QAbstractSocket::HostLookupState: errorMessage = "Host Lookup State"; break;
+        case QAbstractSocket::ConnectingState: errorMessage = "Connecting State"; break;
+        case QAbstractSocket::ConnectedState: errorMessage = "Connected State"; break;
+        case QAbstractSocket::BoundState: errorMessage = "Bound State"; break;
+        case QAbstractSocket::ClosingState: errorMessage = "Closing State"; break;
+        case QAbstractSocket::ListeningState: errorMessage = "Listening State"; break;
     }
+
+    emit _connection->newMessage(errorMessage);
 }

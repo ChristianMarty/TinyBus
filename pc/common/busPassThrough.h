@@ -11,38 +11,39 @@
 
 class TcpConnection;
 class Connection;
-class ConnectionHandler;
 
 class BusPassThrough : public QObject
 {
     Q_OBJECT
 public:
-    explicit BusPassThrough(ConnectionHandler *parent = nullptr);
+    explicit BusPassThrough(Connection &connection);
     ~BusPassThrough(void);
-
-    void open(uint32_t port);
-    void close(void);
 
     bool isOpen(void) const;
     int numberOfClients(void);
+
+    void sendPacket(const TinyBus::Packet &data);
 
     friend TcpConnection;
 
 signals:
     void stateChanged(void);
-    void newData(TinyBus::Packet data);
+    void newPacket(TinyBus::Packet data);
+
+public slots:
+    void open(uint32_t port);
+    void close(void);
 
 private slots:
-    void on_newData(TinyBus::Packet data);
     void on_pendingConnectionAvailable(void);
-    void on_closing(TcpConnection *tcpConnection);
 
 private:
-    Connection *_connection = nullptr;
+    Connection &_connection;
     QTcpServer *_tcpServer = nullptr;
     QSet<TcpConnection*> _tcpConnections;
 
     void _rxData(const QByteArrayList &data);
+    void _closing(TcpConnection *tcpConnection);
 };
 
 class TcpConnection : public QObject
@@ -53,9 +54,6 @@ public:
     ~TcpConnection(void);
 
     void write(QByteArray data);
-
-signals:
-    void closing(TcpConnection *tcpConnection);
 
 private slots:
     void on_readyRead(void);

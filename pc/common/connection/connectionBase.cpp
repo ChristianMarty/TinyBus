@@ -1,4 +1,7 @@
 #include "connectionBase.h"
-ConnectionBase::ConnectionBase(QObject *parent)
-    : QObject{parent}
-{}
+ConnectionBase::ConnectionBase(Connection *connection)
+    : QObject{nullptr}
+    ,_connection{connection}
+{
+    Q_ASSERT(_connection != nullptr);
+}

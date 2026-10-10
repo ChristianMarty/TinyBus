@@ -9,7 +9,7 @@ class ConnectionTcp : public ConnectionBase
 {
     Q_OBJECT
 public:
-    explicit ConnectionTcp(QObject *parent = nullptr);
+    explicit ConnectionTcp(Connection *connection = nullptr);
     ~ConnectionTcp(void);
 
     void open(QString url) override;

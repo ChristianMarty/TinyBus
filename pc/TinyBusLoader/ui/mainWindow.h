@@ -53,7 +53,6 @@ private slots:
 
     void on_pushButton_passthroughOpen_clicked();
     void on_pushButton_passthroughClose_clicked();
-    void on_passthroughStateChanged(void);
 
     void on_lineEdit_url_returnPressed();
 
@@ -63,9 +62,9 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
-    ConnectionHandler _connectionHandler;
-    BusMonitorModel _busMonitorModel{_connectionHandler};
-    TinyBusInterface _tinyBus{_connectionHandler, this};
+    ConnectionThread _connectionThread;
+    BusMonitorModel _busMonitorModel{_connectionThread};
+    TinyBusInterface _tinyBus{_connectionThread, this};
     Device *_selectedDevice = nullptr;
 
     FlashMemoryWidget _flashMemoryWidget;

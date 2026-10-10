@@ -2,15 +2,19 @@
 #define CONNECTION_H
 
 #include <QObject>
+#include <QTimer>
 #include "datatype.h"
 
 class ConnectionBase;
-class ConnectionHandler;
+class ConnectionThread;
+class ConnectionSerial;
+class ConnectionTcp;
+
 class Connection : public QObject
 {
     Q_OBJECT
 public:
-    explicit Connection(ConnectionHandler *parent = nullptr);
+    explicit Connection(ConnectionThread *parent = nullptr);
 
     enum Type {
         Undefined,
@@ -18,16 +22,15 @@ public:
         TCP
     };
 
-    void open(QString url);
-    void close(void);
     bool connected(void) const;
-
     void sendData(const TinyBus::Packet &packet);
+
     uint16_t suggestedTimeOut(void) const;
 
     static Type typeFromUrl(QString url);
 
-
+    friend ConnectionSerial;
+    friend ConnectionTcp;
 
 signals:
     void newDataTransmitted(TinyBus::Packet data);
@@ -35,18 +38,17 @@ signals:
 
     void newMessage(QString message);
     void connectionStateChanged(void);
+
     void txOverrun(void);
 
 public slots:
     void sendPacket(TinyBus::Packet packet);
-
-private slots:
-    void on_rxData(QByteArray data);
-    void on_newMessage(QString message);
-    void on_connectionStateChanged(void);
-    void on_txOverrun(void);
+    void open(QString url);
+    void close(void);
 
 private:
+    void _handleRxData(const QByteArray &data);
+
     ConnectionBase* _connection = nullptr;
 
     QList<QByteArray> _pendingLoopback;

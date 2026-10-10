@@ -4,17 +4,13 @@
 #include <QObject>
 #include "../QuCLib/source/cobs.h"
 
+class Connection;
+
 class ConnectionBase : public QObject
 {
     Q_OBJECT
 public:
-    explicit ConnectionBase(QObject *parent = nullptr);
-
-    enum Type {
-        Undefined,
-        SerialPort,
-        TCP
-    };
+    explicit ConnectionBase(Connection *connection = nullptr);
 
     virtual void open(QString url) {Q_UNUSED(url);};
     virtual void close(void) {};
@@ -24,14 +20,8 @@ public:
 
     virtual uint16_t suggestedTimeOut(void) const {return 500;};
 
-signals:
-    void newData(QByteArray data);
-    void newMessage(QString message);
-    void txOverrun(void);
-
-    void connectionStateChanged(void);
-
 protected:
+    Connection *_connection;
     QuCLib::Cobs _cobs{0x55};
 };
 

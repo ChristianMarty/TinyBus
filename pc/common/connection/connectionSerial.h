@@ -9,7 +9,7 @@ class ConnectionSerial : public ConnectionBase
 {
     Q_OBJECT
 public:
-    explicit ConnectionSerial(QObject *parent = nullptr);
+    explicit ConnectionSerial(Connection *connection = nullptr);
     ~ConnectionSerial(void);
 
     void open(QString url) override;

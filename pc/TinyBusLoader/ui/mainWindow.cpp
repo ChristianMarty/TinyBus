@@ -17,12 +17,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&_tinyBus, &TinyBusInterface::hexFileChanged, this, &MainWindow::on_hexFileChanged);
     connect(&_tinyBus, &TinyBusInterface::newMessage, this, &MainWindow::on_message);
 
-    connect(&_connectionHandler, &ConnectionHandler::rxIndicator, this, &MainWindow::on_rxIndicator);
-    connect(&_connectionHandler, &ConnectionHandler::txIndicator, this, &MainWindow::on_txIndicator);
-    connect(&_connectionHandler, &ConnectionHandler::txOverrun, this, &MainWindow::on_txOverrun);
-    connect(&_connectionHandler, &ConnectionHandler::connectionStateChanged, this, &MainWindow::on_connectionStateChanged);
-
-    connect(&_connectionHandler, &ConnectionHandler::passThroughStateChanged, this, &MainWindow::on_passthroughStateChanged);
+    connect(&_connectionThread, &ConnectionThread::rxIndicator, this, &MainWindow::on_rxIndicator);
+    connect(&_connectionThread, &ConnectionThread::txIndicator, this, &MainWindow::on_txIndicator);
+    connect(&_connectionThread, &ConnectionThread::txOverrun, this, &MainWindow::on_txOverrun);
+    connect(&_connectionThread, &ConnectionThread::stateChanged, this, &MainWindow::on_connectionStateChanged);
 
     ui->label_rx->setPalette(ColorPalette::status());
     ui->label_tx->setPalette(ColorPalette::status());
@@ -40,9 +38,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    _connectionHandler.close();
+    _connectionThread.closeBus();
+    _connectionThread.quit();
 
-    while(_connectionHandler.running()); // todo: fix
+    while(_connectionThread.running()); // todo: fix
 
     ui->widget_device->close();
     _flashMemoryWidget.close();
@@ -133,14 +132,14 @@ void MainWindow::on_message(QString message)
 
 void MainWindow::on_pushButton_connect_clicked()
 {
-    _connectionHandler.open(ui->lineEdit_url->text());
+    _connectionThread.openBus(ui->lineEdit_url->text());
     _updateConnectionState();
 }
 
 void MainWindow::on_pushButton_disconnect_clicked()
 {
     _tinyBus.abortScan();
-    _connectionHandler.close();
+    _connectionThread.closeBus();
 
     _updateConnectionState();
 }
@@ -174,7 +173,7 @@ void MainWindow::_update()
 
 void MainWindow::_updateConnectionState()
 {
-    if(_connectionHandler.connected()){
+    if(_connectionThread.connected()){
         ui->label_connected->setText("Connected");
         ui->label_connected->setPalette(ColorPalette::ok());
 
@@ -199,11 +198,11 @@ void MainWindow::_updateConnectionState()
 
 void MainWindow::_updatePassthroughState()
 {
-    if(_connectionHandler.isOpenPassThrough()){
+    if(_connectionThread.isOpenPassThrough()){
         ui->pushButton_passthroughOpen->setEnabled(false);
         ui->pushButton_passthroughClose->setEnabled(true);
         ui->spinBox_passthroughPort->setEnabled(false);
-        ui->label_passthroughState->setText(QString::number(_connectionHandler.numberOfClientsPassThrough())+" clients connected");
+        ui->label_passthroughState->setText(QString::number(_connectionThread.numberOfClientsPassThrough())+" clients connected");
     }else{
         ui->pushButton_passthroughOpen->setEnabled(true);
         ui->pushButton_passthroughClose->setEnabled(false);
@@ -221,7 +220,7 @@ void MainWindow::on_pushButton_startScan_clicked()
 {
     ui->listWidget_devices->clear();
     selectDevice(nullptr);
-    _tinyBus.startScan(_connectionHandler.suggestedTimeOut());
+    _tinyBus.startScan(_connectionThread.suggestedTimeOut());
 
     ui->pushButton_startScan->setEnabled(!_tinyBus.activeScan());
     ui->pushButton_abortScan->setEnabled(_tinyBus.activeScan());
@@ -266,23 +265,19 @@ void MainWindow::on_pushButton_reload_clicked()
 void MainWindow::on_connectionStateChanged()
 {
     _updateConnectionState();
+    _updatePassthroughState();
 }
 
 void MainWindow::on_pushButton_passthroughOpen_clicked()
 {
-    _connectionHandler.openPassThrough(ui->spinBox_passthroughPort->value());
+    _connectionThread.openPassThrough(ui->spinBox_passthroughPort->value());
     //_busPassThrough.open(ui->spinBox_passthroughPort->value());
 }
 
 void MainWindow::on_pushButton_passthroughClose_clicked()
 {
-    _connectionHandler.closePassThrough();
+    _connectionThread.closePassThrough();
     //_busPassThrough.close();
-}
-
-void MainWindow::on_passthroughStateChanged()
-{
-    _updatePassthroughState();
 }
 
 void MainWindow::on_pushButton_view_clicked()

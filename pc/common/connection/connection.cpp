@@ -6,7 +6,7 @@
 
 #include "protocol.h"
 
-Connection::Connection(ConnectionHandler *parent)
+Connection::Connection(ConnectionThread *parent)
     : QObject{(QObject*)parent}
 {}
 
@@ -17,14 +17,9 @@ void Connection::open(QString url)
     }
 
     Type type =  typeFromUrl(url);
-    if(type == Type::TCP) _connection = new ConnectionTcp();
-    else if(type == Type::SerialPort) _connection = new ConnectionSerial();
+    if(type == Type::TCP) _connection = new ConnectionTcp(this);
+    else if(type == Type::SerialPort) _connection = new ConnectionSerial(this);
     else return;
-
-    connect(_connection, &ConnectionBase::newData, this, &Connection::on_rxData);
-    connect(_connection, &ConnectionBase::txOverrun, this, &Connection::on_txOverrun);
-    connect(_connection, &ConnectionBase::newMessage, this, &Connection::on_newMessage);
-    connect(_connection, &ConnectionBase::connectionStateChanged, this, &Connection::on_connectionStateChanged);
 
     _connection->open(url);
 }
@@ -72,11 +67,10 @@ uint16_t Connection::suggestedTimeOut() const
 
 void Connection::sendPacket(TinyBus::Packet packet)
 {
-    qDebug() << "Connection::sendPacket:" << QThread::currentThreadId();
     sendData(packet);
 }
 
-void Connection::on_rxData(QByteArray data)
+void Connection::_handleRxData(const QByteArray &data)
 {
     if(!_pendingLoopback.isEmpty()){
         if(data != _pendingLoopback.takeFirst()){
@@ -92,11 +86,7 @@ void Connection::on_rxData(QByteArray data)
     }
 
     emit newDataReceived(packet);
-}
 
-void Connection::on_newMessage(QString message)
-{
-    emit newMessage(message);
 }
 
 Connection::Type Connection::typeFromUrl(QString url)
@@ -109,14 +99,4 @@ Connection::Type Connection::typeFromUrl(QString url)
     }
 
     return Type::Undefined;
-}
-
-void Connection::on_connectionStateChanged(void)
-{
-    emit connectionStateChanged();
-}
-
-void Connection::on_txOverrun()
-{
-    emit txOverrun();
 }

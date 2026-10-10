@@ -1,8 +1,9 @@
 #include "connectionSerial.h"
 #include "../QuCLib/source/crc.h"
+#include "connection.h"
 
-ConnectionSerial::ConnectionSerial(QObject *parent)
-    : ConnectionBase{parent}
+ConnectionSerial::ConnectionSerial(Connection *connection)
+    : ConnectionBase{connection}
 {
     connect(&_serialPort, &QSerialPort::readyRead, this, &ConnectionSerial::on_readyRead);
     connect(&_serialPort, &QSerialPort::errorOccurred, this, &ConnectionSerial::on_stateChangeOccurred);
@@ -15,6 +16,8 @@ ConnectionSerial::~ConnectionSerial()
 
 void ConnectionSerial::open(QString url)
 {
+    _cobs.clear();
+
     QStringList parts = url.remove("serial://", Qt::CaseInsensitive).split(":");
 
     QString port = parts[0];
@@ -29,16 +32,15 @@ void ConnectionSerial::open(QString url)
     _serialPort.open(QIODeviceBase::ReadWrite);
     _serialPort.setRequestToSend(true);
 
-    emit connectionStateChanged();
+    emit _connection->connectionStateChanged();
 }
 
 void ConnectionSerial::close()
 {
-    emit newMessage("Disconnecting");
     _serialPort.close();
     _isConnected = false;
 
-    emit connectionStateChanged();
+    emit _connection->connectionStateChanged();
 }
 
 bool ConnectionSerial::connected() const
@@ -49,12 +51,12 @@ bool ConnectionSerial::connected() const
 bool ConnectionSerial::sendData(const QByteArray &data)
 {
     if(!_serialPort.isOpen()){
-        emit newMessage("serial port is not open");
+        emit _connection->newMessage("This serial port is not open");
         return false;
     }
 
     if(_serialPort.bytesToWrite()){
-        emit txOverrun();
+        _connection->txOverrun();
         return false;
     }
 
@@ -83,34 +85,40 @@ void ConnectionSerial::on_readyRead()
     QByteArrayList data = _cobs.streamDecode(decodeData);
 
     for(QByteArray &message : data){
+
+        if(message.length() < 2){
+            emit _connection->newMessage("RX Error: Message too short");
+            continue;
+        }
+
         uint16_t crc = QuCLib::Crc::crc16(message);
-        if(message.length() <2){
-            newMessage("Message too short");
-            return;
-        }
         if(crc != 0) {
-            newMessage("CRC Error");
-            return;
+            emit _connection->newMessage("RX Error: CRC");
+            continue;
         }
-        emit newData(message.mid(0,message.length()-2));
+
+        _connection->_handleRxData(message.mid(0,message.length()-2));
     }
 }
 
 void ConnectionSerial::on_stateChangeOccurred(QSerialPort::SerialPortError error)
 {
+    QString errorMessage;
     switch(error){
-        case QSerialPort::NoError: emit newMessage("No error occurred."); break;
-        case QSerialPort::DeviceNotFoundError: emit newMessage("An error occurred while attempting to open an non-existing device."); break;
-        case QSerialPort::PermissionError: emit newMessage("An error occurred while attempting to open an already opened device by another process or a user not having enough permission and credentials to open."); break;
-        case QSerialPort::OpenError: emit newMessage("An error occurred while attempting to open an already opened device in this object."); break;
-        case QSerialPort::NotOpenError: emit newMessage("This error occurs when an operation is executed that can only be successfully performed if the device is open. "); break;
-        case QSerialPort::WriteError: emit newMessage("An I/O error occurred while writing the data."); break;
-        case QSerialPort::ReadError: emit newMessage("An I/O error occurred while reading the data."); break;
-        case QSerialPort::ResourceError: emit newMessage("The requested device operation is not supported or prohibited by the running operating system."); break;
-        case QSerialPort::UnsupportedOperationError: emit newMessage(""); break;
-        case QSerialPort::TimeoutError: emit newMessage("A timeout error occurred. "); break;
-        case QSerialPort::UnknownError: emit newMessage("An unidentified error occurred."); break;
+        case QSerialPort::NoError: errorMessage = "No error occurred."; break;
+        case QSerialPort::DeviceNotFoundError: errorMessage = "An error occurred while attempting to open an non-existing device."; break;
+        case QSerialPort::PermissionError: errorMessage = "An error occurred while attempting to open an already opened device by another process or a user not having enough permission and credentials to open."; break;
+        case QSerialPort::OpenError: errorMessage = "An error occurred while attempting to open an already opened device in this object."; break;
+        case QSerialPort::NotOpenError: errorMessage = "This error occurs when an operation is executed that can only be successfully performed if the device is open. "; break;
+        case QSerialPort::WriteError: errorMessage = "An I/O error occurred while writing the data."; break;
+        case QSerialPort::ReadError: errorMessage = "An I/O error occurred while reading the data."; break;
+        case QSerialPort::ResourceError: errorMessage = "The requested device operation is not supported or prohibited by the running operating system."; break;
+        case QSerialPort::UnsupportedOperationError: errorMessage = ""; break;
+        case QSerialPort::TimeoutError: errorMessage = "A timeout error occurred."; break;
+        case QSerialPort::UnknownError: errorMessage = "An unidentified error occurred."; break;
     }
+
+    emit _connection->newMessage(errorMessage);
 
     if(error!=QSerialPort::NoError){
         if(_serialPort.isOpen()){
@@ -121,6 +129,6 @@ void ConnectionSerial::on_stateChangeOccurred(QSerialPort::SerialPortError error
         _isConnected = true;
     }
 
-    emit connectionStateChanged();
+    emit _connection->connectionStateChanged();
 }
 

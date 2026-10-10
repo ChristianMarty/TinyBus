@@ -7,28 +7,63 @@
 #include "busPassThrough.h"
 
 class QTimer;
+class ConnectionThread;
 
-class ConnectionHandler : public QThread
+class ConnectionHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit ConnectionHandler(QObject *parent = nullptr);
-    ~ConnectionHandler(void);
 
-    void open(QString url);
-    void close(void);
+    struct ThreadState{
+        bool busConnected = false;
+        bool passThroughOpen = false;
+        int numberOfClientsPassThrough = 0;
+        uint16_t suggestedTimeOut = 0;
+    };
+
+    explicit ConnectionHandler(ConnectionThread *connectionThread);
+
+signals:
+    void stateChange(ConnectionHandler::ThreadState state);
+
+public slots:
+    void openPort(QString url);
+    void closePort(void);
+
+    void openPassThrough(uint32_t port);
+    void closePassThrough(void);
+
+    void on_connectionStateChanged(void);
+    void on_passThroughStateChanged(void);
+
+private:
+    Connection _connection;
+    BusPassThrough _busPassThrough{_connection};
+
+    void _stateChange(void);
+};
+
+
+class ConnectionThread : public QThread
+{
+    Q_OBJECT
+public:
+    explicit ConnectionThread(QObject *parent = nullptr);
+    ~ConnectionThread(void);
+
+
     bool connected(void);
 
     void sendData(const TinyBus::Packet &packet);
     uint16_t suggestedTimeOut(void) const;
 
-    void openPassThrough(uint32_t port);
-    void closePassThrough(void);
-
     bool isOpenPassThrough(void) const;
     int numberOfClientsPassThrough(void);
 
     bool running(void) const;
+
+    friend BusPassThrough;
+    friend Connection;
 
 protected:
     void run() override;
@@ -38,40 +73,44 @@ signals:
 
     void newDataTransmitted(TinyBus::Packet data);
     void newDataReceived(TinyBus::Packet data);
+
     void newMessage(QString message);
-    void connectionStateChanged(void);
 
     void txIndicator(bool state);
     void rxIndicator(bool state);
     void txOverrun(bool state);
 
-    void passThroughStateChanged(void);
+    void stateChanged(void);
 
     void sendPacket(TinyBus::Packet packet);
 
-private slots:
+    void openBus(QString url);
+    void closeBus(void);
+
+    void openPassThrough(uint32_t port);
+    void closePassThrough(void);
+
+
+public slots:
+    void on_stateChange(ConnectionHandler::ThreadState state);
     void on_newDataTransmitted(TinyBus::Packet data);
     void on_newDataReceived(TinyBus::Packet data);
     void on_newMessage(QString message);
     void on_txOverrun(void);
-    void on_connectionStateChanged(void);
-    void on_busPassThrough_newData(TinyBus::Packet data);
 
+private slots:
     void on_txIndicatorTimer(void);
     void on_rxIndicatorTimer(void);
     void on_txOverrunTimer(void);
 
-    void on_passThroughStateChanged(void);
-
 private:
-    Connection *_connection = nullptr;
     QString _url;
 
-    BusPassThrough *_busPassThrough = nullptr;
+    ConnectionHandler::ThreadState _threadState;
 
-    QTimer *_txIndicatorTimer = nullptr;
-    QTimer *_rxIndicatorTimer = nullptr;
-    QTimer *_txOverrunTimer = nullptr;
+    QTimer _txIndicatorTimer;
+    QTimer _rxIndicatorTimer;
+    QTimer _txOverrunTimer;
 };
 
 #endif // CONNECTION_THREAD_H

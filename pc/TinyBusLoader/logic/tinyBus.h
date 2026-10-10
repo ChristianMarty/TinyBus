@@ -14,7 +14,7 @@ class TinyBusInterface : public QObject
 {
     Q_OBJECT
 public:
-    explicit TinyBusInterface(ConnectionHandler &connection, QObject *parent = nullptr);
+    explicit TinyBusInterface(ConnectionThread &connection, QObject *parent = nullptr);
 
     void write(const TinyBus::Packet &data);
 
@@ -53,7 +53,7 @@ private slots:
     void on_busScanTimer(void);
 
 private:
-    ConnectionHandler &_connection;
+    ConnectionThread &_connection;
     QTimer _busScanTimer;
     TinyBus::Address _busScanDevcieAddress;
     QuCLib::HexFileParser _hexFile;
