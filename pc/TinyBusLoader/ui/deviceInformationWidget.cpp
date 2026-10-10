@@ -105,6 +105,8 @@ void DeviceInformationWidget::clear()
 
 void DeviceInformationWidget::closeEvent(QCloseEvent *event)
 {
+    Q_UNUSED(event);
+
     _memoryWidget.close();
     _eepromMemoryWidget.close();
 }

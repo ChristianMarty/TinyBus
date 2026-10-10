@@ -25,6 +25,8 @@ public:
 
     void clear(void);
 
+    bool rowLimitReached(void) const;
+
 private slots:
     void on_dataTransmitted(TinyBus::Packet data);
     void on_dataReceived(TinyBus::Packet data);
@@ -38,6 +40,7 @@ private:
     };
 
     QList<Line> _data;
+    uint32_t _rowLimit = 1000;
 };
 
 #endif // BUSMONITORMODEL_H

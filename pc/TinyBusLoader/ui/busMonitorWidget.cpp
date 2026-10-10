@@ -38,5 +38,9 @@ void BusMonitorWidget::on_rowsInserted(const QModelIndex &parent, int first, int
         ui->tableView->scrollToBottom();
     }
 
-    ui->label_items->setText(QString("%1 items").arg(_model.rowCount()));
+    QString text = QString("%1 items").arg(_model.rowCount());
+    if(_model.rowLimitReached()){
+        text += " (Row Limit Reached)";
+    }
+    ui->label_items->setText(text);
 }

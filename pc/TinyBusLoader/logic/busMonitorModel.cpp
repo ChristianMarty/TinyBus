@@ -83,6 +83,11 @@ void BusMonitorModel::clear()
     endRemoveRows();
 }
 
+bool BusMonitorModel::rowLimitReached() const
+{
+    return _data.count() == _rowLimit;
+}
+
 void BusMonitorModel::on_dataTransmitted(TinyBus::Packet data)
 {
     int first = _data.count();
@@ -95,6 +100,12 @@ void BusMonitorModel::on_dataTransmitted(TinyBus::Packet data)
     beginInsertRows(QModelIndex(), first, last);
     _data.append(line);
     endInsertRows();
+
+    if(_data.count() >= _rowLimit){
+        beginRemoveRows(QModelIndex(), 0, 0);
+        _data.removeFirst();
+        endRemoveRows();
+    }
 }
 
 void BusMonitorModel::on_dataReceived(TinyBus::Packet data)
