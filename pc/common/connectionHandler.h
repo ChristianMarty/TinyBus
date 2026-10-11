@@ -51,16 +51,9 @@ public:
     explicit ConnectionThread(QObject *parent = nullptr);
     ~ConnectionThread(void);
 
-
-    bool connected(void);
+    ConnectionHandler::ThreadState threadState(void) const;
 
     void sendData(const TinyBus::Packet &packet);
-    uint16_t suggestedTimeOut(void) const;
-
-    bool isOpenPassThrough(void) const;
-    int numberOfClientsPassThrough(void);
-
-    bool running(void) const;
 
     friend BusPassThrough;
     friend Connection;

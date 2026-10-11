@@ -26,9 +26,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->label_tx->setPalette(ColorPalette::status());
     ui->label_txOverrun->setPalette(ColorPalette::error());
 
-    _updateConnectionState();
-    _updatePassthroughState();
     _update();
+    _updateUi();
 }
 
 MainWindow::~MainWindow()
@@ -41,7 +40,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     _connectionThread.closeBus();
     _connectionThread.quit();
 
-    while(_connectionThread.running()); // todo: fix
+    while(_connectionThread.isRunning()); // todo: fix
 
     ui->widget_device->close();
     _flashMemoryWidget.close();
@@ -133,7 +132,7 @@ void MainWindow::on_message(QString message)
 void MainWindow::on_pushButton_connect_clicked()
 {
     _connectionThread.openBus(ui->lineEdit_url->text());
-    _updateConnectionState();
+    _updateUi();
 }
 
 void MainWindow::on_pushButton_disconnect_clicked()
@@ -141,7 +140,7 @@ void MainWindow::on_pushButton_disconnect_clicked()
     _tinyBus.abortScan();
     _connectionThread.closeBus();
 
-    _updateConnectionState();
+    _updateUi();
 }
 
 void MainWindow::on_lineEdit_url_returnPressed()
@@ -171,9 +170,11 @@ void MainWindow::_update()
     ui->pushButton_abortScan->setEnabled(_tinyBus.activeScan());
 }
 
-void MainWindow::_updateConnectionState()
+void MainWindow::_updateUi()
 {
-    if(_connectionThread.connected()){
+    ConnectionHandler::ThreadState state = _connectionThread.threadState();
+
+    if(state.busConnected){
         ui->label_connected->setText("Connected");
         ui->label_connected->setPalette(ColorPalette::ok());
 
@@ -194,15 +195,12 @@ void MainWindow::_updateConnectionState()
         ui->pushButton_startScan->setEnabled(false);
         ui->pushButton_abortScan->setEnabled(false);
     }
-}
 
-void MainWindow::_updatePassthroughState()
-{
-    if(_connectionThread.isOpenPassThrough()){
+    if(state.passThroughOpen){
         ui->pushButton_passthroughOpen->setEnabled(false);
         ui->pushButton_passthroughClose->setEnabled(true);
         ui->spinBox_passthroughPort->setEnabled(false);
-        ui->label_passthroughState->setText(QString::number(_connectionThread.numberOfClientsPassThrough())+" clients connected");
+        ui->label_passthroughState->setText(QString::number(state.numberOfClientsPassThrough)+" clients connected");
     }else{
         ui->pushButton_passthroughOpen->setEnabled(true);
         ui->pushButton_passthroughClose->setEnabled(false);
@@ -218,9 +216,11 @@ void MainWindow::on_pushButton_clear_clicked()
 
 void MainWindow::on_pushButton_startScan_clicked()
 {
+    ConnectionHandler::ThreadState state = _connectionThread.threadState();
+
     ui->listWidget_devices->clear();
     selectDevice(nullptr);
-    _tinyBus.startScan(_connectionThread.suggestedTimeOut());
+    _tinyBus.startScan(state.suggestedTimeOut);
 
     ui->pushButton_startScan->setEnabled(!_tinyBus.activeScan());
     ui->pushButton_abortScan->setEnabled(_tinyBus.activeScan());
@@ -264,20 +264,17 @@ void MainWindow::on_pushButton_reload_clicked()
 
 void MainWindow::on_connectionStateChanged()
 {
-    _updateConnectionState();
-    _updatePassthroughState();
+    _updateUi();
 }
 
 void MainWindow::on_pushButton_passthroughOpen_clicked()
 {
     _connectionThread.openPassThrough(ui->spinBox_passthroughPort->value());
-    //_busPassThrough.open(ui->spinBox_passthroughPort->value());
 }
 
 void MainWindow::on_pushButton_passthroughClose_clicked()
 {
     _connectionThread.closePassThrough();
-    //_busPassThrough.close();
 }
 
 void MainWindow::on_pushButton_view_clicked()
@@ -306,4 +303,3 @@ void MainWindow::on_pushButton_busMonitor_clicked()
     _busMonitorWidget.show();
     _busMonitorWidget.raise();
 }
-

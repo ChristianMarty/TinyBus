@@ -42,7 +42,7 @@ bool ConnectionTcp::connected() const
 bool ConnectionTcp::sendData(const QByteArray &data)
 {
     if(!_tcpClient.isOpen()){
-        emit _connection->newMessage("not open");
+        emit _connection->newMessage("TCP connection not open");
         return false;
     }
 

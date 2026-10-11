@@ -89,9 +89,9 @@ ConnectionThread::~ConnectionThread()
     quit();
 }
 
-bool ConnectionThread::connected()
+ConnectionHandler::ThreadState ConnectionThread::threadState() const
 {
-    return _threadState.busConnected;
+    return _threadState;
 }
 
 void ConnectionThread::sendData(const TinyBus::Packet &packet)
@@ -100,26 +100,6 @@ void ConnectionThread::sendData(const TinyBus::Packet &packet)
 
     qDebug() << "ConnectionHandler::sendData:" << QThread::currentThreadId();
     emit sendPacket(packet);
-}
-
-uint16_t ConnectionThread::suggestedTimeOut() const
-{
-    return _threadState.suggestedTimeOut;
-}
-
-bool ConnectionThread::isOpenPassThrough() const
-{
-    return _threadState.passThroughOpen;
-}
-
-int ConnectionThread::numberOfClientsPassThrough()
-{
-    return _threadState.numberOfClientsPassThrough;
-}
-
-bool ConnectionThread::running() const
-{
-    return isRunning();
 }
 
 void ConnectionThread::run()

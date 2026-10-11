@@ -71,7 +71,6 @@ private:
     BusMonitorWidget _busMonitorWidget{_busMonitorModel};
 
     void _update(void);
-    void _updateConnectionState(void);
-    void _updatePassthroughState(void);
+    void _updateUi(void);
 };
 #endif // MAINWINDOW_H
