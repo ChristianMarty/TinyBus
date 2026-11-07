@@ -11,6 +11,7 @@ ConnectionHandler::ConnectionHandler(ConnectionThread *connectionThread)
     connect(&_connection, &Connection::newDataReceived, connectionThread, &ConnectionThread::on_newDataReceived, Qt::QueuedConnection);
     connect(&_connection, &Connection::newMessage, connectionThread, &ConnectionThread::on_newMessage, Qt::QueuedConnection);
     connect(&_connection, &Connection::txOverrun, connectionThread, &ConnectionThread::on_txOverrun, Qt::QueuedConnection);
+    connect(&_connection, &Connection::loopbackError, connectionThread, &ConnectionThread::on_loopbackError, Qt::QueuedConnection);
 
     connect(&_connection, &Connection::connectionStateChanged, this, &ConnectionHandler::on_connectionStateChanged);
     connect(&_busPassThrough, &BusPassThrough::stateChanged, this, &ConnectionHandler::on_passThroughStateChanged);
@@ -73,6 +74,7 @@ ConnectionThread::ConnectionThread(QObject *parent)
     connect(&_txIndicatorTimer, &QTimer::timeout, this, &ConnectionThread::on_txIndicatorTimer);
     connect(&_rxIndicatorTimer, &QTimer::timeout, this, &ConnectionThread::on_rxIndicatorTimer);
     connect(&_txOverrunTimer, &QTimer::timeout, this, &ConnectionThread::on_txOverrunTimer);
+    connect(&_loopbackErrorTimer, &QTimer::timeout, this, &ConnectionThread::on_loopbackErrorTimer);
 
     _txIndicatorTimer.setSingleShot(true);
     _txIndicatorTimer.setInterval(100);
@@ -82,6 +84,9 @@ ConnectionThread::ConnectionThread(QObject *parent)
 
     _txOverrunTimer.setSingleShot(true);
     _txOverrunTimer.setInterval(100);
+
+    _loopbackErrorTimer.setSingleShot(true);
+    _loopbackErrorTimer.setInterval(100);
 
     start(QThread::Priority::HighPriority);
 }
@@ -99,8 +104,6 @@ ConnectionHandler::ThreadState ConnectionThread::threadState() const
 void ConnectionThread::sendData(const TinyBus::Packet &packet)
 {
     if(!_threadState.busConnected) return;
-
-    qDebug() << "ConnectionHandler::sendData:" << QThread::currentThreadId();
     emit sendPacket(packet);
 }
 
@@ -157,6 +160,14 @@ void ConnectionThread::on_txOverrun()
     _txOverrunTimer.start();
 }
 
+void ConnectionThread::on_loopbackError()
+{
+    if(!_loopbackErrorTimer.isActive()){
+        emit loopbackError(true);
+    }
+    _loopbackErrorTimer.start();
+}
+
 void ConnectionThread::on_txIndicatorTimer()
 {
     emit txIndicator(false);
@@ -172,10 +183,13 @@ void ConnectionThread::on_txOverrunTimer()
     emit txOverrun(false);
 }
 
+void ConnectionThread::on_loopbackErrorTimer()
+{
+    emit loopbackError(false);
+}
+
 void ConnectionThread::on_stateChange(ConnectionHandler::ThreadState state)
 {
-    qDebug() << "on_connectionStateChanged:" << QThread::currentThreadId();
-
     _threadState = state;
     emit stateChanged();
 }

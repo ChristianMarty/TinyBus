@@ -22,6 +22,7 @@ void Connection::open(QString url)
     else return;
 
     _connection->open(url);
+    _pendingLoopback.clear();
 }
 
 void Connection::close()
@@ -74,7 +75,7 @@ void Connection::_handleRxData(const QByteArray &data)
 {
     if(!_pendingLoopback.isEmpty()){
         if(data != _pendingLoopback.takeFirst()){
-            emit newMessage("Loopback error");
+            emit loopbackError();
         }
         return;
     }
@@ -86,7 +87,6 @@ void Connection::_handleRxData(const QByteArray &data)
     }
 
     emit newDataReceived(packet);
-
 }
 
 Connection::Type Connection::typeFromUrl(QString url)

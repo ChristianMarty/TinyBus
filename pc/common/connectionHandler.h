@@ -72,6 +72,7 @@ signals:
     void txIndicator(bool state);
     void rxIndicator(bool state);
     void txOverrun(bool state);
+    void loopbackError(bool state);
 
     void stateChanged(void);
 
@@ -90,11 +91,13 @@ public slots:
     void on_newDataReceived(TinyBus::Packet data);
     void on_newMessage(QString message);
     void on_txOverrun(void);
+    void on_loopbackError(void);
 
 private slots:
     void on_txIndicatorTimer(void);
     void on_rxIndicatorTimer(void);
     void on_txOverrunTimer(void);
+    void on_loopbackErrorTimer(void);
 
 private:
     QString _url;
@@ -104,6 +107,7 @@ private:
     QTimer _txIndicatorTimer;
     QTimer _rxIndicatorTimer;
     QTimer _txOverrunTimer;
+    QTimer _loopbackErrorTimer;
 };
 
 #endif // CONNECTION_THREAD_H

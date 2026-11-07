@@ -40,6 +40,7 @@ signals:
     void connectionStateChanged(void);
 
     void txOverrun(void);
+    void loopbackError(void);
 
 public slots:
     void sendPacket(TinyBus::Packet packet);

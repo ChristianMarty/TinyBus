@@ -20,11 +20,13 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&_connectionThread, &ConnectionThread::rxIndicator, this, &MainWindow::on_rxIndicator);
     connect(&_connectionThread, &ConnectionThread::txIndicator, this, &MainWindow::on_txIndicator);
     connect(&_connectionThread, &ConnectionThread::txOverrun, this, &MainWindow::on_txOverrun);
+    connect(&_connectionThread, &ConnectionThread::loopbackError, this, &MainWindow::on_loopbackError);
     connect(&_connectionThread, &ConnectionThread::stateChanged, this, &MainWindow::on_connectionStateChanged);
 
     ui->label_rx->setPalette(ColorPalette::status());
     ui->label_tx->setPalette(ColorPalette::status());
     ui->label_txOverrun->setPalette(ColorPalette::error());
+    ui->label_loopbackError->setPalette(ColorPalette::error());
 
     _update();
     _updateUi();
@@ -296,6 +298,11 @@ void MainWindow::on_rxIndicator(bool state)
 void MainWindow::on_txOverrun(bool state)
 {
     ui->label_txOverrun->setEnabled(state);
+}
+
+void MainWindow::on_loopbackError(bool state)
+{
+    ui->label_loopbackError->setEnabled(state);
 }
 
 void MainWindow::on_pushButton_busMonitor_clicked()

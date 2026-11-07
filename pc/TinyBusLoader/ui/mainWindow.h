@@ -50,6 +50,7 @@ private slots:
     void on_txIndicator(bool state);
     void on_rxIndicator(bool state);
     void on_txOverrun(bool state);
+    void on_loopbackError(bool state);
 
     void on_pushButton_passthroughOpen_clicked();
     void on_pushButton_passthroughClose_clicked();
