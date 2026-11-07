@@ -21,23 +21,22 @@ QList<TestItemBase *> Test::tests() const
     return _tests;
 }
 
-void Test::dataReceived(const QByteArray &data)
+void Test::dataReceived(const TinyBus::Packet &packet)
 {
     if(!_running) return;
 
-    TinyBus::InstructionByte instructionByte = TinyBus::Decode::extractInstructionByte(data);
-    TinyBus::KernelCommand kernelCommand = TinyBus::Decode::extractKernelCommand(data);
-    if(TinyBus::Decode::extractAddress(instructionByte) != 0 || TinyBus::Decode::extractCommand(instructionByte) != 15){
+    if(packet.address != 0 || packet.command != 15){
         runNext();
         return;
     }
 
-    _tests.at(_index-1)->dataReceived(kernelCommand, data.mid(2));
+    TinyBus::KernelCommand kernelCommand = TinyBus::Decode::extractKernelCommand(packet);
+    _tests.at(_index-1)->dataReceived(kernelCommand, packet.message.mid(1,-1));
 }
 
-void Test::dataSend(const QByteArray &data)
+void Test::dataSend(const TinyBus::Packet &packet)
 {
-    _connection.sendData(data);
+    _connection.sendData(packet);
 }
 
 void Test::run()

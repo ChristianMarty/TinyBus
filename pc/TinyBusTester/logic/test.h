@@ -14,8 +14,8 @@ public:
 
     QList<TestItemBase *> tests() const;
 
-    void dataReceived(const QByteArray &data);
-    void dataSend(const QByteArray &data);
+    void dataReceived(const TinyBus::Packet &packet);
+    void dataSend(const TinyBus::Packet &packet);
 
     void run(void);
     void abort(void);

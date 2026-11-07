@@ -5,9 +5,9 @@
 #include <QMap>
 
 #include "connection/connection.h"
-#include "logic/test.h"
-#include "connection/connection.h"
+
 #include "logic/referenceData.h"
+#include "logic/test.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -24,7 +24,6 @@ public:
 
 private slots:
     void on_message(QString message);
-    void on_data(QByteArray message);
 
     void on_testChanged(void);
 
@@ -39,12 +38,12 @@ private slots:
     void on_pushButton_start_clicked();
     void on_pushButton_abort_clicked();
 
-    void on_txIndicator(bool state);
-    void on_rxIndicator(bool state);
+    void on_newDataTransmitted(TinyBus::Packet data);
+    void on_newDataReceived(TinyBus::Packet data);
 
 private:
     Ui::MainWindow *ui;
-    Connection _connection{this};
+    Connection _connection;
     Test _test{_connection, avr16eb32, this};
 
     void _updateTestList(void);

@@ -15,10 +15,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->label_rx->setPalette(ColorPalette::status());
     ui->label_tx->setPalette(ColorPalette::status());
 
-    connect(&_connection, &Connection::rxIndicator, this, &MainWindow::on_rxIndicator);
-    connect(&_connection, &Connection::txIndicator, this, &MainWindow::on_txIndicator);
+    connect(&_connection, &Connection::newDataTransmitted, this, &MainWindow::on_newDataTransmitted);
+    connect(&_connection, &Connection::newDataReceived, this, &MainWindow::on_newDataReceived);
     connect(&_connection, &Connection::connectionStateChanged, this, &MainWindow::on_connectionStateChanged);
-    connect(&_connection, &Connection::newData, this, &MainWindow::on_data);
 
     _updateConnectionState();
     _updateTestList();
@@ -33,11 +32,6 @@ MainWindow::~MainWindow()
 void MainWindow::on_message(QString message)
 {
     ui->textEdit_output->append(message);
-}
-
-void MainWindow::on_data(QByteArray message)
-{
-    _test.dataReceived(message);
 }
 
 void MainWindow::on_testChanged()
@@ -123,18 +117,19 @@ void MainWindow::on_pushButton_abort_clicked()
     _updateTestState();
 }
 
+void MainWindow::on_newDataTransmitted(TinyBus::Packet data)
+{
+
+}
+
+void MainWindow::on_newDataReceived(TinyBus::Packet data)
+{
+    _test.dataReceived(data);
+}
+
 void MainWindow::on_pushButton_start_clicked()
 {
     _test.run();
     _updateTestState();
 }
 
-void MainWindow::on_txIndicator(bool state)
-{
-    ui->label_tx->setEnabled(state);
-}
-
-void MainWindow::on_rxIndicator(bool state)
-{
-    ui->label_rx->setEnabled(state);
-}

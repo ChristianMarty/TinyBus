@@ -5,7 +5,7 @@
 ReadState::ReadState(Test *test)
     : TestItemBase{test}
 {
-    _title = "Read Application Name";
+    _title = "Read Device State";
 }
 
 void ReadState::run()
