@@ -34,6 +34,8 @@ public slots:
     void open(uint32_t port);
     void close(void);
 
+    void transmitt(TinyBus::Packet data);
+
 private slots:
     void on_pendingConnectionAvailable(void);
 
@@ -53,7 +55,7 @@ public:
     explicit TcpConnection(QTcpSocket *socket, BusPassThrough *busPassThrough);
     ~TcpConnection(void);
 
-    void write(QByteArray data);
+    void write(const QByteArray &data);
 
 private slots:
     void on_readyRead(void);

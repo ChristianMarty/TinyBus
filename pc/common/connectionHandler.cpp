@@ -17,6 +17,8 @@ ConnectionHandler::ConnectionHandler(ConnectionThread *connectionThread)
     connect(&_busPassThrough, &BusPassThrough::newPacket, &_connection, &Connection::sendPacket);
 
     connect(connectionThread, &ConnectionThread::sendPacket, &_connection, &Connection::sendPacket, Qt::QueuedConnection);
+
+    connect(&_connection, &Connection::newDataReceived, &_busPassThrough, &BusPassThrough::transmitt);
 }
 
 void ConnectionHandler::openPort(QString url)

@@ -48,6 +48,11 @@ void BusPassThrough::close()
     emit stateChanged();
 }
 
+void BusPassThrough::transmitt(TinyBus::Packet data)
+{
+    sendPacket(data);
+}
+
 bool BusPassThrough::isOpen() const
 {
     if(_tcpServer == nullptr){
@@ -64,8 +69,10 @@ int BusPassThrough::numberOfClients()
 
 void BusPassThrough::sendPacket(const TinyBus::Packet &data)
 {
+    QByteArray encoded = QuCLib::Cobs::encode(TinyBus::Encode::frame(data), 0);
+    encoded.prepend((uint8_t)0);
     for(TcpConnection *connection: std::as_const(_tcpConnections)){
-        connection->write(TinyBus::Encode::frame(data));
+        connection->write(encoded);
     }
 }
 
@@ -113,9 +120,9 @@ TcpConnection::~TcpConnection()
     disconnect(_socket, &QTcpSocket::readyRead, this, &TcpConnection::on_readyRead);
 }
 
-void TcpConnection::write(QByteArray data)
+void TcpConnection::write(const QByteArray &data)
 {
-    _socket->write(_cobs.encode(data));
+    _socket->write(data);
 }
 
 void TcpConnection::on_readyRead()
