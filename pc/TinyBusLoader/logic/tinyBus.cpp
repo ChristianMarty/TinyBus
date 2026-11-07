@@ -53,6 +53,12 @@ void TinyBusInterface::_updateNextDevice()
 
 void TinyBusInterface::on_newData(TinyBus::Packet packet)
 {
+    if(packet.command != (TinyBus::Command)TinyBus::DeviceCommand::KernelCommand){
+        return;
+    }
+    if(packet.message.isEmpty()){
+        return;
+    }
     if(!(packet.message.at(0)&0x80)){
         return; // ignore non-responces e.g. interface loopback
     }
