@@ -336,9 +336,7 @@ void DeviceInformationWidget::on_pushButton_readHardwareInformation_clicked()
 void DeviceInformationWidget::on_pushButton_setBaudRate_clicked()
 {
     if(_device == nullptr) return;
-    TinyBus::BaudRate baudRate;
-    baudRate = (TinyBus::BaudRate)ui->comboBox_baudRate->currentIndex();
-    _device->setBaudRate(baudRate);
+    _device->setBaudRate(_selectedBaudRate());
 }
 
 void DeviceInformationWidget::on_pushButton_saveBaudRate_clicked()
