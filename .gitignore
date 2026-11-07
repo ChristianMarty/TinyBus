@@ -36,3 +36,13 @@ pc/TinyBusLoader/build
 pc/build
 kernel/_release
 kernel/updater_avr16eb32/Debug
+kernel/attiny841_par-16/Release
+kernel/updater_avr16eb32/Release
+kernel/attiny816/Release
+kernel/attiny841/Release
+kernel/attiny841_4-channelDimmer/Release
+kernel/attiny841_ringLightDriver/Release
+kernel/attiny841_teelicht/Release
+kernel/avr16eb32/Release
+kernel/avr16eb32_notAus/Release
+kernel/updater_attiny841/Release

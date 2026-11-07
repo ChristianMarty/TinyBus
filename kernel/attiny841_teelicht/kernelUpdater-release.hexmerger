@@ -2,7 +2,7 @@
 <hex-merger version="1.0">
 	<input>
 		<name>Updater</name>
-		<path>../updater_attiny841/Debug/kernelUpdater.hex</path>
+		<path>../updater_attiny841/Release/kernelUpdater.hex</path>
 		<range>
 			<minimum>0x0C00</minimum>
 			<maximum>0x0D7F</maximum>
@@ -10,7 +10,7 @@
 	</input>
 	<input>
 		<name>New Kernel</name>
-		<path>Debug/tinyloader.hex</path>
+		<path>Release/tinyloader.hex</path>
 		<range>
 			<minimum>0x0000</minimum>
 			<maximum>0x0BFF</maximum>
@@ -18,6 +18,6 @@
 		<offset>0x0D80</offset>
 	</input>
 	<output>
-		<path>Debug/ringLightDriver_kernelUpdate.hex</path>
+		<path>Release/teelicht_kernelUpdate.hex</path>
 	</output>
 </hex-merger>

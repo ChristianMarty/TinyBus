@@ -129,7 +129,12 @@ void com_receiveData(uint8_t instructionByte, const uint8_t *data, uint8_t size)
 				acknowledgmentData[5] = bootloader_readEeprom(&eeSettings.hardwareVersionMajor);
 				acknowledgmentData[6] = bootloader_readEeprom(&eeSettings.hardwareVersionMinor);
 				
+			#ifdef DEBUG
+				acknowledgmentData[7] = KERNEL_VERSION_MAJOR|0x80;
+			#else
 				acknowledgmentData[7] = KERNEL_VERSION_MAJOR;
+			#endif
+			
 				acknowledgmentData[8] = KERNEL_VERSION_MINOR;
 				
 				acknowledgmentSize += 8;
